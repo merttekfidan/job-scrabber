@@ -38,3 +38,4 @@ extension/*.crx
 server/*.php
 server/.htaccess
 server/robots.txt
+extension/

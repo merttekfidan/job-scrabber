@@ -40,11 +40,11 @@ app.use('/api', dashboardRoutes);
 const path = require('path');
 
 // Serve static files from dashboard
-app.use(express.static(path.join(__dirname, '../dashboard')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Root endpoint - Serve Dashboard
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../dashboard/index.html'));
+    res.sendFile(path.join(__dirname, 'public/index.html'));
 });
 
 // API Documentation endpoint
