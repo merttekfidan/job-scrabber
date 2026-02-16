@@ -33,11 +33,12 @@ AI-powered Chrome extension for tracking job applications with automated intervi
 To sync your applications to the backend API:
 
 1. Deploy the server (see `../README.md`)
-2. Get your Railway API URL (e.g., `https://your-app.up.railway.app`)
-3. In extension settings, set **Remote Storage URL** to:
+2. Get your deployed URL (e.g., `https://your-app.up.railway.app`)
+3. In extension settings, set **API Endpoint URL** to:
    ```
    https://your-app.up.railway.app/api/save
    ```
+   (Or `http://localhost:3000/api/save` for local development)
 
 ## 📖 Usage
 

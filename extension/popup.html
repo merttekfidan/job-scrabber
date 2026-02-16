@@ -58,15 +58,13 @@
           <a href="https://console.groq.com/keys" target="_blank">Get API Key →</a>
         </div>
 
-        <!-- Remote Storage URL (Google Sheets or PHP) -->
+        <!-- API Endpoint URL -->
         <div class="setting-group">
-          <label for="sheetsUrl">Remote Storage URL:</label>
-          <input type="text" id="sheetsUrl"
-            placeholder="https://script.google.com/... or https://merttekfidan.com/job/api.php?action=save">
+          <label for="sheetsUrl">API Endpoint URL:</label>
+          <input type="text" id="sheetsUrl" placeholder="http://localhost:3000/api/save">
         </div>
         <div class="setting-info">
-          <a href="https://script.google.com/" target="_blank">Google Sheets Setup</a> |
-          <a href="server/README.md" target="_blank">PHP MySQL Setup</a>
+          <small>Enter the full URL to the /api/save endpoint</small>
         </div>
 
         <button id="saveApiKey" class="save-btn">Save Settings</button>
