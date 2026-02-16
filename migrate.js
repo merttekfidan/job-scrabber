@@ -4,6 +4,14 @@ const { pool } = require('./db');
 
 async function migrate() {
     console.log('🚀 Starting database migration...');
+    console.log(`ℹ️  Environment: ${process.env.NODE_ENV || 'development'}`);
+
+    if (!process.env.DATABASE_URL && process.env.NODE_ENV === 'production') {
+        console.error('❌ FATAL: DATABASE_URL is missing in production environment!');
+        console.error('   Please ensure you have added a PostgreSQL database to your Railway project.');
+        process.exit(1);
+    }
+
     console.log('🛡️  Safety Check: Running in non-destructive mode (IF NOT EXISTS). Your data is safe.\n');
 
     try {

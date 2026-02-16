@@ -2,6 +2,12 @@ const { Pool } = require('pg');
 require('dotenv').config();
 
 // Create PostgreSQL connection pool
+if (!process.env.DATABASE_URL) {
+    console.warn('⚠️  WARNING: DATABASE_URL is not defined. Defaulting to localhost connection (this will fail in production/Railway).');
+} else {
+    console.log('✅ DATABASE_URL is defined. Connecting to provided database...');
+}
+
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: process.env.NODE_ENV === 'production' ? {
