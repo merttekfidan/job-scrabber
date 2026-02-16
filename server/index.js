@@ -37,8 +37,18 @@ app.get('/health', (req, res) => {
 app.use('/api', apiRoutes);
 app.use('/api', dashboardRoutes);
 
-// Root endpoint
+const path = require('path');
+
+// Serve static files from dashboard
+app.use(express.static(path.join(__dirname, '../dashboard')));
+
+// Root endpoint - Serve Dashboard
 app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../dashboard/index.html'));
+});
+
+// API Documentation endpoint
+app.get('/api', (req, res) => {
     res.json({
         name: 'Job Tracker API',
         version: '1.0.0',

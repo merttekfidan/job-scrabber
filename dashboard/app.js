@@ -2,7 +2,7 @@
 // Configuration & Constants
 // ===================================
 
-const API_BASE_URL = 'https://merttekfidan.com/job/dashboard-api.php';
+const API_BASE_URL = '/api';
 
 const STATUS_COLORS = {
     'Applied': 'applied',
