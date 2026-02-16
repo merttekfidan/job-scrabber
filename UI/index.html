@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Track your job applications with beautiful analytics and insights">
+    <title>Job Application Dashboard | Track Your Journey</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                        <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                    </svg>
+                    <h1>Job Tracker</h1>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" id="exportBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        Export CSV
+                    </button>
+                    <button class="btn btn-primary" id="refreshBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="23 4 23 10 17 10"></polyline>
+                            <polyline points="1 20 1 14 7 14"></polyline>
+                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                        </svg>
+                        Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Analytics Overview -->
+            <section class="analytics-section">
+                <h2 class="section-title">Your Journey Overview</h2>
+                <div class="stats-grid" id="statsGrid">
+                    <!-- Stats cards will be inserted here -->
+                </div>
+            </section>
+
+            <!-- Charts Section -->
+            <section class="charts-section">
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <h3 class="chart-title">Application Status</h3>
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3 class="chart-title">Applications Over Time</h3>
+                        <canvas id="timelineChart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3 class="chart-title">Work Mode Distribution</h3>
+                        <canvas id="workModeChart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3 class="chart-title">Top Companies</h3>
+                        <div id="topCompanies" class="top-companies-list">
+                            <!-- Company list will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Filters & Search -->
+            <section class="filters-section">
+                <div class="filters-header">
+                    <h2 class="section-title">Applications</h2>
+                    <div class="search-box">
+                        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                        <input type="text" id="searchInput" placeholder="Search jobs, companies, skills..." class="search-input">
+                    </div>
+                </div>
+                
+                <div class="filters-bar">
+                    <div class="filter-group">
+                        <label for="statusFilter">Status</label>
+                        <select id="statusFilter" class="filter-select">
+                            <option value="">All Statuses</option>
+                            <option value="Applied">Applied</option>
+                            <option value="Interview Scheduled">Interview Scheduled</option>
+                            <option value="Interview Completed">Interview Completed</option>
+                            <option value="Offer Received">Offer Received</option>
+                            <option value="Rejected">Rejected</option>
+                            <option value="Withdrawn">Withdrawn</option>
+                            <option value="Accepted">Accepted</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="workModeFilter">Work Mode</label>
+                        <select id="workModeFilter" class="filter-select">
+                            <option value="">All Modes</option>
+                            <option value="Remote">Remote</option>
+                            <option value="Hybrid">Hybrid</option>
+                            <option value="Onsite">Onsite</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="companyFilter">Company</label>
+                        <select id="companyFilter" class="filter-select">
+                            <option value="">All Companies</option>
+                            <!-- Companies will be populated dynamically -->
+                        </select>
+                    </div>
+                    
+                    <button class="btn btn-ghost" id="clearFiltersBtn">Clear Filters</button>
+                </div>
+            </section>
+
+            <!-- Applications List -->
+            <section class="applications-section">
+                <div class="applications-header">
+                    <span class="applications-count" id="applicationsCount">0 applications</span>
+                </div>
+                
+                <div class="applications-grid" id="applicationsGrid">
+                    <!-- Application cards will be inserted here -->
+                </div>
+                
+                <!-- Loading State -->
+                <div class="loading-state" id="loadingState">
+                    <div class="spinner"></div>
+                    <p>Loading your applications...</p>
+                </div>
+                
+                <!-- Empty State -->
+                <div class="empty-state" id="emptyState" style="display: none;">
+                    <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    <h3>No applications found</h3>
+                    <p>Start tracking your job applications with the Chrome extension!</p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Application Detail Modal -->
+    <div class="modal" id="applicationModal">
+        <div class="modal-overlay" id="modalOverlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Application Details</h2>
+                <button class="modal-close" id="modalClose">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Application details will be inserted here -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="deleteBtn">Delete Application</button>
+                <button class="btn btn-primary" id="closeModalBtn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-overlay" id="deleteModalOverlay"></div>
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h2 class="modal-title">Confirm Deletion</h2>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this application? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" id="cancelDeleteBtn">Cancel</button>
+                <button class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <div class="toast-content">
+            <svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <span class="toast-message" id="toastMessage"></span>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script src="app.js"></script>
+</body>
+</html>
