@@ -68,7 +68,7 @@ Return ONLY valid JSON with this exact structure (no markdown, no code blocks, j
   "jobTitle": "string",
   "company": "string",
   "location": "string",
-  "workMode": "remote|hybrid|onsite|unknown",
+  "workMode": "Remote|Hybrid|Onsite|Unknown",
   "salary": "string or null",
   "applicationDate": "${new Date().toISOString()}",
   "jobUrl": "${extractedData.url}",

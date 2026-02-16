@@ -10,6 +10,18 @@ export async function POST(request) {
             preferredSkills, companyDescription, interviewPrepNotes, metadata
         } = body;
 
+        // Normalize workMode to Title Case to match DB constraint
+        const normalizeWorkMode = (mode) => {
+            if (!mode) return 'Unknown';
+            const m = mode.toLowerCase();
+            if (m.includes('remote')) return 'Remote';
+            if (m.includes('hybrid')) return 'Hybrid';
+            if (m.includes('on') && m.includes('site')) return 'Onsite';
+            return 'Unknown';
+        };
+
+        const validWorkMode = normalizeWorkMode(workMode);
+
         if (!jobTitle || !company || !jobUrl || !applicationDate) {
             return NextResponse.json({ success: false, error: 'Missing required fields' }, { status: 400 });
         }
@@ -29,7 +41,7 @@ export async function POST(request) {
           source = $16, updated_at = NOW()
         WHERE job_url = $17 RETURNING id`,
                 [
-                    jobTitle, company, location, workMode, salary, applicationDate, companyUrl,
+                    jobTitle, company, location, validWorkMode, salary, applicationDate, companyUrl,
                     status || 'Applied',
                     JSON.stringify(keyResponsibilities || []),
                     JSON.stringify(requiredSkills || []),
