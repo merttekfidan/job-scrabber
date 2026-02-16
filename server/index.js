@@ -90,11 +90,12 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`
 ╔════════════════════════════════════════╗
 ║   Job Tracker API Server Running      ║
 ║   Port: ${PORT.toString().padEnd(31)}║
+║   Address: 0.0.0.0                    ║
 ║   Environment: ${(process.env.NODE_ENV || 'development').padEnd(23)}║
 ╚════════════════════════════════════════╝
     `);
