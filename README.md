@@ -1,6 +1,6 @@
 # Job Application Tracker
 
-A complete job tracking system with Chrome extension and web dashboard for managing your job search journey.
+A complete job tracking system with Chrome extension, Node.js backend API, and web dashboard for managing your job search journey.
 
 ![Status](https://img.shields.io/badge/Status-Production%20Ready-success?style=for-the-badge)
 ![Version](https://img.shields.io/badge/Version-1.0.0-blue?style=for-the-badge)
@@ -11,7 +11,7 @@ A complete job tracking system with Chrome extension and web dashboard for manag
 - **One-Click Tracking**: Click "Applied" on any job posting
 - **AI-Powered Extraction**: Groq LLM extracts all job details automatically
 - **Universal Support**: Works on LinkedIn, Indeed, Glassdoor, and any job board
-- **Auto-Sync**: Automatically syncs to your MySQL database
+- **Auto-Sync**: Automatically syncs to your backend API
 - **Interview Prep**: AI-generated talking points, questions, and red flags
 
 ### Web Dashboard
@@ -26,42 +26,51 @@ A complete job tracking system with Chrome extension and web dashboard for manag
 
 ```
 job-scrabber/
-├── manifest.json           # Chrome extension manifest
-├── popup.html             # Extension popup UI
-├── popup.js               # Extension popup logic
-├── background.js          # Extension background worker
-├── content.js             # Page content extractor
-├── styles.css             # Extension styles
-├── server/                # PHP Backend
-│   ├── api.php           # Main API (save applications)
-│   ├── dashboard-api.php # Dashboard API (filter, search, analytics)
-│   ├── config.php        # Database configuration
-│   ├── database.sql      # Database schema
-│   ├── .htaccess         # Security & CORS
-│   ├── robots.txt        # Hide from Google
-│   ├── README.md         # Backend setup guide
-│   ├── API_DOCS.md       # API documentation
-│   └── DEPLOYMENT.md     # Deployment checklist
-└── UI/                    # Web Dashboard
-    ├── index.html        # Dashboard HTML
-    ├── app.js            # Dashboard logic
-    ├── styles.css        # Dashboard styles
-    ├── README.md         # Dashboard guide
-    └── API_DOCS.md       # API reference
+├── extension/              # Chrome Extension
+│   ├── manifest.json      # Extension configuration
+│   ├── background.js      # Service worker (API calls)
+│   ├── content.js         # Page content extractor
+│   ├── popup.html/js      # Extension popup UI
+│   ├── styles.css         # Extension styles
+│   ├── icons/             # Extension icons
+│   └── README.md          # Extension setup guide
+├── server/                 # Backend API (Node.js + PostgreSQL)
+│   ├── index.js           # Express server
+│   ├── db.js              # Database connection
+│   ├── migrate.js         # Database migration
+│   ├── schema.sql         # Database schema
+│   ├── routes/            # API routes
+│   ├── package.json       # Server dependencies
+│   └── README.md          # Server setup guide
+├── dashboard/              # Web Dashboard (HTML/CSS/JS)
+│   ├── index.html         # Dashboard UI
+│   ├── app.js             # Dashboard logic
+│   ├── styles.css         # Dashboard styles
+│   ├── API_DOCS.md        # API documentation
+│   └── README.md          # Dashboard guide
+├── docs/                   # Documentation
+│   ├── RAILWAY_DEPLOYMENT.md
+│   ├── DEPLOYMENT_GUIDE.md
+│   ├── QUICK_START.md
+│   └── GEMINI_PROMPT.md
+├── package.json            # Root package.json (for Railway)
+├── Procfile                # Railway deployment config
+└── README.md               # This file
 ```
 
 ## 🎯 Quick Start
 
 ### 1. Setup Backend (Railway - 5 minutes)
 
-See [RAILWAY_DEPLOYMENT.md](RAILWAY_DEPLOYMENT.md) for complete guide.
+See [docs/RAILWAY_DEPLOYMENT.md](docs/RAILWAY_DEPLOYMENT.md) for complete guide.
 
 **Quick steps:**
 1. Push to GitHub
 2. Create Railway project from GitHub repo
 3. Add PostgreSQL database
-4. Run migration: `railway run npm run migrate`
-5. Get your Railway URL
+4. Set environment variables: `NODE_ENV=production`, `CORS_ORIGIN=*`
+5. Run migration: `railway run npm run migrate`
+6. Get your Railway URL
 
 **OR Local Development:**
 ```bash
@@ -79,7 +88,7 @@ npm run dev
    - Open Chrome → `chrome://extensions/`
    - Enable "Developer mode"
    - Click "Load unpacked"
-   - Select the `job-scrabber` folder
+   - Select the `extension/` folder
 
 2. **Configure**
    - Click extension icon → Settings
@@ -94,19 +103,20 @@ npm run dev
 
 ### 3. Open Dashboard (1 minute)
 
-1. **Upload Dashboard**
-   ```
-   Upload UI/ folder to: merttekfidan.com/job/dashboard/
+1. **Serve Dashboard Locally**
+   ```bash
+   cd dashboard
+   python3 -m http.server 8080
+   # Open http://localhost:8080
    ```
 
-2. **Configure API** (if needed)
-   - Edit `UI/app.js`
-   - Update `API_BASE_URL` if different location
+2. **Configure API**
+   - Edit `dashboard/app.js`
+   - Update `API_BASE_URL` to your Railway URL
 
-3. **Open**
-   ```
-   Visit: https://merttekfidan.com/job/dashboard/
-   ```
+3. **Or Deploy to Static Hosting**
+   - Vercel, Netlify, GitHub Pages, etc.
+   - See `dashboard/README.md` for deployment options
 
 ## 💡 How It Works
 

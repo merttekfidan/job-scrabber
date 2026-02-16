@@ -29,7 +29,12 @@ logs/
 dist/
 build/
 
-# PHP (old files - will be deleted)
+# Extension build artifacts
+extension/dist/
+extension/*.zip
+extension/*.crx
+
+# PHP (old files - deprecated)
 server/*.php
 server/.htaccess
 server/robots.txt

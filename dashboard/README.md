@@ -1,9 +1,3 @@
-# Job Application Dashboard UI
-
-A beautiful, modern dashboard for tracking your job application journey with powerful analytics, filtering, and search capabilities.
-
-![Dashboard Preview](https://img.shields.io/badge/Status-Ready-success?style=for-the-badge)
-![Version](https://img.shields.io/badge/Version-1.0.0-blue?style=for-the-badge)
 
 ## ✨ Features
 
