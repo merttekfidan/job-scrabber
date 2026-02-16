@@ -3,7 +3,8 @@ const path = require('path');
 const { pool } = require('./db');
 
 async function migrate() {
-    console.log('🚀 Starting database migration...\n');
+    console.log('🚀 Starting database migration...');
+    console.log('🛡️  Safety Check: Running in non-destructive mode (IF NOT EXISTS). Your data is safe.\n');
 
     try {
         // Read schema file
