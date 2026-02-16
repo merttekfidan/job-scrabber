@@ -1,22 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Track your job applications with beautiful analytics and insights">
     <title>Job Application Dashboard | Track Your Journey</title>
-    
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    
     <!-- Styles -->
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
     <!-- Header -->
     <header class="header">
@@ -24,7 +26,9 @@
             <div class="header-content">
                 <div class="logo">
                     <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                        <path
+                            d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+                        </path>
                         <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
                         <line x1="12" y1="22.08" x2="12" y2="12"></line>
                     </svg>
@@ -96,10 +100,11 @@
                             <circle cx="11" cy="11" r="8"></circle>
                             <path d="m21 21-4.35-4.35"></path>
                         </svg>
-                        <input type="text" id="searchInput" placeholder="Search jobs, companies, skills..." class="search-input">
+                        <input type="text" id="searchInput" placeholder="Search jobs, companies, skills..."
+                            class="search-input">
                     </div>
                 </div>
-                
+
                 <div class="filters-bar">
                     <div class="filter-group">
                         <label for="statusFilter">Status</label>
@@ -114,7 +119,7 @@
                             <option value="Accepted">Accepted</option>
                         </select>
                     </div>
-                    
+
                     <div class="filter-group">
                         <label for="workModeFilter">Work Mode</label>
                         <select id="workModeFilter" class="filter-select">
@@ -124,7 +129,7 @@
                             <option value="Onsite">Onsite</option>
                         </select>
                     </div>
-                    
+
                     <div class="filter-group">
                         <label for="companyFilter">Company</label>
                         <select id="companyFilter" class="filter-select">
@@ -132,7 +137,7 @@
                             <!-- Companies will be populated dynamically -->
                         </select>
                     </div>
-                    
+
                     <button class="btn btn-ghost" id="clearFiltersBtn">Clear Filters</button>
                 </div>
             </section>
@@ -142,17 +147,17 @@
                 <div class="applications-header">
                     <span class="applications-count" id="applicationsCount">0 applications</span>
                 </div>
-                
+
                 <div class="applications-grid" id="applicationsGrid">
                     <!-- Application cards will be inserted here -->
                 </div>
-                
+
                 <!-- Loading State -->
                 <div class="loading-state" id="loadingState">
                     <div class="spinner"></div>
                     <p>Loading your applications...</p>
                 </div>
-                
+
                 <!-- Empty State -->
                 <div class="empty-state" id="emptyState" style="display: none;">
                     <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -221,4 +226,5 @@
     <!-- Application Script -->
     <script src="app.js"></script>
 </body>
+
 </html>
