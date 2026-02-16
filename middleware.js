@@ -5,9 +5,10 @@ export function middleware(request) {
 
     // Get origin from request header
     const origin = request.headers.get('origin') || '*';
+    const finalOrigin = (origin === 'null' || !origin) ? '*' : origin;
 
     // Set CORS headers
-    response.headers.set('Access-Control-Allow-Origin', origin);
+    response.headers.set('Access-Control-Allow-Origin', finalOrigin);
     response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
@@ -16,7 +17,7 @@ export function middleware(request) {
         return new NextResponse(null, {
             status: 200,
             headers: {
-                'Access-Control-Allow-Origin': origin,
+                'Access-Control-Allow-Origin': finalOrigin,
                 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type, Authorization',
             },
