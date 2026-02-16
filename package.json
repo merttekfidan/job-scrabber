@@ -10,7 +10,7 @@
         "migrate": "node scripts/migrate.js"
     },
     "engines": {
-        "node": ">=18.0.0"
+        "node": ">=20.9.0"
     },
     "dependencies": {
         "chart.js": "^4.5.1",
