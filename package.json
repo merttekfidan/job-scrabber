@@ -4,9 +4,8 @@
     "description": "Job Application Tracker API - Node.js backend with PostgreSQL",
     "main": "index.js",
     "scripts": {
-        "start": "node migrate.js && node index.js",
-        "dev": "nodemon index.js",
-        "migrate": "node migrate.js"
+        "start": "node index.js",
+        "dev": "nodemon index.js"
     },
     "keywords": [
         "job",
