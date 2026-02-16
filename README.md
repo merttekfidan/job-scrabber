@@ -1,78 +1,76 @@
-# Job Application Tracker
+# Job Application Tracker (Next.js Edition)
 
-A comprehensive job application tracking system with a Chrome Extension for data capture, a Node.js API for backend processing, and a web Dashboard for visualization.
+A comprehensive job application tracking dashboard, now built with **Next.js 14+ (App Router)** and **PostgreSQL**.
 
-## 🚀 Deployment (Railway)
+## Features
 
-This project is configured for seamless deployment on [Railway](https://railway.app/).
+- **Responsive Dashboard**: Track applications, interviews, and offers in a clean, dark-mode UI.
+- **Analytics**: Visual charts for application trends, status distribution, and top companies.
+- **Filtering & Search**: Advanced filtering by status, company, work mode, and full-text search.
+- **Chrome Extension Support**: API ready to accept data from the Job Scrabber extension.
+- **Export Data**: Export your applications to CSV.
 
-1.  **Push to GitHub**: Ensure this repository is pushed to your GitHub account.
-2.  **New Project on Railway**:
-    *   Click "New Project" > "Deploy from GitHub repo".
-    *   Select this repository.
-3.  **Add Database**:
-    *   Right-click the empty canvas or click "New".
-    *   Select **PostgreSQL**.
-4.  **Connect Application**:
-    *   Railway should automatically inject `DATABASE_URL` into your application variables.
-5.  **Environment Variables**:
-    *   `PORT`: (Automatically set by Railway)
-    *   `NODE_ENV`: `production`
-    *   `CORS_ORIGIN`: `*` (or your specific extension ID)
+## Tech Stack
 
-## 📂 Project Structure
+- **Framework**: Next.js 14+ (App Router)
+- **Database**: PostgreSQL (via `pg`)
+- **Styling**: Tailwind CSS + Custom CSS (for legacy design fidelity)
+- **Icons**: Lucide React
+- **Charts**: Chart.js / React-Chartjs-2
 
-This repository is a **Server-Only** structure containing the API and the Dashboard (served as static files).
-
-```text
-/
-├── index.js            # Main Express server entry point
-├── db.js               # Database connection pool
-├── migrate.js          # Database migration script
-├── routes/             # API route definitions
-├── public/             # Dashboard frontend (HTML/CSS/JS)
-├── extension/          # Chrome Extension source (Locally only, gitignored)
-└── schema.sql          # Database schema definition
-```
-
-## 🛠️ Local Development
+## Getting Started
 
 ### Prerequisites
-- Node.js (v18+)
-- PostgreSQL
 
-### Setup
-1.  **Install Dependencies**:
-    ```bash
-    npm install
-    ```
-2.  **Database Setup**:
-    - Create a local PostgreSQL database (e.g., `job_tracker`).
-    - Create a `.env` file based on your local config:
-      ```env
-      DATABASE_URL=postgresql://user:password@localhost:5432/job_tracker
-      PORT=3000
-      ```
-    - Run migrations:
-      ```bash
-      npm run migrate
-      ```
-3.  **Start Server**:
-    ```bash
-    npm start
-    ```
-    - The server will start on `http://localhost:3000`.
-    - The Dashboard is available at `http://localhost:3000/`.
+- Node.js 18+
+- PostgreSQL database
 
-## 🔌 API Endpoints
+### Installation
 
-All API endpoints are prefixed with `/api`.
+1. **Clone & Install**
+   ```bash
+   npm install
+   ```
 
--   `GET /api/list`: List applications (supports filtering).
--   `POST /api/save`: Save a new application (used by Extension).
--   `GET /api/stats`: Get application statistics.
--   `GET /api/search?q=...`: Search applications.
--   `POST /api/update-status`: Update application status.
--   `DELETE /api/delete/:id`: Delete an application.
+2. **Environment Setup**
+   Create a `.env.local` file in the root:
+   ```bash
+   DATABASE_URL=postgresql://user:password@host:port/dbname
+   ```
 
-See [public/API_DOCS.md](public/API_DOCS.md) for full documentation.
+3. **Run Migrations**
+   Initialize the database schema:
+   ```bash
+   npm run migrate
+   ```
+
+4. **Run Development Server**
+   ```bash
+   npm run dev
+   ```
+   Open [http://localhost:3000](http://localhost:3000).
+
+## Deployment (Railway)
+
+The project is configured for Railway deployment.
+
+1. **Connect Repository**: Connect your GitHub repo to Railway.
+2. **Environment Variables**: Add `DATABASE_URL` in Railway variables.
+3. **Build Command**: Railway automatically detects Next.js (`npm run build`).
+4. **Start Command**: Railway automatically runs `npm start`.
+
+### Migrations in Production
+
+You can run migrations manually via the Railway CLI or add it to the start command if desired (though manual is safer for production).
+
+## API Documentation
+
+The API is available at `/api/...`.
+- `GET /api/list`: List all applications.
+- `POST /api/save`: Save a new application (used by extension).
+- `GET /api/stats`: Get dashboard statistics.
+- `GET /api/analytics`: Get detailed chart data.
+
+## Legacy Code
+
+The old Express.js/PHP codebase is archived in `_legacy/` for reference.

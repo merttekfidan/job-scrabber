@@ -1,0 +1,290 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  width: 360px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #333;
+}
+
+.container {
+  background: white;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
+
+header h1 {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+}
+
+main {
+  padding: 24px;
+  flex: 1;
+}
+
+/* Apply Button */
+.apply-btn {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.apply-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.apply-btn:active {
+  transform: translateY(0);
+}
+
+.apply-btn.processing {
+  background: #95a5a6;
+  cursor: not-allowed;
+}
+
+.btn-icon {
+  font-size: 24px;
+}
+
+/* Status Display */
+.status {
+  margin-top: 16px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: fadeIn 0.3s ease;
+}
+
+.status.success {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status.error {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.status-icon {
+  font-size: 20px;
+}
+
+.status-text {
+  flex: 1;
+  font-size: 14px;
+}
+
+/* Last Capture */
+.last-capture {
+  margin-top: 16px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+}
+
+.capture-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #6c757d;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.capture-title {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 4px;
+  color: #333;
+}
+
+.capture-company {
+  font-size: 13px;
+  color: #667eea;
+  margin-bottom: 4px;
+}
+
+.capture-time {
+  font-size: 11px;
+  color: #6c757d;
+}
+
+/* Export Button */
+.export-btn {
+  width: 100%;
+  margin-top: 16px;
+  padding: 12px;
+  background: white;
+  color: #667eea;
+  border: 2px solid #667eea;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.export-btn:hover {
+  background: #667eea;
+  color: white;
+}
+
+/* Settings */
+.settings-toggle {
+  width: 100%;
+  margin-top: 16px;
+  padding: 10px;
+  background: transparent;
+  color: #6c757d;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.settings-toggle:hover {
+  background: #f8f9fa;
+  border-color: #adb5bd;
+}
+
+.settings-panel {
+  margin-top: 16px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  animation: slideDown 0.3s ease;
+}
+
+.settings-panel h3 {
+  font-size: 14px;
+  margin-bottom: 12px;
+  color: #333;
+}
+
+.setting-group {
+  margin-bottom: 12px;
+}
+
+.setting-group label {
+  display: block;
+  font-size: 12px;
+  color: #495057;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.setting-group input[type="password"] {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.setting-group input[type="checkbox"] {
+  margin-right: 8px;
+}
+
+.save-btn {
+  width: 100%;
+  padding: 8px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.save-btn:hover {
+  background: #5568d3;
+}
+
+.setting-info {
+  margin-top: 8px;
+  font-size: 11px;
+}
+
+.setting-info a {
+  color: #667eea;
+  text-decoration: none;
+}
+
+.setting-info a:hover {
+  text-decoration: underline;
+}
+
+/* Footer */
+footer {
+  padding: 16px 24px;
+  background: #f8f9fa;
+  border-top: 1px solid #dee2e6;
+}
+
+.stats {
+  text-align: center;
+  font-size: 12px;
+  color: #6c757d;
+}
+
+/* Utilities */
+.hidden {
+  display: none !important;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+  }
+}
