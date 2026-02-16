@@ -1,151 +1,78 @@
-# PHP MySQL Backend Setup Guide
+# Job Application Tracker
 
-## Quick Setup
+A comprehensive job application tracking system with a Chrome Extension for data capture, a Node.js API for backend processing, and a web Dashboard for visualization.
 
-### Step 1: Create Database in phpMyAdmin
+## 🚀 Deployment (Railway)
 
-1. **Login to phpMyAdmin**
-   - Go to your hosting control panel (cPanel, Plesk, etc.)
-   - Open phpMyAdmin
+This project is configured for seamless deployment on [Railway](https://railway.app/).
 
-2. **Run SQL Script**
-   - Click "SQL" tab
-   - Copy and paste the entire contents of `server/database.sql`
-   - Click "Go"
-   - This creates the `job_tracker` database and `applications` table
+1.  **Push to GitHub**: Ensure this repository is pushed to your GitHub account.
+2.  **New Project on Railway**:
+    *   Click "New Project" > "Deploy from GitHub repo".
+    *   Select this repository.
+3.  **Add Database**:
+    *   Right-click the empty canvas or click "New".
+    *   Select **PostgreSQL**.
+4.  **Connect Application**:
+    *   Railway should automatically inject `DATABASE_URL` into your application variables.
+5.  **Environment Variables**:
+    *   `PORT`: (Automatically set by Railway)
+    *   `NODE_ENV`: `production`
+    *   `CORS_ORIGIN`: `*` (or your specific extension ID)
 
-### Step 2: Configure Database Credentials
+## 📂 Project Structure
 
-1. **Edit `config.php`**
-   - Open `server/config.php`
-   - Update these lines with your phpMyAdmin credentials:
-   ```php
-   define('DB_USER', 'YOUR_USERNAME');  // Your database username
-   define('DB_PASS', 'YOUR_PASSWORD');  // Your database password
-   ```
+This repository is a **Server-Only** structure containing the API and the Dashboard (served as static files).
 
-### Step 3: Upload Files to Server
-
-1. **Upload to your server:**
-   - Upload `server/config.php` to `merttekfidan.com/job/config.php`
-   - Upload `server/api.php` to `merttekfidan.com/job/api.php`
-
-2. **Set file permissions:**
-   - `config.php`: 644 (read-only for security)
-   - `api.php`: 644
-
-3. **Hide from Google (robots.txt):**
-   - Create/edit `merttekfidan.com/job/robots.txt`:
-   ```
-   User-agent: *
-   Disallow: /job/
-   ```
-
-### Step 4: Update Chrome Extension
-
-1. **Update `background.js`:**
-   - Find the `syncToGoogleSheets` function
-   - Change the URL check to use your PHP endpoint:
-   ```javascript
-   const webAppUrl = 'https://merttekfidan.com/job/api.php?action=save';
-   ```
-
-2. **Or update via extension settings:**
-   - Open extension settings
-   - In "Google Sheets Web App URL" field, enter:
-   ```
-   https://merttekfidan.com/job/api.php?action=save
-   ```
-
-### Step 5: Test
-
-1. **Test the API directly:**
-   - Visit: `https://merttekfidan.com/job/api.php?action=stats`
-   - You should see: `{"success":true,"stats":{...}}`
-
-2. **Test from extension:**
-   - Go to any job posting
-   - Click "Applied"
-   - Check phpMyAdmin to see the new row in `applications` table
-
-## API Endpoints
-
-### Save Job Application
-```
-POST https://merttekfidan.com/job/api.php?action=save
+```text
+/
+├── index.js            # Main Express server entry point
+├── db.js               # Database connection pool
+├── migrate.js          # Database migration script
+├── routes/             # API route definitions
+├── public/             # Dashboard frontend (HTML/CSS/JS)
+├── extension/          # Chrome Extension source (Locally only, gitignored)
+└── schema.sql          # Database schema definition
 ```
 
-### List All Applications
-```
-GET https://merttekfidan.com/job/api.php?action=list
-GET https://merttekfidan.com/job/api.php?action=list&limit=50&offset=0
-```
+## 🛠️ Local Development
 
-### Get Statistics
-```
-GET https://merttekfidan.com/job/api.php?action=stats
-```
+### Prerequisites
+- Node.js (v18+)
+- PostgreSQL
 
-## Security Notes
+### Setup
+1.  **Install Dependencies**:
+    ```bash
+    npm install
+    ```
+2.  **Database Setup**:
+    - Create a local PostgreSQL database (e.g., `job_tracker`).
+    - Create a `.env` file based on your local config:
+      ```env
+      DATABASE_URL=postgresql://user:password@localhost:5432/job_tracker
+      PORT=3000
+      ```
+    - Run migrations:
+      ```bash
+      npm run migrate
+      ```
+3.  **Start Server**:
+    ```bash
+    npm start
+    ```
+    - The server will start on `http://localhost:3000`.
+    - The Dashboard is available at `http://localhost:3000/`.
 
-1. **Database credentials**: Never commit `config.php` with real credentials to Git
-2. **CORS**: The API allows all origins (`*`). For better security, change to your extension ID
-3. **HTTPS**: Make sure your site uses HTTPS
-4. **Backup**: Regularly backup your database
+## 🔌 API Endpoints
 
-## Troubleshooting
+All API endpoints are prefixed with `/api`.
 
-### "Database connection failed"
-- Check credentials in `config.php`
-- Verify database exists in phpMyAdmin
-- Check if database user has permissions
+-   `GET /api/list`: List applications (supports filtering).
+-   `POST /api/save`: Save a new application (used by Extension).
+-   `GET /api/stats`: Get application statistics.
+-   `GET /api/search?q=...`: Search applications.
+-   `POST /api/update-status`: Update application status.
+-   `DELETE /api/delete/:id`: Delete an application.
 
-### "CORS error"
-- Make sure `api.php` has CORS headers
-- Check if your hosting allows CORS
-
-### "500 Internal Server Error"
-- Check PHP error logs
-- Verify PHP version is 7.4 or higher
-- Check file permissions
-
-## Building a Dashboard
-
-You can now build a custom dashboard using the API:
-
-```html
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Job Applications Dashboard</title>
-</head>
-<body>
-    <h1>My Job Applications</h1>
-    <div id="stats"></div>
-    <div id="applications"></div>
-
-    <script>
-        // Get statistics
-        fetch('https://merttekfidan.com/job/api.php?action=stats')
-            .then(r => r.json())
-            .then(data => {
-                document.getElementById('stats').innerHTML = 
-                    `<p>Total: ${data.stats.total}</p>`;
-            });
-
-        // Get applications
-        fetch('https://merttekfidan.com/job/api.php?action=list')
-            .then(r => r.json())
-            .then(data => {
-                const html = data.applications.map(app => 
-                    `<div>
-                        <h3>${app.job_title} at ${app.company}</h3>
-                        <p>${app.location} - ${app.salary}</p>
-                    </div>`
-                ).join('');
-                document.getElementById('applications').innerHTML = html;
-            });
-    </script>
-</body>
-</html>
-```
+See [public/API_DOCS.md](public/API_DOCS.md) for full documentation.
