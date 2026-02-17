@@ -7,7 +7,8 @@ export async function POST(request) {
         const {
             jobTitle, company, location, workMode, salary, applicationDate,
             jobUrl, companyUrl, status, keyResponsibilities, requiredSkills,
-            preferredSkills, companyDescription, interviewPrepNotes, metadata
+            preferredSkills, companyDescription, interviewPrepNotes, metadata,
+            originalContent, interviewStages, roleSummary
         } = body;
 
         // Normalize workMode to Title Case to match DB constraint
@@ -38,8 +39,9 @@ export async function POST(request) {
           key_responsibilities = $9, required_skills = $10, preferred_skills = $11, 
           company_description = $12, interview_prep_key_talking_points = $13, 
           interview_prep_questions_to_ask = $14, interview_prep_potential_red_flags = $15, 
-          source = $16, updated_at = NOW()
-        WHERE job_url = $17 RETURNING id`,
+          source = $16, original_content = $17, interview_stages = $18, role_summary = $19, 
+          formatted_content = $21, negative_signals = $22, updated_at = NOW()
+        WHERE job_url = $20 RETURNING id`,
                 [
                     jobTitle, company, location, validWorkMode, salary, applicationDate, companyUrl,
                     status || 'Applied',
@@ -51,6 +53,11 @@ export async function POST(request) {
                     JSON.stringify(interviewPrepNotes?.questionsToAsk || []),
                     JSON.stringify(interviewPrepNotes?.potentialRedFlags || []),
                     metadata?.jobBoardSource || 'Unknown',
+                    originalContent || null,
+                    JSON.stringify(interviewStages || []),
+                    roleSummary || null,
+                    body.formattedContent || null,
+                    JSON.stringify(body.negativeSignals || []),
                     jobUrl
                 ]
             );
@@ -63,8 +70,9 @@ export async function POST(request) {
         job_title, company, location, work_mode, salary, application_date, 
         job_url, company_url, status, key_responsibilities, required_skills, 
         preferred_skills, company_description, interview_prep_key_talking_points, 
-        interview_prep_questions_to_ask, interview_prep_potential_red_flags, source
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17) 
+        interview_prep_questions_to_ask, interview_prep_potential_red_flags, source,
+        original_content, interview_stages, role_summary, formatted_content, negative_signals
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22) 
       RETURNING id`,
             [
                 jobTitle, company, location, validWorkMode, salary, applicationDate,
@@ -76,7 +84,12 @@ export async function POST(request) {
                 JSON.stringify(interviewPrepNotes?.keyTalkingPoints || []),
                 JSON.stringify(interviewPrepNotes?.questionsToAsk || []),
                 JSON.stringify(interviewPrepNotes?.potentialRedFlags || []),
-                metadata?.jobBoardSource || 'Unknown'
+                metadata?.jobBoardSource || 'Unknown',
+                originalContent || null,
+                JSON.stringify(interviewStages || []),
+                roleSummary || null,
+                body.formattedContent || null,
+                JSON.stringify(body.negativeSignals || [])
             ]
         );
 

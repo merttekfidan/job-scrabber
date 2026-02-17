@@ -27,6 +27,9 @@ async function loadSettings() {
   if (result.sheetsWebAppUrl) {
     sheetsUrlInput.value = result.sheetsWebAppUrl;
     openSheetBtn.classList.remove('hidden');
+  } else {
+    // Default to production URL
+    sheetsUrlInput.value = 'https://aware-endurance-production-13b8.up.railway.app/api/save';
   }
   if (result.autoExport) {
     document.getElementById('autoExport').checked = result.autoExport;

@@ -30,9 +30,6 @@ async function processJobWithGemini(extractedData) {
         // Parse and validate response
         const structuredData = parseGroqResponse(groqResponse);
 
-        // Add original content manually to avoid token limits in LLM response
-        structuredData.originalContent = extractedData.pageContent;
-
         // Save to storage
         await saveApplication(structuredData);
 
@@ -67,15 +64,13 @@ Return ONLY valid JSON with this exact structure:
   "salary": "string or null",
   "applicationDate": "${new Date().toISOString()}",
   "jobUrl": "${extractedData.url}",
-  "jobUrl": "${extractedData.url}",
+  "originalContent": ${JSON.stringify(extractedData.pageContent)},
   "companyUrl": "string or null",
   "status": "Applied",
   "keyResponsibilities": ["array of 3-5 main responsibilities"],
   "requiredSkills": ["array of key skills, prioritizing hard technical marketing skills"],
   "preferredSkills": ["array of preferred skills"],
   "companyDescription": "brief 1-2 sentence company overview",
-  "formattedContent": "The entire job posting reformatted into clean, readable Markdown. Use headers, bullet points, and bold text for emphasis. Remove clutter but keep all details.",
-  "negativeSignals": ["List specific exclusionary criteria found in the post, e.g. 'No agencies', 'Must have EU citizenship', 'Not suitable for juniors', 'In-office only'"],
   "interviewPrepNotes": {
     "keyTalkingPoints": ["3-5 key points to emphasize based on job requirements"],
     "questionsToAsk": ["3-5 thoughtful, strategic questions to ask the interviewer about their marketing stack or data strategy"],
