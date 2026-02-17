@@ -21,17 +21,33 @@ async function processJobWithGemini(extractedData) {
             throw new Error('Groq API key not configured');
         }
 
-        // Construct prompt for Gemini
+        // Construct prompt for Groq
         const prompt = buildPrompt(extractedData);
 
         // Call Groq API
         const groqResponse = await callGroqAPI(apiKey, prompt);
 
         // Parse and validate response
-        const structuredData = parseGroqResponse(groqResponse);
+        const expertOutput = parseGroqResponse(groqResponse);
 
-        // Add original content manually to avoid token limits in LLM response
-        structuredData.originalContent = extractedData.pageContent;
+        // Map Expert Output to Legacy/Dashboard Schema
+        const structuredData = {
+            ...expertOutput,
+            // Mapping for backward compatibility and dashboard schema
+            jobUrl: extractedData.url,
+            applicationDate: new Date().toISOString(),
+            roleSummary: expertOutput.interviewPrepNotes?.theProblemTheyAreSolving || null,
+            interviewPrepNotes: {
+                keyTalkingPoints: (expertOutput.interviewPrepNotes?.keyTalkingPoints || []).map(tp => ({
+                    point: tp.topic || tp.point,
+                    explanation: tp.narrative || tp.explanation
+                })),
+                questionsToAsk: expertOutput.interviewPrepNotes?.highImpactQuestions || expertOutput.interviewPrepNotes?.questionsToAsk || [],
+                potentialRedFlags: expertOutput.negativeSignals || expertOutput.interviewPrepNotes?.potentialRedFlags || [],
+                techStackToStudy: expertOutput.techStackToStudy || []
+            },
+            originalContent: extractedData.pageContent
+        };
 
         // Save to storage
         await saveApplication(structuredData);
@@ -44,58 +60,54 @@ async function processJobWithGemini(extractedData) {
     }
 }
 
-// Build prompt for Groq API
+// Build expert prompt for Groq API
 function buildPrompt(extractedData) {
-    return `You are an expert career coach specializing in Tech Marketing and Digital Marketing. Extract and structure job posting information from the provided page content.
+    return `# ROLE
+You are a Senior MarTech Career Architect and Executive Coach. Your mission is to analyze job postings with surgical precision and provide high-stakes strategic advice to a top-tier candidate.
 
-INPUT DATA:
-- Page URL: ${extractedData.url}
-- Page Title: ${extractedData.pageTitle}
-- Job Board: ${extractedData.jobBoard}
-- Raw Page Content: ${extractedData.pageContent}
+# CONTEXT
+- SOURCE_URL: ${extractedData.url}
+- JOB_BOARD: ${extractedData.jobBoard}
+- INPUT_PAYLOAD: ${extractedData.pageContent}
 
-TASK:
-Analyze the page content and extract ALL relevant job information. specifically LOOK FOR MARTECH TOOLS (e.g., GA4, HubSpot, Salesforce, SQL, Python, Tableau, SEMrush).
+# STEPS (Chain of Thought)
+1. DATA SCRUBBING: Extract raw job details. Clean any noise if the scraping was messy.
+2. SENTIMENT & SIGNAL ANALYSIS: Identify "Negative Signals" (hidden deal-breakers) and "Power Hooks" (the real problem the company is trying to solve).
+3. TECH STACK MAPPING: Catalog every technical tool mentioned, specifically prioritizing the MarTech ecosystem (GA4, GTM, HubSpot, SQL, etc.).
+4. STRATEGIC POSITIONING: Craft coaching notes that connect the candidate's likely skills to the company's pain points. Avoid generic advice; be specific and inspirational.
 
-OUTPUT REQUIREMENTS:
-Return ONLY valid JSON with this exact structure:
+# OUTPUT FORMAT (STRICT JSON)
 {
-  "jobTitle": "string",
-  "company": "string",
-  "location": "string",
-  "workMode": "Remote|Hybrid|Onsite|Unknown",
-  "salary": "string or null",
-  "applicationDate": "${new Date().toISOString()}",
-  "jobUrl": "${extractedData.url}",
-  "companyUrl": "string or null",
-  "status": "Applied",
-  "keyResponsibilities": ["array of 3-5 main responsibilities"],
-  "requiredSkills": ["array of key skills, prioritizing hard technical marketing skills"],
-  "preferredSkills": ["array of preferred skills"],
-  "companyDescription": "brief 1-2 sentence company overview",
-  "formattedContent": "The entire job posting reformatted into clean, readable Markdown. Use headers, bullet points, and bold text for emphasis. Remove clutter but keep all details.",
-  "negativeSignals": ["List specific exclusionary criteria found in the post, e.g. 'No agencies', 'Must have EU citizenship', 'Not suitable for juniors', 'In-office only'"],
+  "jobTitle": "Official title or best summary",
+  "company": "Company Name",
+  "location": "City, State or 'Global' if fully remote",
+  "workMode": "Remote|Hybrid|Onsite",
+  "salary": "Range or 'Confidential'",
+  "requiredSkills": ["hard skills only"],
+  "techStackToStudy": ["tools + brief 'why it matters'"],
+  "negativeSignals": [
+    "Identify red flags like: 'unrealistic experience expectations', 'manual repetitive tasks', 'lack of growth mentions'"
+  ],
   "interviewPrepNotes": {
+    "theProblemTheyAreSolving": "1 sentence on the business problem behind this hire.",
     "keyTalkingPoints": [
       {
-        "point": "Strategic Value Point",
-        "explanation": "Simple, supportive coaching advice (2-3 sentences). Explain WHY this specific skill relates to this company's offer and HOW it solves their unique problems. Use 'plain English'—no corporate jargon."
+        "topic": "Strategic Topic",
+        "narrative": "A 2-3 sentence highly-specific talking point the candidate should lead with."
       }
     ],
-    "questionsToAsk": ["3-5 high-impact, inspirational questions. Instead of 'standard' questions, suggest ones that show curiosity about their growth, culture, or long-term vision. Think: 'What would a future leader ask?'"],
-    "potentialRedFlags": ["any concerns a coach would want you to know"],
-    "techStackToStudy": ["Specific tools to master, with a quick note on why they matter for THIS role"]
+    "highImpactQuestions": [
+      "Suggest questions that show curiosity about growth, culture, or long-term vision."
+    ]
   },
-  "metadata": {
-    "jobBoardSource": "${extractedData.jobBoard}",
-    "extractedAt": "${new Date().toISOString()}"
-  }
+  "formattedContent": "A professional, beautiful Markdown version of the full job spec for the user's permanent records."
 }
 
-IMPORTANT:
-- Focus on extracting the TECH STACK.
-- Return ONLY valid JSON.
-- Ensure all newlines and special characters in string values are properly escaped (use \\n for newlines).`;
+# CONSTRAINTS
+- NO JARGON: Use plain, powerful English for coaching notes.
+- ACCURACY: If a field is unknown, use null. DO NOT hallucinate salary.
+- LANGUAGE: Output must be in English.
+- STRICT JSON: Return ONLY the JSON object.`;
 }
 
 // Call Groq API
@@ -154,11 +166,11 @@ function parseGroqResponse(responseText) {
 
         const parsed = JSON.parse(cleanText);
 
-        // Validate required fields
-        const required = ['jobTitle', 'company', 'jobUrl', 'applicationDate'];
+        // Validate required fields (only core identification for expert mode)
+        const required = ['jobTitle', 'company'];
         for (const field of required) {
             if (!parsed[field]) {
-                throw new Error(`Missing required field: ${field}`);
+                throw new Error(`Missing required field from AI: ${field}`);
             }
         }
 
