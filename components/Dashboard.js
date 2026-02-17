@@ -23,6 +23,7 @@ import {
 import { Line, Doughnut, Bar } from 'react-chartjs-2';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { Send, Sparkles, UserCheck, Calendar as CalendarIcon, Clock as ClockIcon } from 'lucide-react';
 
 // Register ChartJS components
 ChartJS.register(
@@ -45,8 +46,15 @@ export default function Dashboard() {
     const [selectedApp, setSelectedApp] = useState(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+
     const [expandedId, setExpandedId] = useState(null);
     const [activeTab, setActiveTab] = useState('details');
+    const [chatMessages, setChatMessages] = useState([]);
+    const [chatInput, setChatInput] = useState('');
+    const [isChatLoading, setIsChatLoading] = useState(false);
+    const [cvAnalysis, setCvAnalysis] = useState(null);
+    const [isAnalyzingCv, setIsAnalyzingCv] = useState(false);
+    const [cvText, setCvText] = useState('');
 
     useEffect(() => {
         loadData();
@@ -142,6 +150,53 @@ export default function Dashboard() {
         } catch (error) {
             console.error(error);
             showToast('Failed to update', 'error');
+        }
+    };
+
+    const handleSendMessage = async (app) => {
+        if (!chatInput.trim()) return;
+        const newMessage = { role: 'user', content: chatInput };
+        setChatMessages(prev => [...prev, newMessage]);
+        setChatInput('');
+        setIsChatLoading(true);
+
+        try {
+            const res = await fetch('/api/ai/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    jobId: app.id,
+                    messages: [...chatMessages, newMessage]
+                })
+            });
+            const data = await res.json();
+            if (data.error) throw new Error(data.error);
+            setChatMessages(prev => [...prev, { role: 'assistant', content: data.content }]);
+        } catch (error) {
+            console.error(error);
+            showToast('Failed to send message', 'error');
+        } finally {
+            setIsChatLoading(false);
+        }
+    };
+
+    const handleAnalyzeCv = async (app) => {
+        if (!cvText.trim()) return showToast('Please paste your CV text', 'error');
+        setIsAnalyzingCv(true);
+        try {
+            const res = await fetch('/api/ai/cv-analysis', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ jobId: app.id, cvContent: cvText })
+            });
+            const data = await res.json();
+            if (data.error) throw new Error(data.error);
+            setCvAnalysis(data);
+        } catch (error) {
+            console.error(error);
+            showToast('Failed to analyze CV', 'error');
+        } finally {
+            setIsAnalyzingCv(false);
         }
     };
 
@@ -252,6 +307,49 @@ export default function Dashboard() {
                         </div>
                     </div>
                 </section>
+
+                {/* Upcoming Interviews Timeline */}
+                {(() => {
+                    const upcomingInterviews = applications
+                        .flatMap(app => {
+                            const stages = parseJson(app.interview_stages) || [];
+                            return stages.map(stage => ({ ...stage, appName: app.company, appId: app.id }));
+                        })
+                        .filter(i => new Date(i.date) >= new Date())
+                        .sort((a, b) => new Date(a.date) - new Date(b.date))
+                        .slice(0, 5);
+
+                    if (upcomingInterviews.length > 0) {
+                        return (
+                            <section className="timeline-section mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
+                                <h2 className="section-title flex items-center gap-2">
+                                    <CalendarIcon className="text-blue-400" /> Upcoming Interviews
+                                </h2>
+                                <div className="space-y-3">
+                                    {upcomingInterviews.map((interview, idx) => (
+                                        <div key={idx} className="bg-gray-800/40 border border-gray-700/50 p-4 rounded-xl flex items-center justify-between hover:bg-gray-800/60 transition-colors">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400 font-bold text-lg">
+                                                    {new Date(interview.date).getDate()}
+                                                </div>
+                                                <div>
+                                                    <div className="font-semibold text-white">{interview.appName}</div>
+                                                    <div className="text-sm text-gray-400">{interview.type} Round • {new Date(interview.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short' })}</div>
+                                                </div>
+                                            </div>
+                                            <button
+                                                onClick={() => setExpandedId(interview.appId)}
+                                                className="btn btn-sm btn-secondary"
+                                            >
+                                                View Prep
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </section>
+                        );
+                    }
+                })()}
 
                 {/* Charts Section */}
                 {analytics && (
@@ -394,8 +492,8 @@ export default function Dashboard() {
                                     {expandedId === app.id && (
                                         <div className="mt-6 border-t border-gray-700/50 pt-6 animate-in fade-in slide-in-from-top-2 duration-300">
                                             {/* Tabs */}
-                                            <div className="flex border-b border-gray-700/50 mb-6 gap-6">
-                                                {['details', 'prep', 'content', 'interviews'].map((tab) => (
+                                            <div className="flex border-b border-gray-700/50 mb-6 gap-6 overflow-x-auto">
+                                                {['details', 'prep', 'content', 'interviews', 'ai', 'cv'].map((tab) => (
                                                     <button
                                                         key={tab}
                                                         onClick={(e) => {
@@ -411,6 +509,8 @@ export default function Dashboard() {
                                                         {tab === 'prep' && 'Interview Prep'}
                                                         {tab === 'content' && 'Original Post'}
                                                         {tab === 'interviews' && 'Interviews'}
+                                                        {tab === 'ai' && <span className="flex items-center gap-1"><Sparkles size={14} /> AI Assistant</span>}
+                                                        {tab === 'cv' && <span className="flex items-center gap-1"><UserCheck size={14} /> CV Analysis</span>}
                                                         {activeTab === tab && (
                                                             <div className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-400 rounded-t-full"></div>
                                                         )}
@@ -767,6 +867,161 @@ export default function Dashboard() {
                                                                 </div>
                                                             );
                                                         })()}
+                                                    </div>
+                                                )}
+
+                                                {/* --- AI ASSISTANT TAB --- */}
+                                                {activeTab === 'ai' && (
+                                                    <div className="h-[500px] flex flex-col bg-gray-900/50 rounded-xl border border-gray-700/50 overflow-hidden">
+                                                        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                                                            {chatMessages.length === 0 && (
+                                                                <div className="text-center py-20 text-gray-500">
+                                                                    <Sparkles size={48} className="mx-auto mb-4 opacity-30" />
+                                                                    <p>Ask me anything about this role!</p>
+                                                                    <p className="text-sm mt-2">"What are some good questions to ask?"</p>
+                                                                    <p className="text-sm">"How do I explain my experience with [Skill]?"</p>
+                                                                </div>
+                                                            )}
+                                                            {chatMessages.map((msg, i) => (
+                                                                <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                                                    <div className={`max-w-[80%] p-3 rounded-xl text-sm leading-relaxed ${msg.role === 'user'
+                                                                        ? 'bg-blue-600 text-white rounded-br-none'
+                                                                        : 'bg-gray-800 text-gray-200 rounded-bl-none border border-gray-700'
+                                                                        }`}>
+                                                                        <ReactMarkdown>{msg.content}</ReactMarkdown>
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                            {isChatLoading && (
+                                                                <div className="flex justify-start">
+                                                                    <div className="bg-gray-800 p-3 rounded-xl rounded-bl-none border border-gray-700">
+                                                                        <div className="flex gap-1">
+                                                                            <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" />
+                                                                            <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce delay-100" />
+                                                                            <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce delay-200" />
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        <div className="p-4 border-t border-gray-700/50 bg-gray-800/30">
+                                                            <div className="flex gap-2">
+                                                                <input
+                                                                    type="text"
+                                                                    className="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 text-white outline-none focus:border-blue-500 transition-colors"
+                                                                    placeholder="Type a message..."
+                                                                    value={chatInput}
+                                                                    onChange={e => setChatInput(e.target.value)}
+                                                                    onKeyDown={e => e.key === 'Enter' && handleSendMessage(app)}
+                                                                />
+                                                                <button
+                                                                    className="btn btn-primary p-2 aspect-square flex items-center justify-center"
+                                                                    onClick={() => handleSendMessage(app)}
+                                                                    disabled={isChatLoading}
+                                                                >
+                                                                    <Send size={18} />
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {/* --- CV ANALYSIS TAB --- */}
+                                                {activeTab === 'cv' && (
+                                                    <div className="space-y-6">
+                                                        {!cvAnalysis ? (
+                                                            <div className="bg-gray-800/30 p-6 rounded-xl border border-gray-700/50 text-center">
+                                                                <UserCheck size={48} className="mx-auto mb-4 text-purple-400 opacity-80" />
+                                                                <h3 className="text-xl font-bold text-white mb-2">Check Your Fit</h3>
+                                                                <p className="text-gray-400 mb-6 max-w-md mx-auto">
+                                                                    Paste your CV text below to get a detailed SWOT analysis and compatibility score for this specific role.
+                                                                </p>
+                                                                <textarea
+                                                                    className="w-full bg-gray-900 border border-gray-700 rounded-xl p-4 text-gray-300 h-48 mb-4 focus:ring-2 focus:ring-purple-500 outline-none resize-none"
+                                                                    placeholder="Paste CV content here..."
+                                                                    value={cvText}
+                                                                    onChange={e => setCvText(e.target.value)}
+                                                                />
+                                                                <button
+                                                                    className="btn btn-primary bg-purple-600 hover:bg-purple-700 border-purple-600 w-full py-3 flex items-center justify-center gap-2"
+                                                                    onClick={() => handleAnalyzeCv(app)}
+                                                                    disabled={isAnalyzingCv}
+                                                                >
+                                                                    {isAnalyzingCv ? (
+                                                                        <>Analyzing...</>
+                                                                    ) : (
+                                                                        <><Sparkles size={18} /> Analyze Compatibility</>
+                                                                    )}
+                                                                </button>
+                                                            </div>
+                                                        ) : (
+                                                            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                                                <div className="flex justify-between items-center mb-6">
+                                                                    <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                                                                        Analysis Results
+                                                                        <span className={`text-sm px-2 py-1 rounded-md border ${cvAnalysis.matchScore >= 80 ? 'bg-green-500/10 text-green-400 border-green-500/20' :
+                                                                            cvAnalysis.matchScore >= 60 ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' :
+                                                                                'bg-red-500/10 text-red-400 border-red-500/20'
+                                                                            }`}>
+                                                                            {cvAnalysis.matchScore}% Match
+                                                                        </span>
+                                                                    </h3>
+                                                                    <button
+                                                                        className="text-sm text-gray-400 hover:text-white underline"
+                                                                        onClick={() => setCvAnalysis(null)}
+                                                                    >
+                                                                        Analyze Again
+                                                                    </button>
+                                                                </div>
+
+                                                                <div className="bg-gray-800/30 p-4 rounded-xl border border-gray-700/50 mb-6">
+                                                                    <p className="text-gray-300 italic">"{cvAnalysis.summary}"</p>
+                                                                </div>
+
+                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                                    <div className="bg-green-500/5 p-4 rounded-xl border border-green-500/10">
+                                                                        <h4 className="font-bold text-green-400 mb-3 uppercase text-xs tracking-wider">Strengths</h4>
+                                                                        <ul className="space-y-2">
+                                                                            {cvAnalysis.strengths.map((item, i) => (
+                                                                                <li key={i} className="flex gap-2 text-gray-300 text-sm">
+                                                                                    <span className="text-green-500">•</span> {item}
+                                                                                </li>
+                                                                            ))}
+                                                                        </ul>
+                                                                    </div>
+                                                                    <div className="bg-red-500/5 p-4 rounded-xl border border-red-500/10">
+                                                                        <h4 className="font-bold text-red-400 mb-3 uppercase text-xs tracking-wider">Weaknesses / Gaps</h4>
+                                                                        <ul className="space-y-2">
+                                                                            {cvAnalysis.weaknesses.map((item, i) => (
+                                                                                <li key={i} className="flex gap-2 text-gray-300 text-sm">
+                                                                                    <span className="text-red-500">•</span> {item}
+                                                                                </li>
+                                                                            ))}
+                                                                        </ul>
+                                                                    </div>
+                                                                    <div className="bg-blue-500/5 p-4 rounded-xl border border-blue-500/10">
+                                                                        <h4 className="font-bold text-blue-400 mb-3 uppercase text-xs tracking-wider">Opportunities</h4>
+                                                                        <ul className="space-y-2">
+                                                                            {cvAnalysis.opportunities.map((item, i) => (
+                                                                                <li key={i} className="flex gap-2 text-gray-300 text-sm">
+                                                                                    <span className="text-blue-500">•</span> {item}
+                                                                                </li>
+                                                                            ))}
+                                                                        </ul>
+                                                                    </div>
+                                                                    <div className="bg-amber-500/5 p-4 rounded-xl border border-amber-500/10">
+                                                                        <h4 className="font-bold text-amber-400 mb-3 uppercase text-xs tracking-wider">Threats</h4>
+                                                                        <ul className="space-y-2">
+                                                                            {cvAnalysis.threats.map((item, i) => (
+                                                                                <li key={i} className="flex gap-2 text-gray-300 text-sm">
+                                                                                    <span className="text-amber-500">•</span> {item}
+                                                                                </li>
+                                                                            ))}
+                                                                        </ul>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 )}
                                             </div>
