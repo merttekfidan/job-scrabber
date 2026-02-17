@@ -9,7 +9,7 @@ export async function GET() {
         const byMonthResult = await query(`SELECT TO_CHAR(application_date, 'YYYY-MM') as month, COUNT(*) as count FROM applications WHERE application_date >= NOW() - INTERVAL '6 months' GROUP BY month ORDER BY month DESC`);
         const topCompaniesResult = await query('SELECT company, COUNT(*) as count FROM applications GROUP BY company ORDER BY count DESC LIMIT 10');
         const last7DaysResult = await query(`SELECT COUNT(*) as count FROM applications WHERE application_date >= NOW() - INTERVAL '7 days'`);
-        const avgPerWeekResult = await query(`SELECT COUNT(*)::float / GREATEST(EXTRACT(WEEK FROM (NOW() - MIN(application_date)))::float, 1) as avg_per_week FROM applications`);
+        const avgPerWeekResult = await query(`SELECT COUNT(*)::float / GREATEST(EXTRACT(DAY FROM (NOW() - MIN(application_date)))::float / 7, 1) as avg_per_week FROM applications`);
 
         return NextResponse.json({
             success: true,

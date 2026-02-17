@@ -258,6 +258,52 @@ saveApiKeyBtn.addEventListener('click', async () => {
   settingsPanel.classList.add('hidden');
 });
 
+// Environment Toggle Logic
+const envLiveBtn = document.getElementById('envLive');
+const envLocalBtn = document.getElementById('envLocal');
+const LIVE_URL = 'https://aware-endurance-production-13b8.up.railway.app/api/save';
+const LOCAL_URL = 'http://localhost:3000/api/save';
+
+function setEnvironment(env) {
+  if (env === 'live') {
+    sheetsUrlInput.value = LIVE_URL;
+    envLiveBtn.classList.add('active');
+    envLocalBtn.classList.remove('active');
+  } else {
+    sheetsUrlInput.value = LOCAL_URL;
+    envLocalBtn.classList.add('active');
+    envLiveBtn.classList.remove('active');
+  }
+}
+
+envLiveBtn.addEventListener('click', () => setEnvironment('live'));
+envLocalBtn.addEventListener('click', () => setEnvironment('local'));
+
+// Update toggle state based on current input value
+sheetsUrlInput.addEventListener('input', updateToggleState);
+
+function updateToggleState() {
+  const currentUrl = sheetsUrlInput.value.trim();
+  if (currentUrl === LIVE_URL) {
+    envLiveBtn.classList.add('active');
+    envLocalBtn.classList.remove('active');
+  } else if (currentUrl === LOCAL_URL) {
+    envLocalBtn.classList.add('active');
+    envLiveBtn.classList.remove('active');
+  } else {
+    // Custom URL - deselect both
+    envLiveBtn.classList.remove('active');
+    envLocalBtn.classList.remove('active');
+  }
+}
+
+// Ensure loadSettings also updates the toggle state
+const originalLoadSettings = loadSettings;
+loadSettings = async function () {
+  await originalLoadSettings();
+  updateToggleState();
+};
+
 // Open Google Sheet
 openSheetBtn.addEventListener('click', async () => {
   const result = await chrome.storage.local.get(['sheetsWebAppUrl']);

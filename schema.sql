@@ -34,3 +34,15 @@ USING GIN (to_tsvector('english',
     COALESCE(location, '') || ' ' || 
     COALESCE(company_description, '')
 ));
+
+-- CV Storage Table
+CREATE TABLE IF NOT EXISTS cv_data (
+    id SERIAL PRIMARY KEY,
+    filename TEXT NOT NULL,
+    raw_text TEXT NOT NULL,
+    ai_analysis JSONB,
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_active BOOLEAN DEFAULT TRUE
+);
+
+CREATE INDEX IF NOT EXISTS idx_cv_active ON cv_data(is_active);

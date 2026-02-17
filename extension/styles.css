@@ -288,3 +288,36 @@ footer {
     max-height: 500px;
   }
 }
+
+/* Environment Toggle */
+.env-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  background: #e9ecef;
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.env-btn {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6c757d;
+  transition: all 0.2s;
+}
+
+.env-btn:hover {
+  color: #495057;
+}
+
+.env-btn.active {
+  background: white;
+  color: #667eea;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}

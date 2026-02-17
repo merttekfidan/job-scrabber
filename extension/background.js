@@ -67,7 +67,6 @@ Return ONLY valid JSON with this exact structure:
   "salary": "string or null",
   "applicationDate": "${new Date().toISOString()}",
   "jobUrl": "${extractedData.url}",
-  "jobUrl": "${extractedData.url}",
   "companyUrl": "string or null",
   "status": "Applied",
   "keyResponsibilities": ["array of 3-5 main responsibilities"],
@@ -77,10 +76,15 @@ Return ONLY valid JSON with this exact structure:
   "formattedContent": "The entire job posting reformatted into clean, readable Markdown. Use headers, bullet points, and bold text for emphasis. Remove clutter but keep all details.",
   "negativeSignals": ["List specific exclusionary criteria found in the post, e.g. 'No agencies', 'Must have EU citizenship', 'Not suitable for juniors', 'In-office only'"],
   "interviewPrepNotes": {
-    "keyTalkingPoints": ["3-5 key points to emphasize based on job requirements"],
-    "questionsToAsk": ["3-5 thoughtful, strategic questions to ask the interviewer about their marketing stack or data strategy"],
-    "potentialRedFlags": ["any concerns or red flags noticed"],
-    "techStackToStudy": ["List specific tools or concepts mentioned that the candidate should brush up on (e.g. 'GA4 attribution', 'SQL window functions')"]
+    "keyTalkingPoints": [
+      {
+        "point": "Strategic Value Point",
+        "explanation": "Simple, supportive coaching advice (2-3 sentences). Explain WHY this specific skill relates to this company's offer and HOW it solves their unique problems. Use 'plain English'—no corporate jargon."
+      }
+    ],
+    "questionsToAsk": ["3-5 high-impact, inspirational questions. Instead of 'standard' questions, suggest ones that show curiosity about their growth, culture, or long-term vision. Think: 'What would a future leader ask?'"],
+    "potentialRedFlags": ["any concerns a coach would want you to know"],
+    "techStackToStudy": ["Specific tools to master, with a quick note on why they matter for THIS role"]
   },
   "metadata": {
     "jobBoardSource": "${extractedData.jobBoard}",
@@ -90,7 +94,8 @@ Return ONLY valid JSON with this exact structure:
 
 IMPORTANT:
 - Focus on extracting the TECH STACK.
-- Return ONLY valid JSON.`;
+- Return ONLY valid JSON.
+- Ensure all newlines and special characters in string values are properly escaped (use \\n for newlines).`;
 }
 
 // Call Groq API
@@ -141,6 +146,11 @@ function parseGroqResponse(responseText) {
         } else if (cleanText.startsWith('```')) {
             cleanText = cleanText.replace(/```\n?/g, '');
         }
+
+        // Handle unescaped control characters that often break JSON.parse
+        // This regex finds newlines inside what looks like an unclosed string
+        // Note: This is an approximation for non-compliant model outputs
+        cleanText = cleanText.replace(/\n(?=[^"]*"[^"]*(?:"[^"]*"[^"]*)*$)/g, "\\n");
 
         const parsed = JSON.parse(cleanText);
 
