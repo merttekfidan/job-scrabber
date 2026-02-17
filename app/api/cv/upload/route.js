@@ -1,16 +1,6 @@
-import { NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+export const dynamic = 'force-dynamic';
 
-// Polyfill for DOMMatrix which is required by some versions of pdf-parse/pdf.js in Node environments
-if (typeof global !== 'undefined' && !global.DOMMatrix) {
-    global.DOMMatrix = class DOMMatrix {
-        constructor() {
-            this.a = 1; this.b = 0; this.c = 0; this.d = 1; this.e = 0; this.f = 0;
-        }
-    };
-}
-
-const pdf = require('pdf-parse');
+const pdf = require('pdf-parse/lib/pdf-parse.js');
 import { CV_ANALYSIS_PROMPT } from '@/lib/prompts';
 import { callGroqAPI, parseAIResponse } from '@/lib/ai';
 
