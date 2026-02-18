@@ -32,6 +32,43 @@ ChartJS.register(
     BarElement, ArcElement, Title, Tooltip, Legend, Filler
 );
 
+function StageNoteEditor({ initialNotes, onSave }) {
+    const [notes, setNotes] = useState(initialNotes || '');
+    const [isDirty, setIsDirty] = useState(false);
+
+    useEffect(() => {
+        setNotes(initialNotes || '');
+        setIsDirty(false);
+    }, [initialNotes]);
+
+    return (
+        <div className="p-3 flex flex-col gap-2">
+            <textarea
+                className="w-full bg-gray-900/50 border border-gray-700/50 rounded-lg p-3 text-sm text-gray-300 focus:ring-1 focus:ring-blue-500 outline-none resize-none h-24"
+                placeholder="Interview notes..."
+                value={notes}
+                onClick={e => e.stopPropagation()}
+                onChange={(e) => {
+                    setNotes(e.target.value);
+                    setIsDirty(true);
+                }}
+            />
+            {isDirty && (
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onSave(notes);
+                        setIsDirty(false);
+                    }}
+                    className="self-end px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded hover:bg-blue-500 transition-colors flex items-center gap-1"
+                >
+                    <CheckCircle size={12} /> Save
+                </button>
+            )}
+        </div>
+    );
+}
+
 export default function Dashboard() {
     const [stats, setStats] = useState(null);
     const [analytics, setAnalytics] = useState(null);
@@ -1036,19 +1073,14 @@ export default function Dashboard() {
                                                                                                     </button>
                                                                                                 </div>
                                                                                             </div>
-                                                                                            <div className="p-3">
-                                                                                                <textarea
-                                                                                                    className="w-full bg-gray-900/50 border border-gray-700/50 rounded-lg p-3 text-sm text-gray-300 focus:ring-1 focus:ring-blue-500 outline-none resize-none h-24"
-                                                                                                    placeholder="Notes..."
-                                                                                                    value={stage.notes}
-                                                                                                    onClick={e => e.stopPropagation()}
-                                                                                                    onChange={(e) => {
-                                                                                                        const newStages = [...stages];
-                                                                                                        newStages[idx].notes = e.target.value;
-                                                                                                        handleUpdateDetails(app.id, { interview_stages: newStages });
-                                                                                                    }}
-                                                                                                />
-                                                                                            </div>
+                                                                                            <StageNoteEditor
+                                                                                                initialNotes={stage.notes}
+                                                                                                onSave={(newNotes) => {
+                                                                                                    const newStages = [...stages];
+                                                                                                    newStages[idx].notes = newNotes;
+                                                                                                    handleUpdateDetails(app.id, { interview_stages: newStages });
+                                                                                                }}
+                                                                                            />
                                                                                         </div>
                                                                                     ))}
                                                                                 </div>
