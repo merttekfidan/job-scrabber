@@ -1,10 +1,3 @@
-<<<<<<< HEAD
-
-import NextAuth from "next-auth"
-import authConfig from "./auth.config"
-
-export const { auth: middleware } = NextAuth(authConfig)
-=======
 import NextAuth from "next-auth"
 import authConfig from "./auth.config"
 import { NextResponse } from "next/server"
@@ -41,14 +34,9 @@ export default auth(async function middleware(req) {
 
     return response;
 })
->>>>>>> dev
 
 // Configure Matcher
 export const config = {
-<<<<<<< HEAD
-    matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
-=======
     // Match all paths except static files and images
     matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
->>>>>>> dev
 }
