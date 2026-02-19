@@ -1,10 +1,18 @@
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 import Dashboard from '@/components/Dashboard';
 
 export const metadata = {
-  title: 'Job Application Dashboard',
-  description: 'Track your job search journey',
+  title: 'Job Tracker',
+  description: 'AI-Powered Job Application Tracking',
 };
 
-export default function Home() {
-  return <Dashboard />;
+export default async function Home() {
+  const session = await auth();
+
+  if (!session) {
+    redirect("/login");
+  }
+
+  return <Dashboard session={session} />;
 }

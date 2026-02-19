@@ -46,3 +46,46 @@ CREATE TABLE IF NOT EXISTS cv_data (
 );
 
 CREATE INDEX IF NOT EXISTS idx_cv_active ON cv_data(is_active);
+
+-- Auth Tables (NextAuth.js)
+CREATE TABLE IF NOT EXISTS users (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  name VARCHAR(255),
+  email VARCHAR(255) UNIQUE,
+  email_verified TIMESTAMP,
+  image TEXT
+);
+
+CREATE TABLE IF NOT EXISTS accounts (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  type VARCHAR(255) NOT NULL,
+  provider VARCHAR(255) NOT NULL,
+  provider_account_id VARCHAR(255) NOT NULL,
+  refresh_token TEXT,
+  access_token TEXT,
+  expires_at BIGINT,
+  token_type VARCHAR(255),
+  scope TEXT,
+  id_token TEXT,
+  session_state TEXT,
+  UNIQUE(provider, provider_account_id)
+);
+
+CREATE TABLE IF NOT EXISTS sessions (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  session_token VARCHAR(255) UNIQUE NOT NULL,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  expires TIMESTAMP NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS verification_tokens (
+  identifier TEXT NOT NULL,
+  token TEXT NOT NULL,
+  expires TIMESTAMP NOT NULL,
+  PRIMARY KEY (identifier, token)
+);
+
+-- Add user_id to existing tables
+ALTER TABLE applications ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES users(id) ON DELETE CASCADE;
+ALTER TABLE cv_data ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES users(id) ON DELETE CASCADE;

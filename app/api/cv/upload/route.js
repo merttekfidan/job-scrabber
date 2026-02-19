@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import { auth } from '@/auth';
 
 // Polyfill for DOMMatrix which is required by some versions of pdf-parse/pdf.js in Node environments
 if (typeof global !== 'undefined' && !global.DOMMatrix) {
@@ -18,6 +19,12 @@ import { callGroqAPI, parseAIResponse } from '@/lib/ai';
 
 export async function POST(req) {
     try {
+        const session = await auth();
+        if (!session?.user?.id) {
+            return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+        }
+        const userId = session.user.id;
+
         const formData = await req.formData();
         const file = formData.get('file');
 
@@ -48,12 +55,12 @@ export async function POST(req) {
         const analysisJson = parseAIResponse(aiResponse);
 
         // Deactivate previous CVs
-        await query('UPDATE cv_data SET is_active = FALSE');
+        await query('UPDATE cv_data SET is_active = FALSE WHERE user_id = $1', [userId]);
 
         // Store in DB
         const result = await query(
-            'INSERT INTO cv_data (filename, raw_text, ai_analysis, is_active) VALUES ($1, $2, $3, TRUE) RETURNING *',
-            [file.name, rawText, JSON.stringify(analysisJson)]
+            'INSERT INTO cv_data (filename, raw_text, ai_analysis, is_active, user_id) VALUES ($1, $2, $3, TRUE, $4) RETURNING *',
+            [file.name, rawText, JSON.stringify(analysisJson), userId]
         );
 
         return NextResponse.json({
@@ -73,7 +80,13 @@ export async function POST(req) {
 
 export async function GET() {
     try {
-        const result = await query('SELECT * FROM cv_data WHERE is_active = TRUE ORDER BY uploaded_at DESC LIMIT 1');
+        const session = await auth();
+        if (!session?.user?.id) {
+            return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+        }
+        const userId = session.user.id;
+
+        const result = await query('SELECT * FROM cv_data WHERE is_active = TRUE AND user_id = $1 ORDER BY uploaded_at DESC LIMIT 1', [userId]);
         return NextResponse.json({
             success: true,
             cv: result.rows[0] || null

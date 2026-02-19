@@ -5,8 +5,10 @@ import {
     RefreshCw, Download, Search, X,
     Briefcase, MapPin, DollarSign, Calendar,
     ExternalLink, ChevronDown, CheckCircle,
-    Clock, XCircle, AlertCircle
+    Clock, XCircle, AlertCircle, LogOut, User, Sparkles, LayoutDashboard,
+    Calendar as CalendarIcon, Clock as ClockIcon
 } from 'lucide-react';
+import { signOut } from '@/app/actions';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -23,7 +25,6 @@ import {
 import { Line, Doughnut, Bar } from 'react-chartjs-2';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Calendar as CalendarIcon, Clock as ClockIcon, User, LayoutDashboard, Sparkles } from 'lucide-react';
 import CvUpload from './CvUpload';
 
 // Register ChartJS components
@@ -69,7 +70,7 @@ function StageNoteEditor({ initialNotes, onSave }) {
     );
 }
 
-export default function Dashboard() {
+export default function Dashboard({ session }) {
     const [stats, setStats] = useState(null);
     const [analytics, setAnalytics] = useState(null);
     const [applications, setApplications] = useState([]);
@@ -299,6 +300,20 @@ export default function Dashboard() {
                         <button className="btn btn-primary" onClick={() => loadData()}>
                             <RefreshCw size={18} /> Refresh
                         </button>
+
+                        <div className="flex items-center gap-3 pl-4 border-l border-white/10 ml-2">
+                            <div className="flex items-center gap-2 text-sm text-gray-300">
+                                <User size={16} />
+                                <span className="hidden md:inline">{session?.user?.email}</span>
+                            </div>
+                            <button
+                                onClick={() => signOut()}
+                                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all"
+                            >
+                                <LogOut size={16} />
+                                <span className="hidden md:inline">Logout</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </header>
@@ -570,7 +585,7 @@ export default function Dashboard() {
                                                 <div className="mt-6 border-t border-gray-700/50 pt-6 animate-in fade-in slide-in-from-top-2 duration-300">
                                                     {/* Tabs */}
                                                     <div className="flex border-b border-gray-700/50 mb-6 gap-6 overflow-x-auto">
-                                                        {['details', 'prep', 'coach', 'content', 'interviews'].map((tab) => (
+                                                        {['details', 'company', 'prep', 'coach', 'content', 'interviews'].map((tab) => (
                                                             <button
                                                                 key={tab}
                                                                 onClick={(e) => {
@@ -583,6 +598,7 @@ export default function Dashboard() {
                                                                     }`}
                                                             >
                                                                 {tab === 'details' && 'Job Details'}
+                                                                {tab === 'company' && 'Company Info'}
                                                                 {tab === 'prep' && 'Interview Prep'}
                                                                 {tab === 'coach' && 'AI Coach'}
                                                                 {tab === 'content' && 'Original Post'}
@@ -596,6 +612,38 @@ export default function Dashboard() {
 
                                                     {/* Content Area */}
                                                     <div className="text-gray-300">
+                                                        {/* --- COMPANY TAB --- */}
+                                                        {activeTab === 'company' && (
+                                                            <div className="space-y-6">
+                                                                <div className="bg-gray-800/30 p-6 rounded-2xl border border-gray-700/50">
+                                                                    <div className="flex items-center gap-4 mb-6">
+                                                                        <div className="w-16 h-16 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400 font-bold text-2xl">
+                                                                            {app.company.charAt(0)}
+                                                                        </div>
+                                                                        <div>
+                                                                            <h3 className="text-2xl font-bold text-white">{app.company}</h3>
+                                                                            {app.company_url && (
+                                                                                <a href={app.company_url} target="_blank" className="text-blue-400 hover:underline text-sm flex items-center gap-1">
+                                                                                    Visit Website <ExternalLink size={12} />
+                                                                                </a>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+
+                                                                    {app.company_description ? (
+                                                                        <div>
+                                                                            <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3">About the Company</h4>
+                                                                            <p className="text-gray-300 leading-relaxed text-base">{app.company_description}</p>
+                                                                        </div>
+                                                                    ) : (
+                                                                        <div className="text-center py-8 text-gray-500 italic">
+                                                                            No company description available.
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        )}
+
                                                         {/* --- AI COACH TAB --- */}
                                                         {activeTab === 'coach' && (
                                                             <div className="space-y-6">
@@ -719,15 +767,6 @@ export default function Dashboard() {
                                                             <div className="space-y-6">
                                                                 {/* Company & Role Summary */}
                                                                 <div className="space-y-4">
-                                                                    {(app.company_description) && (
-                                                                        <div className="bg-gray-800/30 p-4 rounded-xl border border-gray-700/50">
-                                                                            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-2">
-                                                                                <Briefcase size={12} /> Company Summary
-                                                                            </h3>
-                                                                            <p className="text-gray-300 leading-relaxed text-sm">{app.company_description}</p>
-                                                                        </div>
-                                                                    )}
-
                                                                     {(app.role_summary) && (
                                                                         <div className="bg-gray-800/30 p-4 rounded-xl border border-gray-700/50">
                                                                             <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-2">

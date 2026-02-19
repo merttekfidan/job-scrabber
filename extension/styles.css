@@ -18,7 +18,50 @@ body {
   flex-direction: column;
 }
 
+/* User Status Styles */
+.user-status {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 4px 8px;
+  border-radius: 12px;
+  gap: 6px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #666;
+}
+
+.status-dot.connected {
+  background-color: #10b981;
+  /* Green */
+  box-shadow: 0 0 4px #10b981;
+}
+
+.status-dot.disconnected {
+  background-color: #ef4444;
+  /* Red */
+}
+
+.user-email a {
+  color: #ef4444;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.user-email a:hover {
+  text-decoration: underline;
+}
+
 header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   padding: 20px;
@@ -272,6 +315,7 @@ footer {
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -283,6 +327,7 @@ footer {
     opacity: 0;
     max-height: 0;
   }
+
   to {
     opacity: 1;
     max-height: 500px;
@@ -319,5 +364,5 @@ footer {
 .env-btn.active {
   background: white;
   color: #667eea;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }

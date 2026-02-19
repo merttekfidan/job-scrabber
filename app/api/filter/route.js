@@ -1,8 +1,15 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import { auth } from '@/auth';
 
 export async function GET(request) {
     try {
+        const session = await auth();
+        if (!session?.user?.id) {
+            return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+        }
+        const userId = session.user.id;
+
         const { searchParams } = new URL(request.url);
         const status = searchParams.get('status');
         const company = searchParams.get('company');
@@ -12,9 +19,9 @@ export async function GET(request) {
         const limit = parseInt(searchParams.get('limit') || '50');
         const offset = parseInt(searchParams.get('offset') || '0');
 
-        let sql = 'SELECT * FROM applications WHERE 1=1';
-        const params = [];
-        let paramIndex = 1;
+        let sql = 'SELECT * FROM applications WHERE user_id = $1';
+        const params = [userId];
+        let paramIndex = 2;
 
         if (status) { sql += ` AND status = $${paramIndex++}`; params.push(status); }
         if (company) { sql += ` AND company = $${paramIndex++}`; params.push(company); }

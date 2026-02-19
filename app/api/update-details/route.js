@@ -1,8 +1,15 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import { auth } from '@/auth';
 
 export async function POST(request) {
     try {
+        const session = await auth();
+        if (!session?.user?.id) {
+            return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+        }
+        const userId = session.user.id;
+
         const body = await request.json();
         const { id, updates } = body;
 
@@ -40,7 +47,8 @@ export async function POST(request) {
         }
 
         values.push(id);
-        const sql = `UPDATE applications SET ${fields.join(', ')}, updated_at = NOW() WHERE id = $${paramIndex} RETURNING *`;
+        values.push(userId);
+        const sql = `UPDATE applications SET ${fields.join(', ')}, updated_at = NOW() WHERE id = $${paramIndex} AND user_id = $${paramIndex + 1} RETURNING *`;
 
         const result = await query(sql, values);
 

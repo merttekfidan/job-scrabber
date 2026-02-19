@@ -1,10 +1,17 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import { auth } from '@/auth';
 import { callGroqAPI, parseAIResponse } from '@/lib/ai';
 import { CV_SWOT_ANALYSIS_PROMPT, PERSONALIZED_PREP_PROMPT } from '@/lib/prompts';
 
 export async function POST(req) {
     try {
+        const session = await auth();
+        if (!session?.user?.id) {
+            return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+        }
+        const userId = session.user.id;
+
         const { applicationId } = await req.json();
 
         if (!applicationId) {
@@ -12,14 +19,14 @@ export async function POST(req) {
         }
 
         // 1. Fetch Job Application Details
-        const appResult = await query('SELECT * FROM applications WHERE id = $1', [applicationId]);
+        const appResult = await query('SELECT * FROM applications WHERE id = $1 AND user_id = $2', [applicationId, userId]);
         if (appResult.rows.length === 0) {
             return NextResponse.json({ success: false, error: 'Application not found' }, { status: 404 });
         }
         const application = appResult.rows[0];
 
         // 2. Fetch Active CV
-        const cvResult = await query('SELECT * FROM cv_data WHERE is_active = TRUE ORDER BY uploaded_at DESC LIMIT 1');
+        const cvResult = await query('SELECT * FROM cv_data WHERE is_active = TRUE AND user_id = $1 ORDER BY uploaded_at DESC LIMIT 1', [userId]);
         if (cvResult.rows.length === 0) {
             return NextResponse.json({ success: false, error: 'No active CV found. Please upload one first.' }, { status: 400 });
         }

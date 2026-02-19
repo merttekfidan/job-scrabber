@@ -16,7 +16,50 @@ document.addEventListener('DOMContentLoaded', async () => {
   await loadSettings();
   await updateStats();
   await loadLastCapture();
+  await checkConnection();
 });
+
+// Check connection to backend
+async function checkConnection() {
+  const userStatusDiv = document.getElementById('userStatus');
+  const statusDot = userStatusDiv.querySelector('.status-dot');
+  const userEmailSpan = userStatusDiv.querySelector('.user-email');
+
+  try {
+    const sheetsUrl = sheetsUrlInput.value.trim();
+    if (!sheetsUrl) return;
+
+    // Construct stats URL from save URL (remove /save and add /stats)
+    const statsUrl = sheetsUrl.replace('/save', '/stats');
+
+    const response = await fetch(statsUrl, {
+      credentials: 'include' // Send cookies
+    });
+
+    if (response.status === 401) {
+      statusDot.className = 'status-dot disconnected';
+      userEmailSpan.innerHTML = '<a href="' + sheetsUrl.replace('/api/save', '/login') + '" target="_blank">Login Required</a>';
+      return;
+    }
+
+    if (response.ok) {
+      const data = await response.json();
+      if (data.user && data.user.email) {
+        statusDot.className = 'status-dot connected';
+        userEmailSpan.textContent = data.user.email;
+
+        // Save to local storage for quick access
+        chrome.storage.local.set({ userEmail: data.user.email });
+      }
+    } else {
+      throw new Error('Failed to connect');
+    }
+  } catch (error) {
+    console.error('Connection check failed:', error);
+    statusDot.className = 'status-dot disconnected';
+    userEmailSpan.textContent = 'Offline / Error';
+  }
+}
 
 // Load settings from storage
 async function loadSettings() {

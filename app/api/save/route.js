@@ -1,8 +1,15 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import { auth } from '@/auth';
 
 export async function POST(request) {
     try {
+        const session = await auth();
+        if (!session?.user?.id) {
+            return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+        }
+        const userId = session.user.id;
+
         const body = await request.json();
         const {
             jobTitle, company, location, workMode, salary, applicationDate,
@@ -27,8 +34,8 @@ export async function POST(request) {
             return NextResponse.json({ success: false, error: 'Missing required fields' }, { status: 400 });
         }
 
-        // Check for duplicate
-        const duplicateCheck = await query('SELECT id FROM applications WHERE job_url = $1', [jobUrl]);
+        // Check for duplicate for this user
+        const duplicateCheck = await query('SELECT id FROM applications WHERE job_url = $1 AND user_id = $2', [jobUrl, userId]);
 
         if (duplicateCheck.rows.length > 0) {
             // Update
@@ -41,7 +48,7 @@ export async function POST(request) {
           interview_prep_questions_to_ask = $14, interview_prep_potential_red_flags = $15, 
           source = $16, original_content = $17, interview_stages = $18, role_summary = $19, 
           formatted_content = $21, negative_signals = $22, updated_at = NOW()
-        WHERE job_url = $20 RETURNING id`,
+        WHERE job_url = $20 AND user_id = $23 RETURNING id`,
                 [
                     jobTitle, company, location, validWorkMode, salary, applicationDate, companyUrl,
                     status || 'Applied',
@@ -58,7 +65,8 @@ export async function POST(request) {
                     roleSummary || null,
                     body.formattedContent || null,
                     JSON.stringify(body.negativeSignals || []),
-                    jobUrl
+                    jobUrl,
+                    userId
                 ]
             );
             return NextResponse.json({ success: true, message: 'Application updated', id: result.rows[0].id });
@@ -71,8 +79,8 @@ export async function POST(request) {
         job_url, company_url, status, key_responsibilities, required_skills, 
         preferred_skills, company_description, interview_prep_key_talking_points, 
         interview_prep_questions_to_ask, interview_prep_potential_red_flags, source,
-        original_content, interview_stages, role_summary, formatted_content, negative_signals
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22) 
+        original_content, interview_stages, role_summary, formatted_content, negative_signals, user_id
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23) 
       RETURNING id`,
             [
                 jobTitle, company, location, validWorkMode, salary, applicationDate,
@@ -89,7 +97,8 @@ export async function POST(request) {
                 JSON.stringify(interviewStages || []),
                 roleSummary || null,
                 body.formattedContent || null,
-                JSON.stringify(body.negativeSignals || [])
+                JSON.stringify(body.negativeSignals || []),
+                userId
             ]
         );
 

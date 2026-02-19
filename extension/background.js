@@ -242,6 +242,7 @@ async function syncToRemoteStorage(applicationData) {
         // Send data to remote endpoint
         const response = await fetch(webAppUrl, {
             method: 'POST',
+            credentials: 'include', //  <-- IMPORTANT: Send cookies for authentication
             headers: {
                 'Content-Type': 'application/json',
             },
