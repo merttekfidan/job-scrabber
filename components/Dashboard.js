@@ -724,7 +724,7 @@ export default function Dashboard({ session }) {
                                                     <div className="text-gray-300">
                                                         {/* --- COMPANY TAB --- */}
                                                         {activeTab === 'company' && (
-                                                            <div>
+                                                            <div className="space-y-6">
                                                                 <div className="flex justify-between items-center mb-6">
                                                                     <h3 className="text-xl font-bold text-white">Company Intelligence</h3>
                                                                     <div className="flex gap-2">
@@ -774,8 +774,19 @@ export default function Dashboard({ session }) {
                                                                             <p className="text-gray-300 leading-relaxed text-base">{app.company_description}</p>
                                                                         </div>
                                                                     ) : (
-                                                                        <div className="text-center py-8 text-gray-500 italic">
-                                                                            No company description available.
+                                                                        <div className="text-center py-10">
+                                                                            <p className="text-gray-400 mb-6 italic">No company description available.</p>
+                                                                            <button
+                                                                                onClick={(e) => {
+                                                                                    e.stopPropagation();
+                                                                                    handleGenerateInsights(app.id);
+                                                                                }}
+                                                                                disabled={isAnalyzing}
+                                                                                className="btn btn-primary btn-sm mx-auto"
+                                                                            >
+                                                                                {isAnalyzing ? <RefreshCw size={16} className="animate-spin mr-2" /> : <Sparkles size={16} className="mr-2" />}
+                                                                                Generate Company Insights
+                                                                            </button>
                                                                         </div>
                                                                     )}
                                                                 </div>
