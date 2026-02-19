@@ -316,11 +316,7 @@ export default function Dashboard({ session }) {
     };
 
     const handleShare = (appId) => {
-        // Find the app to get the token
-        const app = applications.find(a => a.id === appId);
-        const token = app?.share_token || appId; // Fallback to ID if token missing (shouldn't happen with migration)
-
-        const url = `${window.location.origin}/share/${token}`;
+        const url = `${window.location.origin}/share/${appId}`;
         navigator.clipboard.writeText(url);
         showToast('Secure share link copied to clipboard!', 'success');
     };

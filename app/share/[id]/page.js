@@ -8,18 +8,18 @@ import {
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
-// Force dynamic rendering since we are fetching data based on token
+// Force dynamic rendering since we are fetching data based on ID
 export const dynamic = 'force-dynamic';
 
-async function getApplication(token) {
-    // Fetch by share_token (UUID) for security
-    const result = await query('SELECT * FROM applications WHERE share_token = $1', [token]);
+async function getApplication(id) {
+    // Fetch by simple ID
+    const result = await query('SELECT * FROM applications WHERE id = $1', [id]);
     return result.rows[0];
 }
 
 export default async function SharePage({ params }) {
-    const { token } = await params;
-    const app = await getApplication(token);
+    const { id } = await params;
+    const app = await getApplication(id);
 
     if (!app) {
         notFound();
