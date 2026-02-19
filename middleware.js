@@ -1,10 +1,18 @@
-import { NextResponse } from 'next/server';
+import NextAuth from "next-auth"
+import authConfig from "./auth.config"
+import { NextResponse } from "next/server"
 
-export function middleware(request) {
+const { auth } = NextAuth(authConfig)
+
+export default auth(async function middleware(req) {
+    // 1. Run Auth Middleware (handled by wrapper)
+    // Note: The wrapper attaches 'auth' object to req
+
+    // 2. CORS Logic
     const response = NextResponse.next();
 
     // Get origin from request header
-    const origin = request.headers.get('origin') || '*';
+    const origin = req.headers.get('origin') || '*';
     const finalOrigin = (origin === 'null' || !origin) ? '*' : origin;
 
     // Set CORS headers
@@ -13,7 +21,7 @@ export function middleware(request) {
     response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
     // Handle preflight requests
-    if (request.method === 'OPTIONS') {
+    if (req.method === 'OPTIONS') {
         return new NextResponse(null, {
             status: 200,
             headers: {
@@ -25,8 +33,10 @@ export function middleware(request) {
     }
 
     return response;
-}
+})
 
+// Configure Matcher
 export const config = {
-    matcher: '/api/:path*',
-};
+    // Match all paths except static files and images
+    matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+}
