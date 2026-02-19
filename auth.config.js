@@ -16,7 +16,10 @@ export default {
         authorized({ auth, request: { nextUrl } }) {
             const isLoggedIn = !!auth?.user;
             const isOnDashboard = nextUrl.pathname === '/';
-            const isOnLoginPage = nextUrl.pathname === '/login'; // Or check regex for auth pages
+            const isOnLoginPage = nextUrl.pathname === '/login';
+            const isSharePage = nextUrl.pathname.startsWith('/share/');
+
+            if (isSharePage) return true; // Allow public access to share pages
 
             if (isOnDashboard) {
                 if (isLoggedIn) return true;

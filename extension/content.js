@@ -26,40 +26,28 @@ function extractPageContent() {
     // Get the main content area (try to avoid headers/footers/navigation)
     let mainContent = '';
 
-    // Try to find main content container
-    const contentSelectors = [
-        'main',
-        'article',
-        '[role="main"]',
-        '#main-content',
-        '.job-details',
-        '.job-description',
-        '.job-view-layout',
-        'body'
-    ];
+    // Strategy: Capture EVERYTHING visible. The LLM is smart enough to filter noise.
+    // We clone the body to avoid modifying the actual page
+    const clone = document.body.cloneNode(true);
 
-    for (const selector of contentSelectors) {
-        const element = document.querySelector(selector);
-        if (element && element.textContent.trim().length > 200) {
-            mainContent = element.textContent.trim();
-            break;
-        }
-    }
+    // Remove scripts, styles, and hidden elements to reduce noise
+    const noiseSelectors = ['script', 'style', 'noscript', 'iframe', 'svg', '[hidden]', '[aria-hidden="true"]'];
+    noiseSelectors.forEach(selector => {
+        clone.querySelectorAll(selector).forEach(el => el.remove());
+    });
 
-    // Fallback to body if nothing found
-    if (!mainContent) {
-        mainContent = document.body.textContent.trim();
-    }
+    // Get text content
+    mainContent = clone.innerText || clone.textContent;
 
-    // Clean up the content (remove excessive whitespace)
+    // Clean up excessive whitespace
     mainContent = mainContent
-        .replace(/\s+/g, ' ')  // Replace multiple spaces with single space
-        .replace(/\n\s*\n/g, '\n')  // Remove empty lines
+        .replace(/\s+/g, ' ')
+        .replace(/\n\s*\n/g, '\n')
         .trim();
 
-    // Limit content length to avoid token limits (keep first 8000 chars)
-    if (mainContent.length > 8000) {
-        mainContent = mainContent.substring(0, 8000) + '...';
+    // Limit content length to avoid token limits (keep first 25000 chars)
+    if (mainContent.length > 25000) {
+        mainContent = mainContent.substring(0, 25000) + '...';
     }
 
     return {

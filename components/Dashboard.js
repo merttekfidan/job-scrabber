@@ -5,7 +5,7 @@ import {
     RefreshCw, Download, Search, X,
     Briefcase, MapPin, DollarSign, Calendar,
     ExternalLink, ChevronDown, CheckCircle,
-    Clock, XCircle, AlertCircle, LogOut, User, Sparkles, LayoutDashboard,
+    Clock, XCircle, AlertCircle, LogOut, User, Sparkles, LayoutDashboard, Share2,
     Calendar as CalendarIcon, Clock as ClockIcon
 } from 'lucide-react';
 import { signOut } from '@/app/actions';
@@ -42,6 +42,11 @@ function StageNoteEditor({ initialNotes, onSave }) {
         setIsDirty(false);
     }, [initialNotes]);
 
+    const handleSave = () => {
+        onSave(notes);
+        setIsDirty(false);
+    };
+
     return (
         <div className="p-3 flex flex-col gap-2">
             <textarea
@@ -55,17 +60,71 @@ function StageNoteEditor({ initialNotes, onSave }) {
                 }}
             />
             {isDirty && (
-                <button
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        onSave(notes);
-                        setIsDirty(false);
-                    }}
-                    className="self-end px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded hover:bg-blue-500 transition-colors flex items-center gap-1"
-                >
-                    <CheckCircle size={12} /> Save
-                </button>
+                <div className="flex justify-end gap-2">
+                    <span className="text-xs text-amber-400 self-center">Unsaved changes</span>
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleSave();
+                        }}
+                        className="px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded hover:bg-blue-500 transition-colors flex items-center gap-1"
+                    >
+                        <CheckCircle size={12} /> Save
+                    </button>
+                </div>
             )}
+        </div>
+    );
+}
+
+function GeneralNoteEditor({ initialNotes, onSave }) {
+    const [notes, setNotes] = useState(initialNotes || '');
+    const [isDirty, setIsDirty] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+
+    useEffect(() => {
+        setNotes(initialNotes || '');
+        setIsDirty(false);
+    }, [initialNotes]);
+
+    const handleSave = async () => {
+        setIsSaving(true);
+        await onSave(notes);
+        setIsSaving(false);
+        setIsDirty(false);
+    };
+
+    return (
+        <div className="flex flex-col gap-3 h-full">
+            <div className="flex justify-between items-center bg-gray-800/30 p-3 rounded-t-lg border border-gray-700/50 border-b-0">
+                <span className="text-sm font-medium text-gray-400">My General Notes</span>
+                {isDirty ? (
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleSave();
+                        }}
+                        disabled={isSaving}
+                        className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-500 transition-colors flex items-center gap-2 shadow-lg shadow-blue-900/20"
+                    >
+                        {isSaving ? <RefreshCw size={14} className="animate-spin" /> : <CheckCircle size={14} />}
+                        Save Notes
+                    </button>
+                ) : (
+                    <span className="text-xs text-green-500 flex items-center gap-1">
+                        <CheckCircle size={12} /> Saved
+                    </span>
+                )}
+            </div>
+            <textarea
+                className="w-full flex-1 bg-gray-900/30 border border-gray-700/50 rounded-b-lg p-6 text-base text-gray-200 focus:ring-1 focus:ring-blue-500/50 outline-none resize-none min-h-[400px] leading-relaxed"
+                placeholder="Write your thoughts, to-do lists, or draft emails here..."
+                value={notes}
+                onChange={(e) => {
+                    setNotes(e.target.value);
+                    setIsDirty(true);
+                }}
+            />
         </div>
     );
 }
@@ -214,6 +273,56 @@ export default function Dashboard({ session }) {
         } finally {
             setIsAnalyzing(false);
         }
+    };
+
+    const handleGenerateInsights = async (appId) => {
+        try {
+            setIsAnalyzing(true);
+            showToast('Generating deep insights... this may take a moment.');
+
+            const res = await fetch('/api/ai/company-insights', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ applicationId: appId })
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+
+                // Merge new insights into existing analysis
+                setApplications(apps => apps.map(app => {
+                    if (app.id === appId) {
+                        const currentAnalysis = app.personalized_analysis || {};
+                        const updatedAnalysis = {
+                            ...currentAnalysis,
+                            companyInsights: data.insights,
+                            analyzedAt: new Date().toISOString()
+                        };
+                        return { ...app, personalized_analysis: updatedAnalysis };
+                    }
+                    return app;
+                }));
+
+                showToast('Company insights generated!', 'success');
+            } else {
+                throw new Error('Failed to generate insights');
+            }
+        } catch (error) {
+            console.error(error);
+            showToast('Failed to generate insights', 'error');
+        } finally {
+            setIsAnalyzing(false);
+        }
+    };
+
+    const handleShare = (appId) => {
+        // Find the app to get the token
+        const app = applications.find(a => a.id === appId);
+        const token = app?.share_token || appId; // Fallback to ID if token missing (shouldn't happen with migration)
+
+        const url = `${window.location.origin}/share/${token}`;
+        navigator.clipboard.writeText(url);
+        showToast('Secure share link copied to clipboard!', 'success');
     };
 
 
@@ -585,7 +694,7 @@ export default function Dashboard({ session }) {
                                                 <div className="mt-6 border-t border-gray-700/50 pt-6 animate-in fade-in slide-in-from-top-2 duration-300">
                                                     {/* Tabs */}
                                                     <div className="flex border-b border-gray-700/50 mb-6 gap-6 overflow-x-auto">
-                                                        {['details', 'company', 'prep', 'coach', 'content', 'interviews'].map((tab) => (
+                                                        {['details', 'company', 'prep', 'notes', 'coach', 'content', 'interviews'].map((tab) => (
                                                             <button
                                                                 key={tab}
                                                                 onClick={(e) => {
@@ -598,8 +707,9 @@ export default function Dashboard({ session }) {
                                                                     }`}
                                                             >
                                                                 {tab === 'details' && 'Job Details'}
-                                                                {tab === 'company' && 'Company Info'}
+                                                                {tab === 'company' && 'Company Intelligence'}
                                                                 {tab === 'prep' && 'Interview Prep'}
+                                                                {tab === 'notes' && 'My Notes'}
                                                                 {tab === 'coach' && 'AI Coach'}
                                                                 {tab === 'content' && 'Original Post'}
                                                                 {tab === 'interviews' && 'Interviews'}
@@ -614,8 +724,36 @@ export default function Dashboard({ session }) {
                                                     <div className="text-gray-300">
                                                         {/* --- COMPANY TAB --- */}
                                                         {activeTab === 'company' && (
-                                                            <div className="space-y-6">
-                                                                <div className="bg-gray-800/30 p-6 rounded-2xl border border-gray-700/50">
+                                                            <div>
+                                                                <div className="flex justify-between items-center mb-6">
+                                                                    <h3 className="text-xl font-bold text-white">Company Intelligence</h3>
+                                                                    <div className="flex gap-2">
+                                                                        <button
+                                                                            onClick={(e) => {
+                                                                                e.stopPropagation();
+                                                                                handleShare(app.id);
+                                                                            }}
+                                                                            className="btn btn-sm bg-gray-700 hover:bg-gray-600 border-none text-gray-300 transition-colors"
+                                                                            title="Copy Public Share Link"
+                                                                        >
+                                                                            <Share2 size={14} className="mr-2" />
+                                                                            Share
+                                                                        </button>
+                                                                        <button
+                                                                            onClick={(e) => {
+                                                                                e.stopPropagation();
+                                                                                handleGenerateInsights(app.id);
+                                                                            }}
+                                                                            disabled={isAnalyzing}
+                                                                            className="btn btn-primary btn-sm bg-indigo-600 hover:bg-indigo-500 border-none shadow-lg shadow-indigo-900/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                                        >
+                                                                            {isAnalyzing ? <RefreshCw size={14} className="animate-spin mr-2" /> : <Sparkles size={14} className="mr-2" />}
+                                                                            {isAnalyzing ? 'Generating...' : 'Generate Deep Insights'}
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div className="bg-gray-800/30 p-6 rounded-2xl border border-gray-700/50 mb-6">
                                                                     <div className="flex items-center gap-4 mb-6">
                                                                         <div className="w-16 h-16 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400 font-bold text-2xl">
                                                                             {app.company.charAt(0)}
@@ -641,6 +779,75 @@ export default function Dashboard({ session }) {
                                                                         </div>
                                                                     )}
                                                                 </div>
+
+                                                                {/* Render AI Insights if available */}
+                                                                {(() => {
+                                                                    const insights = app.personalized_analysis?.companyInsights;
+                                                                    if (!insights) return null;
+
+                                                                    return (
+                                                                        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+
+                                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                                                <div className="bg-indigo-500/10 p-5 rounded-2xl border border-indigo-500/20">
+                                                                                    <h4 className="text-indigo-400 font-bold mb-2 flex items-center gap-2">
+                                                                                        <Briefcase size={18} /> Strategic Focus
+                                                                                    </h4>
+                                                                                    <p className="text-gray-300 text-sm leading-relaxed">{insights.strategicFocus}</p>
+                                                                                </div>
+                                                                                <div className="bg-pink-500/10 p-5 rounded-2xl border border-pink-500/20">
+                                                                                    <h4 className="text-pink-400 font-bold mb-2 flex items-center gap-2">
+                                                                                        <User size={18} /> Culture & Values
+                                                                                    </h4>
+                                                                                    <p className="text-gray-300 text-sm leading-relaxed">{insights.cultureFit}</p>
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div className="space-y-4">
+                                                                                <div className="bg-gray-800/50 p-6 rounded-2xl border border-gray-700/50">
+                                                                                    <h4 className="text-green-400 font-bold mb-3">Why {app.company}?</h4>
+                                                                                    <div className="bg-green-500/5 p-4 rounded-xl border border-green-500/10 text-gray-300 italic">
+                                                                                        "{insights.whyUsAnswer}"
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                <div className="bg-gray-800/50 p-6 rounded-2xl border border-gray-700/50">
+                                                                                    <h4 className="text-blue-400 font-bold mb-3">Why You?</h4>
+                                                                                    <div className="bg-blue-500/5 p-4 rounded-xl border border-blue-500/10 text-gray-300 italic">
+                                                                                        "{insights.whyYouAnswer}"
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    );
+                                                                })()}
+                                                            </div>
+                                                        )}
+
+                                                        {/* --- MY NOTES TAB --- */}
+                                                        {activeTab === 'notes' && (
+                                                            <div className="h-full">
+                                                                <GeneralNoteEditor
+                                                                    initialNotes={(() => {
+                                                                        // Safely access generalNotes from interview_prep_notes
+                                                                        const prep = typeof app.interview_prep_notes === 'string'
+                                                                            ? parseJson(app.interview_prep_notes)
+                                                                            : app.interview_prep_notes || {};
+                                                                        return prep.generalNotes || '';
+                                                                    })()}
+                                                                    onSave={async (newNotes) => {
+                                                                        // 1. Get current prep notes
+                                                                        const currentPrep = typeof app.interview_prep_notes === 'string'
+                                                                            ? parseJson(app.interview_prep_notes)
+                                                                            : app.interview_prep_notes || {};
+
+                                                                        // 2. Update only generalNotes
+                                                                        const updatedPrep = { ...currentPrep, generalNotes: newNotes };
+
+                                                                        // 3. Save
+                                                                        await handleUpdateDetails(app.id, { interview_prep_notes: updatedPrep });
+                                                                    }}
+                                                                />
                                                             </div>
                                                         )}
 

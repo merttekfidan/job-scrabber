@@ -27,13 +27,14 @@ export async function POST(request) {
             const allowed = [
                 'status', 'notes', 'interview_stages', 'salary',
                 'work_mode', 'location', 'key_responsibilities',
-                'required_skills', 'preferred_skills', 'original_content'
+                'required_skills', 'preferred_skills', 'original_content',
+                'interview_prep_notes'
             ];
 
             if (allowed.includes(key)) {
                 fields.push(`${key} = $${paramIndex}`);
                 // Handle JSON fields
-                if (['interview_stages', 'key_responsibilities', 'required_skills', 'preferred_skills'].includes(key)) {
+                if (['interview_stages', 'key_responsibilities', 'required_skills', 'preferred_skills', 'interview_prep_notes'].includes(key)) {
                     values.push(JSON.stringify(value));
                 } else {
                     values.push(value);
