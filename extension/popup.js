@@ -3,10 +3,9 @@ const applyBtn = document.getElementById('applyBtn');
 const exportBtn = document.getElementById('exportBtn');
 const settingsToggle = document.getElementById('settingsToggle');
 const settingsPanel = document.getElementById('settingsPanel');
-const apiKeyInput = document.getElementById('apiKey');
 const sheetsUrlInput = document.getElementById('sheetsUrl');
-const saveApiKeyBtn = document.getElementById('saveApiKey');
-const openSheetBtn = document.getElementById('openSheetBtn');
+const saveSettingsBtn = document.getElementById('saveSettings');
+const openDashboardBtn = document.getElementById('openDashboardBtn');
 const statusDiv = document.getElementById('status');
 const lastCaptureDiv = document.getElementById('lastCapture');
 const totalAppsSpan = document.getElementById('totalApps');
@@ -26,19 +25,24 @@ async function checkConnection() {
   const userEmailSpan = userStatusDiv.querySelector('.user-email');
 
   try {
-    const sheetsUrl = sheetsUrlInput.value.trim();
-    if (!sheetsUrl) return;
+    const backendUrl = sheetsUrlInput.value.trim();
+    if (!backendUrl) {
+      statusDot.className = 'status-dot disconnected';
+      userEmailSpan.textContent = 'No backend configured';
+      return;
+    }
 
-    // Construct stats URL from save URL (remove /save and add /stats)
-    const statsUrl = sheetsUrl.replace('/save', '/stats');
+    // Derive stats URL from backend URL
+    const baseUrl = backendUrl.replace(/\/api\/save\/?$/, '');
+    const statsUrl = baseUrl + '/api/stats';
 
     const response = await fetch(statsUrl, {
-      credentials: 'include' // Send cookies
+      credentials: 'include'
     });
 
     if (response.status === 401) {
       statusDot.className = 'status-dot disconnected';
-      userEmailSpan.innerHTML = '<a href="' + sheetsUrl.replace('/api/save', '/login') + '" target="_blank">Login Required</a>';
+      userEmailSpan.innerHTML = '<a href="' + baseUrl + '/login" target="_blank">Login Required</a>';
       return;
     }
 
@@ -47,8 +51,6 @@ async function checkConnection() {
       if (data.user && data.user.email) {
         statusDot.className = 'status-dot connected';
         userEmailSpan.textContent = data.user.email;
-
-        // Save to local storage for quick access
         chrome.storage.local.set({ userEmail: data.user.email });
       }
     } else {
@@ -63,16 +65,10 @@ async function checkConnection() {
 
 // Load settings from storage
 async function loadSettings() {
-  const result = await chrome.storage.local.get(['groqApiKey', 'sheetsWebAppUrl', 'autoExport']);
-  if (result.groqApiKey) {
-    apiKeyInput.value = result.groqApiKey;
-  }
-  if (result.sheetsWebAppUrl) {
-    sheetsUrlInput.value = result.sheetsWebAppUrl;
-    openSheetBtn.classList.remove('hidden');
-  } else {
-    // Default to production URL
-    sheetsUrlInput.value = 'https://aware-endurance-production-13b8.up.railway.app/api/save';
+  const result = await chrome.storage.local.get(['backendUrl', 'autoExport']);
+  if (result.backendUrl) {
+    sheetsUrlInput.value = result.backendUrl;
+    openDashboardBtn.classList.remove('hidden');
   }
   if (result.autoExport) {
     document.getElementById('autoExport').checked = result.autoExport;
@@ -122,10 +118,10 @@ function showStatus(message, type = 'info') {
 // Apply button click handler
 applyBtn.addEventListener('click', async () => {
   try {
-    // Check if API key is set
-    const result = await chrome.storage.local.get(['groqApiKey']);
-    if (!result.groqApiKey) {
-      showStatus('Please set your Groq API key in settings', 'error');
+    // Check if backend URL is set
+    const result = await chrome.storage.local.get(['backendUrl']);
+    if (!result.backendUrl) {
+      showStatus('Please configure your backend URL in settings', 'error');
       settingsPanel.classList.remove('hidden');
       return;
     }
@@ -156,7 +152,7 @@ applyBtn.addEventListener('click', async () => {
       if (response && response.success) {
         showStatus('Processing with AI...', 'info');
 
-        // Send to background script for Gemini processing
+        // Send to background script for server-side processing
         chrome.runtime.sendMessage({
           action: 'processJobData',
           data: response.data
@@ -206,25 +202,9 @@ async function exportToCSV() {
       return;
     }
 
-    // Create CSV content
     const headers = [
-      'Timestamp',
-      'Job Title',
-      'Company',
-      'Location',
-      'Work Mode',
-      'Salary',
-      'Status',
-      'Job URL',
-      'Company URL',
-      'Key Responsibilities',
-      'Required Skills',
-      'Preferred Skills',
-      'Company Notes',
-      'Interview Prep Notes',
-      'Questions to Ask',
-      'Source',
-      'Applied Date'
+      'Timestamp', 'Job Title', 'Company', 'Location',
+      'Work Mode', 'Salary', 'Status', 'Job URL'
     ];
 
     const rows = apps.map(app => [
@@ -234,17 +214,8 @@ async function exportToCSV() {
       app.location || '',
       app.workMode || '',
       app.salary || '',
-      app.status,
-      app.jobUrl,
-      app.companyUrl || '',
-      app.keyResponsibilities?.join('; ') || '',
-      app.requiredSkills?.join('; ') || '',
-      app.preferredSkills?.join('; ') || '',
-      app.companyDescription || '',
-      JSON.stringify(app.interviewPrepNotes || {}),
-      app.interviewPrepNotes?.questionsToAsk?.join('; ') || '',
-      app.metadata?.jobBoardSource || '',
-      app.applicationDate
+      app.status || 'Applied',
+      app.jobUrl
     ]);
 
     const csvContent = [
@@ -252,7 +223,6 @@ async function exportToCSV() {
       ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
     ].join('\n');
 
-    // Create download
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -274,38 +244,38 @@ settingsToggle.addEventListener('click', () => {
 });
 
 // Save settings
-saveApiKeyBtn.addEventListener('click', async () => {
-  const apiKey = apiKeyInput.value.trim();
-  const sheetsUrl = sheetsUrlInput.value.trim();
+saveSettingsBtn.addEventListener('click', async () => {
+  const backendUrl = sheetsUrlInput.value.trim();
   const autoExport = document.getElementById('autoExport').checked;
 
-  if (!apiKey) {
-    showStatus('Please enter a Groq API key', 'error');
+  if (!backendUrl) {
+    showStatus('Please enter your backend URL', 'error');
     return;
   }
 
   await chrome.storage.local.set({
-    groqApiKey: apiKey,
-    sheetsWebAppUrl: sheetsUrl,
+    backendUrl: backendUrl,
     autoExport: autoExport
   });
 
-  // Show/hide Open Sheet button based on URL
-  if (sheetsUrl) {
-    openSheetBtn.classList.remove('hidden');
+  if (backendUrl) {
+    openDashboardBtn.classList.remove('hidden');
   } else {
-    openSheetBtn.classList.add('hidden');
+    openDashboardBtn.classList.add('hidden');
   }
 
   showStatus('Settings saved!', 'success');
   settingsPanel.classList.add('hidden');
+
+  // Re-check connection with new URL
+  await checkConnection();
 });
 
 // Environment Toggle Logic
 const envLiveBtn = document.getElementById('envLive');
 const envLocalBtn = document.getElementById('envLocal');
-const LIVE_URL = 'https://aware-endurance-production-13b8.up.railway.app/api/save';
-const LOCAL_URL = 'http://localhost:3000/api/save';
+const LIVE_URL = 'https://aware-endurance-production-13b8.up.railway.app';
+const LOCAL_URL = 'http://localhost:3000';
 
 function setEnvironment(env) {
   if (env === 'live') {
@@ -322,7 +292,6 @@ function setEnvironment(env) {
 envLiveBtn.addEventListener('click', () => setEnvironment('live'));
 envLocalBtn.addEventListener('click', () => setEnvironment('local'));
 
-// Update toggle state based on current input value
 sheetsUrlInput.addEventListener('input', updateToggleState);
 
 function updateToggleState() {
@@ -334,26 +303,16 @@ function updateToggleState() {
     envLocalBtn.classList.add('active');
     envLiveBtn.classList.remove('active');
   } else {
-    // Custom URL - deselect both
     envLiveBtn.classList.remove('active');
     envLocalBtn.classList.remove('active');
   }
 }
 
-// Ensure loadSettings also updates the toggle state
-const originalLoadSettings = loadSettings;
-loadSettings = async function () {
-  await originalLoadSettings();
-  updateToggleState();
-};
-
-// Open Google Sheet
-openSheetBtn.addEventListener('click', async () => {
-  const result = await chrome.storage.local.get(['sheetsWebAppUrl']);
-  if (result.sheetsWebAppUrl) {
-    // Extract sheet URL from Web App URL (it's returned in the response)
-    // For now, just open script.google.com
-    window.open('https://script.google.com/', '_blank');
-    showStatus('Tip: Find your sheet in "My recent files"', 'info');
+// Open Dashboard
+openDashboardBtn.addEventListener('click', async () => {
+  const result = await chrome.storage.local.get(['backendUrl']);
+  if (result.backendUrl) {
+    const dashboardUrl = result.backendUrl.replace(/\/api\/save\/?$/, '');
+    window.open(dashboardUrl, '_blank');
   }
 });

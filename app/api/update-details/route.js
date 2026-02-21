@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { auth } from '@/auth';
+import { UpdateDetailsSchema, validateBody } from '@/lib/validations';
+import { standardLimiter, getRateLimitKey } from '@/lib/rate-limit';
 
 export async function POST(request) {
     try {
@@ -10,12 +12,19 @@ export async function POST(request) {
         }
         const userId = session.user.id;
 
-        const body = await request.json();
-        const { id, updates } = body;
-
-        if (!id || !updates || Object.keys(updates).length === 0) {
-            return NextResponse.json({ success: false, error: 'ID and updates required' }, { status: 400 });
+        const rlKey = getRateLimitKey(request, `update-details:${userId}`);
+        const rlResult = standardLimiter(rlKey);
+        if (!rlResult.success) {
+            return NextResponse.json({ success: false, error: `Rate limited. Try again in ${rlResult.reset}s.` }, { status: 429 });
         }
+
+        const rawBody = await request.json();
+        const validation = validateBody(UpdateDetailsSchema, rawBody);
+        if (!validation.success) {
+            return NextResponse.json({ success: false, error: validation.error }, { status: validation.status });
+        }
+
+        const { id, updates } = validation.data;
 
         // build dynamic query
         const fields = [];

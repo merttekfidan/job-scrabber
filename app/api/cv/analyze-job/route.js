@@ -3,6 +3,8 @@ import { query } from '@/lib/db';
 import { auth } from '@/auth';
 import { callGroqAPI, parseAIResponse } from '@/lib/ai';
 import { CV_SWOT_ANALYSIS_PROMPT, PERSONALIZED_PREP_PROMPT } from '@/lib/prompts';
+import { AnalyzeJobSchema, validateBody } from '@/lib/validations';
+import { aiLimiter, getRateLimitKey } from '@/lib/rate-limit';
 
 export async function POST(req) {
     try {
@@ -12,11 +14,19 @@ export async function POST(req) {
         }
         const userId = session.user.id;
 
-        const { applicationId } = await req.json();
-
-        if (!applicationId) {
-            return NextResponse.json({ success: false, error: 'Application ID is required' }, { status: 400 });
+        const rlKey = getRateLimitKey(req, `ai:${userId}`);
+        const rlResult = aiLimiter(rlKey);
+        if (!rlResult.success) {
+            return NextResponse.json({ success: false, error: `AI rate limited. Try again in ${rlResult.reset}s.` }, { status: 429 });
         }
+
+        const rawBody = await req.json();
+        const validation = validateBody(AnalyzeJobSchema, rawBody);
+        if (!validation.success) {
+            return NextResponse.json({ success: false, error: validation.error }, { status: validation.status });
+        }
+
+        const { applicationId } = validation.data;
 
         // 1. Fetch Job Application Details
         const appResult = await query('SELECT * FROM applications WHERE id = $1 AND user_id = $2', [applicationId, userId]);

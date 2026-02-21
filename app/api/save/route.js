@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { auth } from '@/auth';
+import { SaveApplicationSchema, validateBody } from '@/lib/validations';
+import { standardLimiter, getRateLimitKey } from '@/lib/rate-limit';
 
 export async function POST(request) {
     try {
@@ -10,7 +12,27 @@ export async function POST(request) {
         }
         const userId = session.user.id;
 
-        const body = await request.json();
+        // Rate limit
+        const rlKey = getRateLimitKey(request, `save:${userId}`);
+        const rlResult = standardLimiter(rlKey);
+        if (!rlResult.success) {
+            return NextResponse.json(
+                { success: false, error: `Rate limited. Try again in ${rlResult.reset}s.` },
+                { status: 429 }
+            );
+        }
+
+        // Validate input
+        const rawBody = await request.json();
+        const validation = validateBody(SaveApplicationSchema, rawBody);
+        if (!validation.success) {
+            return NextResponse.json(
+                { success: false, error: validation.error },
+                { status: validation.status }
+            );
+        }
+
+        const body = validation.data;
         const {
             jobTitle, company, location, workMode, salary, applicationDate,
             jobUrl, companyUrl, status, keyResponsibilities, requiredSkills,

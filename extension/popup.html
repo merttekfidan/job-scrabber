@@ -53,18 +53,9 @@
       <div id="settingsPanel" class="settings-panel hidden">
         <h3>Settings</h3>
 
-        <!-- Groq API Key -->
-        <div class="setting-group">
-          <label for="apiKey">Groq API Key:</label>
-          <input type="password" id="apiKey" placeholder="Enter your API key">
-        </div>
-        <div class="setting-info">
-          <a href="https://console.groq.com/keys" target="_blank">Get API Key →</a>
-        </div>
-
         <!-- API Environment Toggle -->
         <div class="setting-group">
-          <label>API Environment:</label>
+          <label>Backend Environment:</label>
           <div class="env-toggle">
             <button type="button" class="env-btn active" data-env="live" id="envLive">Live (Railway)</button>
             <button type="button" class="env-btn" data-env="local" id="envLocal">Localhost</button>
@@ -73,15 +64,14 @@
 
         <!-- API Endpoint URL -->
         <div class="setting-group">
-          <label for="sheetsUrl">API Endpoint URL:</label>
-          <input type="text" id="sheetsUrl"
-            placeholder="https://aware-endurance-production-13b8.up.railway.app/api/save">
+          <label for="sheetsUrl">Backend URL:</label>
+          <input type="text" id="sheetsUrl" placeholder="Enter your backend URL">
         </div>
         <div class="setting-info">
-          <small>Enter the full URL to the /api/save endpoint</small>
+          <small>Base URL of your Job Scrabber backend</small>
         </div>
 
-        <button id="saveApiKey" class="save-btn">Save Settings</button>
+        <button id="saveSettings" class="save-btn">Save Settings</button>
 
         <!-- Auto Export Option -->
         <div class="setting-group">
@@ -92,9 +82,9 @@
         </div>
       </div>
 
-      <!-- Open Sheet Button -->
-      <button id="openSheetBtn" class="open-sheet-btn hidden">
-        📊 Open Google Sheet
+      <!-- Open Dashboard Button -->
+      <button id="openDashboardBtn" class="open-sheet-btn hidden">
+        📊 Open Dashboard
       </button>
     </main>
 

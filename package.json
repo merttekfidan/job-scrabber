@@ -1,5 +1,5 @@
 {
-    "name": "temp_next_app",
+    "name": "job-scrabber",
     "version": "0.1.0",
     "private": true,
     "scripts": {
@@ -28,6 +28,7 @@
         "react-dom": "19.2.3",
         "react-markdown": "^10.1.0",
         "remark-gfm": "^4.0.1",
+        "resend": "^6.9.2",
         "zod": "^4.3.6"
     },
     "devDependencies": {

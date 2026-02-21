@@ -13,6 +13,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     adapter: PostgreAdapter(pool),
     session: { strategy: "jwt" },
     ...authConfig,
+    cookies: {
+        sessionToken: {
+            name: process.env.NODE_ENV === 'production'
+                ? '__Secure-authjs.session-token'
+                : 'authjs.session-token',
+            options: {
+                httpOnly: true,
+                sameSite: 'lax',
+                path: '/',
+                secure: process.env.NODE_ENV === 'production',
+            },
+        },
+    },
     callbacks: {
         ...authConfig.callbacks,
         async jwt({ token, user }) {
@@ -33,6 +46,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             name: 'Email',
             credentials: {
                 email: { label: "Email", type: "email" },
+                code: { label: "Code", type: "text" },
             },
             async authorize(credentials) {
                 const email = credentials.email;
@@ -40,10 +54,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
                 if (!email || !code) return null;
 
-                // MOCK OTP VERIFICATION
-                if (code !== '123456') return null;
-
                 try {
+                    // Verify OTP from database
+                    const codeResult = await pool.query(
+                        `SELECT * FROM verification_codes 
+                         WHERE email = $1 AND code = $2 AND used = FALSE AND expires_at > NOW()
+                         ORDER BY created_at DESC LIMIT 1`,
+                        [email, code]
+                    );
+
+                    if (codeResult.rows.length === 0) {
+                        // Invalid or expired code
+                        return null;
+                    }
+
+                    // Mark code as used
+                    await pool.query(
+                        'UPDATE verification_codes SET used = TRUE WHERE id = $1',
+                        [codeResult.rows[0].id]
+                    );
+
                     // Check if user exists
                     const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
                     let user = result.rows[0];

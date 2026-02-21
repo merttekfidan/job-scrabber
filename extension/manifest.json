@@ -1,20 +1,20 @@
 {
   "manifest_version": 3,
-  "name": "Job Application Tracker",
-  "version": "1.0.0",
-  "description": "Track job applications with AI-powered interview preparation notes",
+  "name": "Job Scrabber",
+  "version": "1.1.0",
+  "description": "AI-powered job application tracker with interview preparation tools",
   "permissions": [
     "activeTab",
     "storage",
     "scripting"
   ],
   "host_permissions": [
-    "https://api.groq.com/*",
-    "https://script.google.com/*",
-    "https://script.googleusercontent.com/*",
     "http://localhost:3000/*",
     "https://aware-endurance-production-13b8.up.railway.app/*"
   ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  },
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
@@ -29,7 +29,22 @@
   "content_scripts": [
     {
       "matches": [
-        "<all_urls>"
+        "*://*.linkedin.com/*",
+        "*://*.indeed.com/*",
+        "*://*.glassdoor.com/*",
+        "*://*.glassdoor.co.uk/*",
+        "*://*.monster.com/*",
+        "*://*.kariyer.net/*",
+        "*://*.seek.com/*",
+        "*://*.seek.com.au/*",
+        "*://*.ziprecruiter.com/*",
+        "*://*.dice.com/*",
+        "*://*.wellfound.com/*",
+        "*://*.lever.co/*",
+        "*://*.greenhouse.io/*",
+        "*://*.workday.com/*",
+        "*://*.myworkdayjobs.com/*",
+        "*://*.smartrecruiters.com/*"
       ],
       "js": [
         "content.js"
