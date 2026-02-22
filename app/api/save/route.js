@@ -157,6 +157,6 @@ export async function POST(request) {
         return NextResponse.json({ success: true, message: 'Application saved successfully', id: result.rows[0].id });
     } catch (error) {
         console.error('Error saving application:', error);
-        return NextResponse.json({ success: false, error: 'Failed to save application' }, { status: 500 });
+        return NextResponse.json({ success: false, error: error.message || 'Failed to save application' }, { status: 500 });
     }
 }
