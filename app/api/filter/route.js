@@ -19,6 +19,8 @@ export async function GET(request) {
         const limit = parseInt(searchParams.get('limit') || '50');
         const offset = parseInt(searchParams.get('offset') || '0');
 
+        const sort_by = searchParams.get('sort_by');
+
         let sql = 'SELECT * FROM applications WHERE user_id = $1';
         const params = [userId];
         let paramIndex = 2;
@@ -29,7 +31,13 @@ export async function GET(request) {
         if (to) { sql += ` AND application_date <= $${paramIndex++}`; params.push(to); }
         if (work_mode) { sql += ` AND work_mode = $${paramIndex++}`; params.push(work_mode); }
 
-        sql += ` ORDER BY application_date DESC LIMIT $${paramIndex++} OFFSET $${paramIndex++}`;
+        // Determine sort order
+        let orderClause = 'ORDER BY application_date DESC';
+        if (sort_by === 'date_asc') orderClause = 'ORDER BY application_date ASC';
+        if (sort_by === 'company_asc') orderClause = 'ORDER BY company ASC';
+        if (sort_by === 'company_desc') orderClause = 'ORDER BY company DESC';
+
+        sql += ` ${orderClause} LIMIT $${paramIndex++} OFFSET $${paramIndex++}`;
         params.push(limit, offset);
 
         const result = await query(sql, params);

@@ -93,7 +93,7 @@ export default function CvUpload() {
                             <p className="text-sm text-blue-300/70">Based on your active CV: {cvData.filename}</p>
                         </div>
                     </div>
-                    <p className="text-gray-300 leading-relaxed italic">"{analysis.summary}"</p>
+                    <p className="text-gray-300 leading-relaxed italic">&quot;{analysis.summary}&quot;</p>
                 </div>
             )}
 

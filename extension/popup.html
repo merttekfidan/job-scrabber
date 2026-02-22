@@ -4,94 +4,139 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Job Application Tracker</title>
+  <title>Job Tracker</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
   <div class="container">
     <header>
-      <h1>📋 Job Tracker</h1>
+      <div class="header-left">
+        <svg class="header-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+          <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+        </svg>
+        <span>Job Tracker</span>
+      </div>
       <div id="userStatus" class="user-status">
         <span class="status-dot"></span>
-        <span class="user-email">Checking connection...</span>
+        <span class="user-email">Connecting…</span>
       </div>
     </header>
 
     <main>
-      <!-- Main Action Button -->
+      <!-- Apply Button -->
       <button id="applyBtn" class="apply-btn">
-        <span class="btn-icon">✓</span>
-        <span class="btn-text">Applied</span>
+        <svg class="btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 6L9 17l-5-5" />
+        </svg>
+        <span class="btn-text">Mark Applied</span>
       </button>
 
-      <!-- Status Display -->
+      <!-- Status Toast -->
       <div id="status" class="status hidden">
-        <div class="status-icon">⏳</div>
-        <div class="status-text">Processing...</div>
+        <div class="status-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 6v6l4 2" />
+          </svg>
+        </div>
+        <div class="status-text">Processing…</div>
       </div>
 
-      <!-- Last Capture Info -->
+      <!-- Last Capture -->
       <div id="lastCapture" class="last-capture hidden">
-        <div class="capture-label">Last saved:</div>
         <div class="capture-info">
           <div class="capture-title"></div>
-          <div class="capture-company"></div>
-          <div class="capture-time"></div>
+          <div class="capture-meta">
+            <span class="capture-company"></span>
+            <span class="capture-time"></span>
+          </div>
         </div>
       </div>
 
-      <!-- Export Button -->
-      <button id="exportBtn" class="export-btn">
-        <span>📥 Export CSV</span>
-      </button>
-
-      <!-- Settings Toggle -->
-      <button id="settingsToggle" class="settings-toggle">⚙️ Settings</button>
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <button id="exportBtn" class="tool-btn" title="Export CSV">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+          <span>Export</span>
+        </button>
+        <button id="openDashboardBtn" class="tool-btn hidden" title="Open Dashboard">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7" />
+            <rect x="14" y="3" width="7" height="7" />
+            <rect x="14" y="14" width="7" height="7" />
+            <rect x="3" y="14" width="7" height="7" />
+          </svg>
+          <span>Dashboard</span>
+        </button>
+        <button id="settingsToggle" class="tool-btn" title="Settings">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3" />
+            <path
+              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+          </svg>
+          <span>Settings</span>
+        </button>
+      </div>
 
       <!-- Settings Panel -->
       <div id="settingsPanel" class="settings-panel hidden">
-        <h3>Settings</h3>
-
-        <!-- API Environment Toggle -->
-        <div class="setting-group">
-          <label>Backend Environment:</label>
-          <div class="env-toggle">
-            <button type="button" class="env-btn active" data-env="live" id="envLive">Live (Railway)</button>
-            <button type="button" class="env-btn" data-env="local" id="envLocal">Localhost</button>
-          </div>
+        <div class="env-toggle">
+          <button type="button" class="env-btn active" data-env="live" id="envLive">Live</button>
+          <button type="button" class="env-btn" data-env="local" id="envLocal">Local</button>
         </div>
-
-        <!-- API Endpoint URL -->
         <div class="setting-group">
-          <label for="sheetsUrl">Backend URL:</label>
-          <input type="text" id="sheetsUrl" placeholder="Enter your backend URL">
+          <label for="sheetsUrl">Backend URL</label>
+          <input type="text" id="sheetsUrl" placeholder="https://your-backend.up.railway.app">
         </div>
-        <div class="setting-info">
-          <small>Base URL of your Job Scrabber backend</small>
-        </div>
-
-        <button id="saveSettings" class="save-btn">Save Settings</button>
-
-        <!-- Auto Export Option -->
-        <div class="setting-group">
-          <label>
+        <div class="setting-row">
+          <label class="checkbox-label">
             <input type="checkbox" id="autoExport">
-            Auto-export CSV backup
+            Auto-export CSV
           </label>
+          <button id="saveSettings" class="save-btn">Save</button>
         </div>
       </div>
 
-      <!-- Open Dashboard Button -->
-      <button id="openDashboardBtn" class="open-sheet-btn hidden">
-        📊 Open Dashboard
-      </button>
+      <!-- Reapply Dialog (hidden by default) -->
+      <div id="reapplyDialog" class="reapply-overlay hidden">
+        <div class="reapply-card">
+          <div class="reapply-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+          </div>
+          <div class="reapply-title">Already Applied</div>
+          <div id="reapplyMessage" class="reapply-message"></div>
+          <div class="reapply-actions">
+            <button id="reapplyMergeBtn" class="reapply-btn merge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="1 4 1 10 7 10" />
+                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+              </svg>
+              Reapply & Merge
+            </button>
+            <button id="reaplyCancelBtn" class="reapply-btn cancel">Cancel</button>
+          </div>
+        </div>
+      </div>
     </main>
 
     <footer>
-      <div class="stats">
-        <span id="totalApps">0 applications tracked</span>
-      </div>
+      <span id="totalApps">0 tracked</span>
     </footer>
   </div>
 

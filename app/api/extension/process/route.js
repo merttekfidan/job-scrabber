@@ -45,9 +45,9 @@ export async function POST(req) {
 
         const { url, pageContent, jobBoard } = validation.data;
 
-        // Call AI via server-side Groq API key
+        // Call AI via server-side Groq API key (or user's custom key)
         const prompt = JOB_EXTRACTION_PROMPT(url, jobBoard, pageContent);
-        const aiResponse = await callGroqAPI(prompt);
+        const aiResponse = await callGroqAPI(prompt, 0.2, session.user.id);
         const structuredData = parseAIResponse(aiResponse);
 
         // Map to the schema expected by /api/save
@@ -61,7 +61,9 @@ export async function POST(req) {
             applicationDate: new Date().toISOString(),
             status: 'Applied',
             requiredSkills: structuredData.requiredSkills || [],
-            companyDescription: null,
+            companyDescription: structuredData.companyDescription || null,
+            hiringManager: structuredData.hiringManager || {},
+            companyInfo: structuredData.companyInfo || {},
             formattedContent: structuredData.formattedContent || null,
             negativeSignals: structuredData.negativeSignals || [],
             roleSummary: structuredData.interviewPrepNotes?.theProblemTheyAreSolving || null,
@@ -70,10 +72,13 @@ export async function POST(req) {
                     point: tp.topic || tp.point,
                     explanation: tp.narrative || tp.explanation
                 })),
-                questionsToAsk: structuredData.interviewPrepNotes?.highImpactQuestions ||
-                    structuredData.interviewPrepNotes?.questionsToAsk || [],
-                potentialRedFlags: structuredData.negativeSignals ||
-                    structuredData.interviewPrepNotes?.potentialRedFlags || [],
+                likelyInterviewQuestions: structuredData.interviewPrepNotes?.likelyInterviewQuestions || [],
+                questionsToAsk: structuredData.interviewPrepNotes?.questionsToAsk ||
+                    structuredData.interviewPrepNotes?.highImpactQuestions || [],
+                redFlags: structuredData.interviewPrepNotes?.redFlags ||
+                    (structuredData.negativeSignals || structuredData.interviewPrepNotes?.potentialRedFlags || []).map(f =>
+                        typeof f === 'string' ? { flag: f, evidence: '', whatToAsk: '' } : f
+                    ),
                 techStackToStudy: structuredData.techStackToStudy || []
             },
             originalContent: pageContent.substring(0, 100000), // Cap at 100KB

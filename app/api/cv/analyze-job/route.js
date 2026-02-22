@@ -48,14 +48,14 @@ export async function POST(req) {
 
         // 4. Call AI for SWOT Analysis
         const swotPrompt = CV_SWOT_ANALYSIS_PROMPT(jobDescription, cvContent);
-        const swotResponse = await callGroqAPI(swotPrompt);
+        const swotResponse = await callGroqAPI(swotPrompt, 0.2, userId);
         const swotJson = parseAIResponse(swotResponse);
 
         // 5. Call AI for Personalized Prep
         // We pass the CV analysis summary if available, otherwise the raw text
         const cvSummary = cv.ai_analysis?.summary || cvContent.substring(0, 1000);
         const prepPrompt = PERSONALIZED_PREP_PROMPT(cvSummary, jobDescription);
-        const prepResponse = await callGroqAPI(prepPrompt);
+        const prepResponse = await callGroqAPI(prepPrompt, 0.2, userId);
         const prepJson = parseAIResponse(prepResponse);
 
         // 6. Combine Results

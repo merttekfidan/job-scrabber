@@ -3,14 +3,14 @@
 import React, { useState, useEffect } from 'react';
 import {
     RefreshCw, Download, Briefcase,
-    CheckCircle, LogOut, User, Sparkles, LayoutDashboard
+    CheckCircle, LogOut, User, Sparkles, LayoutDashboard, LayoutList, Settings
 } from 'lucide-react';
 import { signOut } from '@/app/actions';
 import CvUpload from './CvUpload';
 import ErrorBoundary from './ErrorBoundary';
 import StatsGrid from './dashboard/StatsGrid';
 import UpcomingInterviews from './dashboard/UpcomingInterviews';
-import AnalyticsCharts from './dashboard/AnalyticsCharts';
+import ProfileModal from './dashboard/ProfileModal';
 import ApplicationFilters from './dashboard/ApplicationFilters';
 import ApplicationCard from './dashboard/ApplicationCard';
 import SmartAnalytics from './dashboard/SmartAnalytics';
@@ -19,7 +19,6 @@ import { parseJson } from './dashboard/utils';
 
 export default function Dashboard({ session }) {
     const [stats, setStats] = useState(null);
-    const [analytics, setAnalytics] = useState(null);
     const [applications, setApplications] = useState([]);
     const [companies, setCompanies] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -27,8 +26,12 @@ export default function Dashboard({ session }) {
         search: '',
         status: '',
         workMode: '',
-        company: ''
+        company: '',
+        sortBy: 'date_desc'
     });
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+    const LIMIT = 20;
     const [selectedApp, setSelectedApp] = useState(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
@@ -36,50 +39,71 @@ export default function Dashboard({ session }) {
     const [expandedId, setExpandedId] = useState(null);
     const [activeTab, setActiveTab] = useState('details');
     const [view, setView] = useState('dashboard');
+    const [isProfileOpen, setIsProfileOpen] = useState(false);
+
+    // ─── Filter Effects ────────────────────────────────
 
     useEffect(() => {
-        loadData();
-    }, [filters.status, filters.workMode, filters.company]);
+        // Reset pagination when filters change
+        setPage(1);
+        setApplications([]);
 
-    useEffect(() => {
-        const timer = setTimeout(() => loadData(), 500);
+        const timer = setTimeout(() => {
+            loadData(1, true); // true indicates reset
+        }, 300);
         return () => clearTimeout(timer);
-    }, [filters.search]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [filters.status, filters.workMode, filters.company, filters.search, filters.sortBy]);
 
     // ─── Data Loading ──────────────────────────────────
 
-    const loadData = async () => {
+    const loadData = async (currentPage = page, reset = false) => {
         try {
             setIsLoading(true);
             if (!stats) {
-                const [statsRes, analyticsRes, compRes] = await Promise.all([
+                const [statsRes, compRes] = await Promise.all([
                     fetch('/api/stats'),
-                    fetch('/api/analytics'),
                     fetch('/api/companies')
                 ]);
-                const [statsData, analyticsData, compData] = await Promise.all([
-                    statsRes.json(), analyticsRes.json(), compRes.json()
+                const [statsData, compData] = await Promise.all([
+                    statsRes.json(), compRes.json()
                 ]);
                 setStats(statsData.stats);
-                setAnalytics(analyticsData.analytics);
                 setCompanies(compData.companies || []);
             }
 
-            let url = '/api/filter?limit=100';
+            let url = `/api/filter?limit=${LIMIT}&offset=${(currentPage - 1) * LIMIT}`;
             const params = new URLSearchParams();
             if (filters.status) params.append('status', filters.status);
             if (filters.workMode) params.append('work_mode', filters.workMode);
             if (filters.company) params.append('company', filters.company);
+            if (filters.sortBy) params.append('sort_by', filters.sortBy);
 
             if (filters.search) {
-                url = `/api/search?q=${encodeURIComponent(filters.search)}`;
+                // If there is ongoing search, we hit the search endpoint which might not fully support pagination 
+                // but we should pass limit offset anyway
+                url = `/api/search?q=${encodeURIComponent(filters.search)}&limit=${LIMIT}&offset=${(currentPage - 1) * LIMIT}`;
             } else {
                 url += `&${params.toString()}`;
             }
 
             const appRes = await fetch(url);
             const appData = await appRes.json();
-            setApplications(appData.applications || []);
+
+            const fetchedApps = appData.applications || [];
+
+            if (reset) {
+                setApplications(fetchedApps);
+            } else {
+                setApplications(prev => {
+                    const existingIds = new Set(prev.map(a => a.id));
+                    const uniqueNew = fetchedApps.filter(a => !existingIds.has(a.id));
+                    return [...prev, ...uniqueNew];
+                });
+            }
+
+            setHasMore(fetchedApps.length === LIMIT);
+
         } catch (error) {
             console.error('Failed to load data', error);
             showToast('Failed to load data', 'error');
@@ -252,6 +276,12 @@ export default function Dashboard({ session }) {
                                 <LayoutDashboard size={16} /> Dashboard
                             </button>
                             <button
+                                className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${view === 'applications' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-400 hover:text-gray-200'}`}
+                                onClick={() => setView('applications')}
+                            >
+                                <LayoutList size={16} /> Pipeline
+                            </button>
+                            <button
                                 className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${view === 'coach' ? 'bg-purple-600 text-white shadow-lg' : 'text-gray-400 hover:text-gray-200'}`}
                                 onClick={() => setView('coach')}
                             >
@@ -261,14 +291,30 @@ export default function Dashboard({ session }) {
                         <button className="btn btn-secondary" onClick={exportCSV}>
                             <Download size={18} /> Export CSV
                         </button>
-                        <button className="btn btn-primary" onClick={() => loadData()}>
+                        <button className="btn btn-primary" onClick={() => { setPage(1); loadData(1, true); }}>
                             <RefreshCw size={18} /> Refresh
                         </button>
 
-                        <div className="flex items-center gap-3 pl-4 border-l border-white/10 ml-2">
-                            <div className="flex items-center gap-2 text-sm text-gray-300">
-                                <User size={16} />
-                                <span className="hidden md:inline">{session?.user?.email}</span>
+                        <div className="flex items-center gap-4 pl-4 border-l border-white/10 ml-2">
+                            <span className="hidden sm:inline-block text-sm text-gray-400 font-medium">
+                                {session?.user?.name || session?.user?.email}
+                            </span>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => setIsProfileOpen(true)}
+                                    className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
+                                    title="Profile Settings"
+                                >
+                                    <Settings size={20} />
+                                </button>
+                                {session?.user?.image ? (
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    <img src={session.user.image} alt="Avatar" className="w-8 h-8 rounded-full border border-gray-700 bg-gray-800" />
+                                ) : (
+                                    <div className="w-8 h-8 rounded-full border border-gray-700 bg-gray-800 flex items-center justify-center text-gray-400">
+                                        <User size={16} />
+                                    </div>
+                                )}
                             </div>
                             <button
                                 onClick={() => signOut()}
@@ -286,67 +332,86 @@ export default function Dashboard({ session }) {
                 {view === 'coach' ? (
                     <CvUpload />
                 ) : (
-                    <>
-                        <ErrorBoundary fallbackTitle="Failed to load stats">
-                            <StatsGrid stats={stats} />
-                        </ErrorBoundary>
+                    <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
+                        <div className="xl:col-span-3 space-y-6">
+                            <ErrorBoundary fallbackTitle="Failed to load stats">
+                                <StatsGrid stats={stats} />
+                            </ErrorBoundary>
 
-                        <ErrorBoundary fallbackTitle="Failed to load analytics">
-                            <SmartAnalytics />
-                        </ErrorBoundary>
+                            <ErrorBoundary fallbackTitle="Failed to load analytics">
+                                <SmartAnalytics />
+                            </ErrorBoundary>
 
-                        <ErrorBoundary fallbackTitle="Failed to load interviews">
-                            <UpcomingInterviews
-                                interviews={upcomingInterviews}
-                                onViewPrep={(appId) => setExpandedId(appId)}
+                            <ApplicationFilters
+                                filters={filters}
+                                setFilters={setFilters}
+                                companies={companies}
                             />
-                        </ErrorBoundary>
 
-                        <ErrorBoundary fallbackTitle="Failed to load charts">
-                            <AnalyticsCharts analytics={analytics} />
-                        </ErrorBoundary>
-
-                        <ApplicationFilters filters={filters} setFilters={setFilters} />
-
-                        {/* Applications List */}
-                        <section className="applications-section">
-                            <div className="applications-header">
-                                <span className="applications-count">{applications.length} applications</span>
-                            </div>
-
-                            {isLoading ? (
-                                <ApplicationListSkeleton count={4} />
-                            ) : applications.length === 0 ? (
-                                <div className="empty-state text-center py-20 opacity-70">
-                                    <Briefcase size={48} className="mx-auto mb-4" />
-                                    <h3>No applications found</h3>
+                            {/* Applications List */}
+                            <section className="applications-section">
+                                <div className="applications-header">
+                                    <span className="applications-count">{stats?.total || 0} Total Applications</span>
                                 </div>
-                            ) : (
-                                <div className="space-y-3">
-                                    {applications.map(app => (
-                                        <ErrorBoundary key={app.id} fallbackTitle="Error loading application">
-                                            <ApplicationCard
-                                                app={app}
-                                                isExpanded={expandedId === app.id}
-                                                activeTab={activeTab}
-                                                onToggleExpand={() => setExpandedId(expandedId === app.id ? null : app.id)}
-                                                onSetActiveTab={setActiveTab}
-                                                onUpdateDetails={handleUpdateDetails}
-                                                onAnalyzeJob={handleAnalyzeJob}
-                                                onGenerateInsights={handleGenerateInsights}
-                                                onShare={handleShare}
-                                                onDelete={(app) => {
-                                                    setSelectedApp(app);
-                                                    setShowDeleteModal(true);
-                                                }}
-                                                isAnalyzing={isAnalyzing}
-                                            />
-                                        </ErrorBoundary>
-                                    ))}
-                                </div>
-                            )}
-                        </section>
-                    </>
+
+                                {isLoading && applications.length === 0 ? (
+                                    <ApplicationListSkeleton count={4} />
+                                ) : applications.length === 0 ? (
+                                    <div className="empty-state text-center py-20 opacity-70">
+                                        <Briefcase size={48} className="mx-auto mb-4" />
+                                        <h3>No applications found</h3>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-3">
+                                        {applications.map(app => (
+                                            <ErrorBoundary key={app.id} fallbackTitle="Error loading application">
+                                                <ApplicationCard
+                                                    app={app}
+                                                    isExpanded={expandedId === app.id}
+                                                    activeTab={activeTab}
+                                                    onToggleExpand={() => setExpandedId(expandedId === app.id ? null : app.id)}
+                                                    onSetActiveTab={setActiveTab}
+                                                    onUpdateDetails={handleUpdateDetails}
+                                                    onAnalyzeJob={handleAnalyzeJob}
+                                                    onGenerateInsights={handleGenerateInsights}
+                                                    onShare={handleShare}
+                                                    onDelete={(appToDelete) => {
+                                                        setSelectedApp(appToDelete);
+                                                        setShowDeleteModal(true);
+                                                    }}
+                                                    isAnalyzing={isAnalyzing}
+                                                />
+                                            </ErrorBoundary>
+                                        ))}
+
+                                        {hasMore && !isLoading && (
+                                            <div className="flex justify-center mt-8">
+                                                <button
+                                                    className="btn btn-secondary px-8"
+                                                    onClick={() => {
+                                                        const nextPage = page + 1;
+                                                        setPage(nextPage);
+                                                        loadData(nextPage, false);
+                                                    }}
+                                                >
+                                                    Load More
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </section>
+                        </div>
+
+                        <div className="xl:col-span-1 space-y-6">
+                            <ErrorBoundary fallbackTitle="Failed to load interviews">
+                                <UpcomingInterviews
+                                    interviews={upcomingInterviews}
+                                    onViewPrep={(appId) => setExpandedId(appId)}
+                                />
+                            </ErrorBoundary>
+                        </div>
+                    </div>
                 )}
             </main>
 
@@ -368,6 +433,13 @@ export default function Dashboard({ session }) {
                     </div>
                 </div>
             )}
+
+            {/* Profile Modal */}
+            <ProfileModal
+                isOpen={isProfileOpen}
+                onClose={() => setIsProfileOpen(false)}
+                session={session}
+            />
 
             {/* Toast */}
             <div className={`toast ${toast.show ? 'show' : ''}`}>

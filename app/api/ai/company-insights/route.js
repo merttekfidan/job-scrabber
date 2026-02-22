@@ -45,7 +45,7 @@ export async function POST(req) {
         const prompt = COMPANY_INSIGHTS_PROMPT(application.company, jobDescription.substring(0, 15000), cvContent.substring(0, 5000));
 
         // 4. Call AI
-        const aiResponse = await callGroqAPI(prompt);
+        const aiResponse = await callGroqAPI(prompt, 0.2, userId);
         const insightsJson = parseAIResponse(aiResponse);
 
         // 5. Update Database

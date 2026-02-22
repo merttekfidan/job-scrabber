@@ -21,9 +21,10 @@ CREATE TABLE IF NOT EXISTS applications (
     formatted_content TEXT,
     negative_signals JSONB DEFAULT '[]',
     notes TEXT,
-    source VARCHAR(100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    hiring_manager JSONB DEFAULT '{}',
+    company_info JSONB DEFAULT '{}'
 );
 
 -- Index for full-text search
@@ -53,6 +54,7 @@ CREATE TABLE IF NOT EXISTS users (
   name VARCHAR(255),
   email VARCHAR(255) UNIQUE,
   email_verified TIMESTAMP,
+  last_login TIMESTAMP,
   image TEXT
 );
 
@@ -88,13 +90,15 @@ CREATE TABLE IF NOT EXISTS verification_tokens (
 
 -- Add user_id to existing tables
 ALTER TABLE applications ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES users(id) ON DELETE CASCADE;
+ALTER TABLE applications ADD COLUMN IF NOT EXISTS hiring_manager JSONB DEFAULT '{}';
+ALTER TABLE applications ADD COLUMN IF NOT EXISTS company_info JSONB DEFAULT '{}';
 ALTER TABLE cv_data ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES users(id) ON DELETE CASCADE;
 
 -- OTP Verification Codes
 CREATE TABLE IF NOT EXISTS verification_codes (
     id SERIAL PRIMARY KEY,
     email VARCHAR(255) NOT NULL,
-    code VARCHAR(6) NOT NULL,
+    code VARCHAR(64) NOT NULL,
     expires_at TIMESTAMP NOT NULL,
     used BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -102,4 +106,13 @@ CREATE TABLE IF NOT EXISTS verification_codes (
 
 CREATE INDEX IF NOT EXISTS idx_verification_codes_email 
     ON verification_codes(email, used, expires_at);
+
+-- User Profiles (Groq API keys, settings)
+CREATE TABLE IF NOT EXISTS user_profiles (
+    user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    groq_api_key TEXT,
+    settings JSONB DEFAULT '{}'::jsonb,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 

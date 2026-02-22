@@ -44,7 +44,7 @@ export async function POST(request) {
                 fields.push(`${key} = $${paramIndex}`);
                 // Handle JSON fields
                 if (['interview_stages', 'key_responsibilities', 'required_skills', 'preferred_skills', 'interview_prep_notes'].includes(key)) {
-                    values.push(JSON.stringify(value));
+                    values.push(typeof value === 'string' ? value : JSON.stringify(value));
                 } else {
                     values.push(value);
                 }

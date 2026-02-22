@@ -4,7 +4,7 @@
 // Listen for messages from popup
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'processJobData') {
-        processJobServerSide(request.data)
+        processJobServerSide(request.data, request.forceReapply)
             .then(result => sendResponse(result))
             .catch(error => sendResponse({ success: false, error: error.message }));
         return true; // Keep message channel open for async response
@@ -12,7 +12,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 // Process job data through the server-side API
-async function processJobServerSide(extractedData) {
+async function processJobServerSide(extractedData, forceReapply = false) {
     try {
         // Get backend URL from storage
         const result = await chrome.storage.local.get(['backendUrl']);
@@ -22,8 +22,32 @@ async function processJobServerSide(extractedData) {
             throw new Error('Backend URL not configured. Please set it in extension settings.');
         }
 
-        // Step 1: Send raw content to server for AI processing
-        const processUrl = backendUrl.replace(/\/api\/save\/?$/, '') + '/api/extension/process';
+        const baseUrl = backendUrl.replace(/\/api\/save\/?$/, '');
+
+        // ── Step 0: Check for duplicate BEFORE expensive AI processing ──
+        if (!forceReapply) {
+            const checkUrl = baseUrl + '/api/check-application?url=' + encodeURIComponent(extractedData.url);
+            try {
+                const checkResponse = await fetch(checkUrl, { credentials: 'include' });
+                if (checkResponse.ok) {
+                    const checkData = await checkResponse.json();
+                    if (checkData.success && checkData.exists) {
+                        console.log('Duplicate detected (pre-check):', checkData.existingApplication);
+                        return {
+                            success: true,
+                            duplicate: true,
+                            existingApplication: checkData.existingApplication
+                        };
+                    }
+                }
+            } catch (checkErr) {
+                console.warn('Pre-check failed, continuing with full process:', checkErr);
+                // Non-fatal — continue with normal flow
+            }
+        }
+
+        // ── Step 1: Send raw content to server for AI processing ──
+        const processUrl = baseUrl + '/api/extension/process';
 
         const processResponse = await fetch(processUrl, {
             method: 'POST',
@@ -55,10 +79,25 @@ async function processJobServerSide(extractedData) {
 
         const structuredData = processResult.data;
 
-        // Step 2: Save to remote storage
-        await syncToRemoteStorage(structuredData);
+        // ── Step 2: Save to remote storage ──
+        const syncResult = await syncToRemoteStorage(structuredData, forceReapply);
 
-        // Step 3: Save locally for offline access
+        // If sync failed entirely, report error
+        if (syncResult && syncResult.error) {
+            return { success: false, error: syncResult.error };
+        }
+
+        // If duplicate detected at save time (fallback), return info
+        if (syncResult && syncResult.duplicate) {
+            console.log('Duplicate detected (at save):', syncResult.existingApplication);
+            return {
+                success: true,
+                duplicate: true,
+                existingApplication: syncResult.existingApplication
+            };
+        }
+
+        // ── Step 3: Save locally for offline access ──
         await saveApplicationLocally(structuredData);
 
         return { success: true, data: structuredData };
@@ -100,29 +139,32 @@ async function saveApplicationLocally(applicationData) {
         return true;
     } catch (error) {
         console.error('Local save error:', error);
-        // Don't throw — local save failure shouldn't block the flow
     }
 }
 
 // Sync application to remote storage
-async function syncToRemoteStorage(applicationData) {
+async function syncToRemoteStorage(applicationData, forceReapply = false) {
     try {
         const result = await chrome.storage.local.get(['backendUrl']);
         const backendUrl = result.backendUrl;
 
         if (!backendUrl) {
             console.log('Backend URL not configured, skipping remote sync');
-            return;
+            return null;
         }
 
-        // Derive save URL from backend URL
         const saveUrl = backendUrl.replace(/\/api\/save\/?$/, '') + '/api/save';
+
+        const payload = { ...applicationData };
+        if (forceReapply) {
+            payload.forceReapply = true;
+        }
 
         const response = await fetch(saveUrl, {
             method: 'POST',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(applicationData)
+            body: JSON.stringify(payload)
         });
 
         if (!response.ok) {
@@ -135,11 +177,11 @@ async function syncToRemoteStorage(applicationData) {
             throw new Error(data.error || 'Unknown error from remote storage');
         }
 
-        console.log('Successfully synced to remote storage:', data.message);
+        return data;
 
     } catch (error) {
         console.error('Remote storage sync error:', error);
-        // Don't throw — we don't want to fail the save if sync fails
+        return { error: error.message };
     }
 }
 
@@ -147,7 +189,6 @@ async function syncToRemoteStorage(applicationData) {
 chrome.runtime.onInstalled.addListener(() => {
     console.log('Job Application Tracker installed');
 
-    // Initialize storage if needed
     chrome.storage.local.get(['applications'], (result) => {
         if (!result.applications) {
             chrome.storage.local.set({ applications: [] });

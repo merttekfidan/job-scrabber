@@ -51,7 +51,7 @@ export async function POST(req) {
 
         // Call AI for analysis
         const analysisPrompt = CV_ANALYSIS_PROMPT(rawText);
-        const aiResponse = await callGroqAPI(analysisPrompt);
+        const aiResponse = await callGroqAPI(analysisPrompt, 0.2, userId);
         const analysisJson = parseAIResponse(aiResponse);
 
         // Deactivate previous CVs

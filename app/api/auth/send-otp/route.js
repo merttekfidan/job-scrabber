@@ -3,6 +3,7 @@ import { query } from '@/lib/db';
 import { sendOTPEmail } from '@/lib/email';
 import { SendOTPSchema, validateBody } from '@/lib/validations';
 import { authLimiter, getRateLimitKey } from '@/lib/rate-limit';
+import crypto from 'crypto';
 
 export async function POST(req) {
     try {
@@ -28,7 +29,38 @@ export async function POST(req) {
 
         const { email } = validation.data;
 
-        // Generate 6-digit OTP
+        // Check user's last_login to apply 90-day bypass
+        const userResult = await query('SELECT last_login FROM users WHERE email = $1', [email]);
+        const user = userResult.rows[0];
+
+        if (user && user.last_login) {
+            const lastLoginDate = new Date(user.last_login);
+            const ninetyDaysAgo = new Date();
+            ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+
+            if (lastLoginDate > ninetyDaysAgo) {
+                // User logged in within last 90 days - grant bypass
+                const bypassCode = crypto.randomBytes(16).toString('hex');
+                const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 mins
+
+                // Invalidate any existing codes
+                await query('UPDATE verification_codes SET used = TRUE WHERE email = $1 AND used = FALSE', [email]);
+
+                // Insert bypass code into verification_codes for auth.js to verify
+                await query(
+                    'INSERT INTO verification_codes (email, code, expires_at) VALUES ($1, $2, $3)',
+                    [email, bypassCode, expiresAt]
+                );
+
+                return NextResponse.json({
+                    success: true,
+                    bypass: true,
+                    bypassCode,
+                });
+            }
+        }
+
+        // Generate standard 6-digit OTP
         const code = String(Math.floor(100000 + Math.random() * 900000));
         const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
@@ -45,17 +77,18 @@ export async function POST(req) {
         );
 
         // Send email
-        await sendOTPEmail(email, code);
+        const emailResult = await sendOTPEmail(email, code);
 
         return NextResponse.json({
             success: true,
             message: 'Verification code sent to your email.',
+            isMock: emailResult?.mock === true
         });
 
     } catch (error) {
-        console.error('Send OTP Error:', error);
+        console.error('Send OTP Error full details:', error.stack || error);
         return NextResponse.json(
-            { success: false, error: 'Failed to send verification code.' },
+            { success: false, error: 'Failed to send verification code. ' + error.message },
             { status: 500 }
         );
     }

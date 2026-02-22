@@ -81,10 +81,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     if (!user) {
                         // Create new user (Auto-Register)
                         const insertResult = await pool.query(
-                            'INSERT INTO users (name, email, email_verified, image) VALUES ($1, $2, $3, $4) RETURNING *',
+                            'INSERT INTO users (name, email, email_verified, image, last_login) VALUES ($1, $2, $3, $4, NOW()) RETURNING *',
                             [email.split('@')[0], email, new Date(), null]
                         );
                         user = insertResult.rows[0];
+                    } else {
+                        // Update last_login for existing user
+                        await pool.query(
+                            'UPDATE users SET last_login = NOW() WHERE id = $1',
+                            [user.id]
+                        );
                     }
 
                     return user;

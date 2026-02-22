@@ -9,7 +9,7 @@ export async function DELETE(request, { params }) {
             return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
         }
         const userId = session.user.id;
-        const { id } = params;
+        const { id } = await params;
 
         if (!id) {
             return NextResponse.json({ success: false, error: 'ID required' }, { status: 400 });

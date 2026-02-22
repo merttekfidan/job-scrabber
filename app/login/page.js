@@ -29,8 +29,21 @@ export default function LoginPage() {
             const data = await res.json();
 
             if (data.success) {
-                setStep('code');
-                setCodeSent(true);
+                if (data.bypass && data.bypassCode) {
+                    const formData = new FormData();
+                    formData.append('email', email);
+                    formData.append('code', data.bypassCode);
+                    const result = await authenticate(undefined, formData);
+                    if (result) {
+                        setError(result);
+                    }
+                } else {
+                    setStep('code');
+                    setCodeSent(true);
+                    if (data.isMock) {
+                        setError('Notice: RESEND_API_KEY is missing. The 6-digit code was printed to your Next.js terminal.');
+                    }
+                }
             } else {
                 setError(data.error || 'Failed to send verification code');
             }

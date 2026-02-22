@@ -53,7 +53,7 @@ export async function POST(req) {
 
         // Generate prompt
         const prompt = FRAMEWORK_MAP[framework](application, cvContent);
-        const aiResponse = await callGroqAPI(prompt, 0.3);
+        const aiResponse = await callGroqAPI(prompt, 0.3, userId);
         const parsed = parseAIResponse(aiResponse);
 
         // Store in personalized_analysis under hiring_frameworks

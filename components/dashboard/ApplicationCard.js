@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import {
     RefreshCw, Search, X,
-    Briefcase, MapPin, DollarSign, Calendar,
+    Briefcase, MapPin, DollarSign, Banknote, Calendar,
     ExternalLink, CheckCircle, XCircle,
     AlertCircle, User, Sparkles, Share2
 } from 'lucide-react';
@@ -12,7 +12,8 @@ import remarkGfm from 'remark-gfm';
 import { parseJson, formatDate, getStatusClass } from './utils';
 import { MatchScoreGauge, SkillGapBars, CultureFitMeter, InterviewProgress } from './VisualFrameworks';
 import HiringFrameworks from './HiringFrameworks';
-import { FlashcardMode, CheatSheet, MockInterviewDrill } from './InterviewPrepTools';
+import { InterviewQuestionsList, QuestionsToAskList, RedFlagsList, QuickReferenceCard } from './InterviewPrepTools';
+import { formatSalary } from '@/lib/currencyUtils';
 
 // ─── Sub-components ────────────────────────────────────────────
 
@@ -21,6 +22,7 @@ function StageNoteEditor({ initialNotes, onSave }) {
     const [isDirty, setIsDirty] = useState(false);
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setNotes(initialNotes || '');
         setIsDirty(false);
     }, [initialNotes]);
@@ -55,6 +57,7 @@ function GeneralNoteEditor({ initialNotes, onSave }) {
     const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setNotes(initialNotes || '');
         setIsDirty(false);
     }, [initialNotes]);
@@ -97,7 +100,7 @@ function GeneralNoteEditor({ initialNotes, onSave }) {
 
 // ─── Main ApplicationCard ──────────────────────────────────────
 
-export default function ApplicationCard({
+function ApplicationCardComponent({
     app,
     isExpanded,
     activeTab,
@@ -112,11 +115,13 @@ export default function ApplicationCard({
 }) {
     return (
         <div
-            className={`bg-gray-900/40 backdrop-blur-md border border-white/5 rounded-xl p-4 cursor-pointer hover:bg-gray-800/40 hover:border-white/10 transition-all group ${isExpanded ? 'border-blue-500/30 ring-1 ring-blue-500/20' : ''}`}
-            onClick={onToggleExpand}
+            className={`bg-gray-900/40 backdrop-blur-md border border-white/5 rounded-xl p-4 transition-all group ${isExpanded ? 'border-blue-500/30 ring-1 ring-blue-500/20' : ''}`}
         >
             {/* Collapsed Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div
+                className="flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer hover:bg-gray-800/40 rounded-lg -m-2 p-2 transition-colors"
+                onClick={onToggleExpand}
+            >
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 mb-1">
                         <h3 className="text-base font-bold text-white truncate">{app.job_title}</h3>
@@ -128,7 +133,7 @@ export default function ApplicationCard({
                 </div>
                 <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500 font-medium">
                     <div className="flex items-center gap-1.5"><MapPin size={14} /> {app.location || 'Remote'}</div>
-                    <div className="flex items-center gap-1.5"><DollarSign size={14} /> {app.salary || 'N/A'}</div>
+                    <div className="flex items-center gap-1.5"><Banknote size={14} /> {app.salary ? formatSalary(app.salary, app.location) : 'N/A'}</div>
                     <div className="flex items-center gap-1.5"><Calendar size={14} /> {formatDate(app.application_date)}</div>
                 </div>
             </div>
@@ -193,6 +198,16 @@ export default function ApplicationCard({
                         {activeTab === 'interviews' && (
                             <InterviewsTab app={app} onUpdateDetails={onUpdateDetails} />
                         )}
+                    </div>
+
+                    {/* Persistent Footer */}
+                    <div className="mt-6 pt-4 border-t border-gray-700/50 flex justify-end">
+                        <button
+                            className="px-4 py-2 text-red-400 hover:text-red-300 hover:bg-red-900/20 rounded-lg transition-colors text-sm font-medium flex items-center gap-2"
+                            onClick={(e) => { e.stopPropagation(); onDelete(app); }}
+                        >
+                            <XCircle size={16} /> Delete Application
+                        </button>
                     </div>
                 </div>
             )}
@@ -308,16 +323,16 @@ function CompanyTab({ app, isAnalyzing, onGenerateInsights, onShare }) {
                         {/* Hiring Urgency */}
                         {insights.hiringUrgency && (
                             <div className={`p-5 rounded-2xl border ${insights.hiringUrgency.level === 'High' ? 'bg-red-500/10 border-red-500/20' :
-                                    insights.hiringUrgency.level === 'Medium' ? 'bg-amber-500/10 border-amber-500/20' :
-                                        'bg-gray-800/50 border-gray-700/50'
+                                insights.hiringUrgency.level === 'Medium' ? 'bg-amber-500/10 border-amber-500/20' :
+                                    'bg-gray-800/50 border-gray-700/50'
                                 }`}>
                                 <div className="flex items-center gap-2 mb-2">
                                     <h4 className={`font-bold ${insights.hiringUrgency.level === 'High' ? 'text-red-400' :
-                                            insights.hiringUrgency.level === 'Medium' ? 'text-amber-400' : 'text-gray-400'
+                                        insights.hiringUrgency.level === 'Medium' ? 'text-amber-400' : 'text-gray-400'
                                         }`}>⏰ Hiring Urgency</h4>
                                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${insights.hiringUrgency.level === 'High' ? 'bg-red-500/20 text-red-400' :
-                                            insights.hiringUrgency.level === 'Medium' ? 'bg-amber-500/20 text-amber-400' :
-                                                'bg-gray-700 text-gray-400'
+                                        insights.hiringUrgency.level === 'Medium' ? 'bg-amber-500/20 text-amber-400' :
+                                            'bg-gray-700 text-gray-400'
                                         }`}>{insights.hiringUrgency.level}</span>
                                 </div>
                                 {insights.hiringUrgency.signals?.length > 0 && (
@@ -402,10 +417,21 @@ function NotesTab({ app, onUpdateDetails }) {
                     return prep.generalNotes || '';
                 })()}
                 onSave={async (newNotes) => {
-                    const currentPrep = typeof app.interview_prep_notes === 'string'
-                        ? parseJson(app.interview_prep_notes)
-                        : app.interview_prep_notes || {};
-                    const updatedPrep = { ...currentPrep, generalNotes: newNotes };
+                    let currentPrep = {};
+                    if (typeof app.interview_prep_notes === 'string') {
+                        currentPrep = parseJson(app.interview_prep_notes) || {};
+                    } else if (app.interview_prep_notes) {
+                        currentPrep = app.interview_prep_notes;
+                    }
+
+                    const updatedPrep = {
+                        keyTalkingPoints: [],
+                        questionsToAsk: [],
+                        potentialRedFlags: [],
+                        techStackToStudy: [],
+                        ...currentPrep,
+                        generalNotes: newNotes
+                    };
                     await onUpdateDetails(app.id, { interview_prep_notes: updatedPrep });
                 }}
             />
@@ -629,15 +655,6 @@ function DetailsTab({ app, onUpdateDetails, onDelete }) {
                     </div>
                 </div>
             </div>
-
-            <div className="flex justify-end pt-4 border-t border-gray-700/50">
-                <button
-                    className="px-4 py-2 text-red-400 hover:text-red-300 hover:bg-red-900/20 rounded-lg transition-colors text-sm font-medium flex items-center gap-2"
-                    onClick={(e) => { e.stopPropagation(); onDelete(app); }}
-                >
-                    <XCircle size={16} /> Delete Application
-                </button>
-            </div>
         </div>
     );
 }
@@ -647,116 +664,140 @@ function PrepTab({ app }) {
         ? parseJson(app.interview_prep_notes)
         : app.interview_prep_notes || {};
     const talkingPoints = parseJson(app.interview_prep_key_talking_points);
-    const questions = parseJson(app.interview_prep_questions_to_ask);
-    const redFlags = parseJson(app.interview_prep_potential_red_flags);
-    const techStack = prep.techStackToStudy || [];
+    const questionsRaw = parseJson(app.interview_prep_questions_to_ask);
+    const redFlagsRaw = parseJson(app.interview_prep_potential_red_flags);
+    const likelyQuestions = prep.likelyInterviewQuestions || [];
+
+    const personalAnalysis = app.personalized_analysis;
+    const hasPersonalized = !!personalAnalysis;
 
     return (
-        <div className="space-y-6">
-            <div>
-                <h3 className="text-lg font-semibold text-amber-400 mb-4 flex items-center gap-2">
-                    <span className="p-1 bg-amber-500/10 rounded-md">💡</span> Key Talking Points
-                </h3>
-                <ul className="space-y-3">
-                    {talkingPoints.map((item, i) => {
-                        const isObj = typeof item === 'object' && item !== null;
-                        const pointText = isObj ? item.point : item;
-                        const explanation = isObj ? item.explanation : null;
-
-                        return (
-                            <li key={i} className="group">
-                                {explanation ? (
-                                    <details
-                                        name={`talking-points-${app.id}`}
-                                        className="group/details bg-amber-500/5 rounded-xl border border-amber-500/10 overflow-hidden open:bg-amber-500/10 transition-colors"
-                                        onClick={(e) => e.stopPropagation()}
-                                    >
-                                        <summary
-                                            className="flex gap-3 text-gray-300 p-4 cursor-pointer hover:bg-amber-500/10 transition-colors list-none select-none items-start"
-                                            onClick={(e) => e.stopPropagation()}
-                                        >
-                                            <span className="text-amber-500 font-bold mt-0.5 text-lg w-5 text-center flex-shrink-0">
-                                                <span className="block group-open/details:hidden">+</span>
-                                                <span className="hidden group-open/details:block">−</span>
-                                            </span>
-                                            <div className="flex-1">
-                                                <span className="font-semibold text-amber-100">{pointText}</span>
-                                            </div>
-                                        </summary>
-                                        <div className="px-4 pb-4 pl-12 text-gray-400 text-sm leading-relaxed animate-in slide-in-from-top-1 duration-200">
-                                            {explanation}
-                                        </div>
-                                    </details>
-                                ) : (
-                                    <div className="flex gap-3 text-gray-300 bg-amber-500/5 p-4 rounded-xl border border-amber-500/10">
-                                        <span className="text-amber-500 font-bold">•</span>
-                                        <span className="leading-relaxed">{pointText}</span>
-                                    </div>
-                                )}
-                            </li>
-                        );
-                    })}
-                </ul>
+        <div className="space-y-8">
+            {/* ── 1. Role Snapshot ────────────────────────── */}
+            <div className="bg-gradient-to-br from-gray-800/40 to-gray-900/40 rounded-2xl border border-gray-700/40 p-6">
+                <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400 font-bold text-xl flex-shrink-0">
+                        {app.company?.charAt(0) || '?'}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <h3 className="text-lg font-bold text-white mb-1">{app.job_title}</h3>
+                        <p className="text-sm text-gray-400">{app.company}</p>
+                        {app.role_summary && (
+                            <p className="text-sm text-gray-300 mt-3 leading-relaxed">
+                                <span className="text-blue-400 font-semibold">The Problem:</span> {app.role_summary}
+                            </p>
+                        )}
+                        {hasPersonalized && personalAnalysis.prep?.tailoredAdvice && (
+                            <p className="text-sm text-emerald-300/80 mt-2 leading-relaxed italic">
+                                <span className="text-emerald-400 font-semibold not-italic">Your Positioning:</span> {personalAnalysis.prep.tailoredAdvice}
+                            </p>
+                        )}
+                    </div>
+                </div>
+                <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-700/30">
+                    {app.salary && (
+                        <span className="px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded-lg text-xs font-medium border border-emerald-500/15">💰 {app.salary}</span>
+                    )}
+                    {app.location && (
+                        <span className="px-3 py-1 bg-blue-500/10 text-blue-400 rounded-lg text-xs font-medium border border-blue-500/15">📍 {app.location}</span>
+                    )}
+                    {app.work_mode && (
+                        <span className="px-3 py-1 bg-purple-500/10 text-purple-400 rounded-lg text-xs font-medium border border-purple-500/15">🏢 {app.work_mode}</span>
+                    )}
+                </div>
             </div>
 
-            {techStack.length > 0 && (
+            {/* ── 2. Key Talking Points (compact) ────────── */}
+            {talkingPoints.length > 0 && (
                 <div>
-                    <h3 className="text-lg font-semibold text-cyan-400 mb-4 flex items-center gap-2">
-                        <span className="p-1 bg-cyan-500/10 rounded-md">💻</span> Tech Stack to Study
+                    <h3 className="text-base font-bold text-amber-400 mb-4 flex items-center gap-2">
+                        <span className="p-1.5 bg-amber-500/10 rounded-lg">💡</span> Key Talking Points
                     </h3>
-                    <ul className="space-y-3">
-                        {techStack.map((item, i) => (
-                            <li key={i} className="flex gap-3 text-gray-300 bg-cyan-500/5 p-4 rounded-xl border border-cyan-500/10">
-                                <span className="text-cyan-500 font-bold">📚</span>
-                                <span className="leading-relaxed">{item}</span>
-                            </li>
-                        ))}
-                    </ul>
+                    <div className="space-y-2">
+                        {talkingPoints.map((item, i) => {
+                            const isObj = typeof item === 'object' && item !== null;
+                            const pointText = isObj ? item.point : item;
+                            const explanation = isObj ? item.explanation : null;
+                            return (
+                                <details
+                                    key={i}
+                                    className="group bg-amber-500/5 rounded-xl border border-amber-500/10 overflow-hidden hover:bg-amber-500/8 transition-colors"
+                                    onClick={(e) => e.stopPropagation()}
+                                >
+                                    <summary
+                                        className="flex gap-3 items-start p-3.5 cursor-pointer list-none select-none"
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
+                                        <span className="text-amber-500 font-bold text-sm mt-0.5 w-4 text-center flex-shrink-0">
+                                            <span className="block group-open:hidden">+</span>
+                                            <span className="hidden group-open:block">−</span>
+                                        </span>
+                                        <span className="text-sm font-medium text-amber-100 leading-relaxed">{pointText}</span>
+                                    </summary>
+                                    {explanation && (
+                                        <div className="px-3.5 pb-3.5 pl-10 text-gray-400 text-xs leading-relaxed">
+                                            {explanation}
+                                        </div>
+                                    )}
+                                </details>
+                            );
+                        })}
+                    </div>
                 </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* ── 3. Questions They'll Likely Ask You ─────── */}
+            {likelyQuestions.length > 0 && (
                 <div>
-                    <h3 className="text-lg font-semibold text-blue-400 mb-4 flex items-center gap-2">
-                        <span className="p-1 bg-blue-500/10 rounded-md">❓</span> Questions to Ask
+                    <h3 className="text-base font-bold text-blue-400 mb-4 flex items-center gap-2">
+                        <span className="p-1.5 bg-blue-500/10 rounded-lg">❓</span> Questions They&apos;ll Likely Ask You
                     </h3>
-                    <ul className="space-y-3">
-                        {questions.map((q, i) => (
-                            <li key={i} className="flex gap-3 text-gray-300 bg-blue-500/5 p-3 rounded-lg border border-blue-500/10">
-                                <span className="text-blue-500 font-bold">?</span>
-                                <span>{q}</span>
-                            </li>
-                        ))}
-                    </ul>
+                    <InterviewQuestionsList questions={likelyQuestions} />
                 </div>
+            )}
+
+            {/* ── 4. Questions You Should Ask ─────────────── */}
+            {questionsRaw.length > 0 && (
                 <div>
-                    <h3 className="text-lg font-semibold text-red-400 mb-4 flex items-center gap-2">
-                        <span className="p-1 bg-red-500/10 rounded-md">🚩</span> Potential Red Flags
+                    <h3 className="text-base font-bold text-sky-400 mb-4 flex items-center gap-2">
+                        <span className="p-1.5 bg-sky-500/10 rounded-lg">🙋</span> Questions You Should Ask
                     </h3>
-                    <ul className="space-y-3">
-                        {redFlags.map((flag, i) => (
-                            <li key={i} className="flex gap-3 text-gray-300 bg-red-500/5 p-3 rounded-lg border border-red-500/10">
-                                <span className="text-red-500 font-bold">!</span>
-                                <span>{flag}</span>
-                            </li>
-                        ))}
-                    </ul>
+                    <QuestionsToAskList questions={questionsRaw} />
+                    {/* CV-based gap questions if available */}
+                    {hasPersonalized && personalAnalysis.prep?.questionsToAsk?.length > 0 && (
+                        <div className="mt-5">
+                            <div className="flex items-center gap-2 mb-3">
+                                <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-rose-500/10 text-rose-400 border border-rose-500/20">Based on Your CV</span>
+                            </div>
+                            <div className="space-y-2.5">
+                                {personalAnalysis.prep.questionsToAsk.map((q, i) => (
+                                    <div key={i} className="bg-rose-500/5 border border-rose-500/15 rounded-xl p-4">
+                                        <p className="text-sm text-gray-200 font-medium leading-relaxed">{q}</p>
+                                        <p className="text-xs text-gray-500 mt-1.5">→ Address potential gap between your experience and this role</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
-            </div>
+            )}
 
-            {/* Interactive Prep Tools */}
-            <FlashcardMode
+            {/* ── 5. Red Flags & Things to Probe ──────────── */}
+            {redFlagsRaw.length > 0 && (
+                <div>
+                    <h3 className="text-base font-bold text-red-400 mb-4 flex items-center gap-2">
+                        <span className="p-1.5 bg-red-500/10 rounded-lg">🚩</span> Red Flags &amp; Things to Probe
+                    </h3>
+                    <RedFlagsList redFlags={redFlagsRaw} />
+                </div>
+            )}
+
+            {/* ── 6. Quick Reference Card ─────────────────── */}
+            <QuickReferenceCard
+                app={app}
                 talkingPoints={talkingPoints}
-                questions={questions}
-                skills={parseJson(app.required_skills)}
+                questionsToAsk={questionsRaw}
             />
-
-            <MockInterviewDrill
-                questions={questions}
-                talkingPoints={talkingPoints}
-            />
-
-            <CheatSheet app={app} />
         </div>
     );
 }
@@ -805,14 +846,15 @@ function InterviewsTab({ app, onUpdateDetails }) {
                         className="btn btn-secondary btn-sm flex items-center gap-2"
                         onClick={(e) => {
                             e.stopPropagation();
+                            const currentStages = Array.isArray(stages) ? stages : [];
                             const newStage = {
                                 id: Date.now(),
-                                round: `Round ${stages.length + 1}`,
+                                round: `Round ${currentStages.length + 1}`,
                                 date: new Date().toISOString().split('T')[0],
                                 type: 'Screening',
                                 notes: ''
                             };
-                            onUpdateDetails(app.id, { interview_stages: [...stages, newStage] });
+                            onUpdateDetails(app.id, { interview_stages: [...currentStages, newStage] });
                         }}
                     >
                         <div className="w-4 h-4 bg-green-500/20 text-green-400 rounded-full flex items-center justify-center">+</div>
@@ -889,3 +931,13 @@ function InterviewsTab({ app, onUpdateDetails }) {
         </div>
     );
 }
+
+export default React.memo(ApplicationCardComponent, (prevProps, nextProps) => {
+    // Only re-render if the application JSON changes or the specific expanded state changes
+    return (
+        JSON.stringify(prevProps.app) === JSON.stringify(nextProps.app) &&
+        prevProps.isExpanded === nextProps.isExpanded &&
+        prevProps.activeTab === nextProps.activeTab &&
+        prevProps.isAnalyzing === nextProps.isAnalyzing
+    );
+});

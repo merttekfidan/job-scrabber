@@ -51,7 +51,7 @@ export function SkillGapBars({ strengths = [], weaknesses = [] }) {
                             <div key={i} className="flex items-center gap-3">
                                 <span className="text-xs text-gray-300 w-32 truncate">{typeof skill === 'string' ? skill.split('→')[0].replace('CV:', '').trim() : skill}</span>
                                 <div className="flex-1 h-2 bg-gray-800 rounded-full overflow-hidden">
-                                    <div className="h-full bg-green-500/60 rounded-full" style={{ width: `${85 + Math.random() * 15}%`, transition: 'width 0.8s ease' }} />
+                                    <div className="h-full bg-green-500/60 rounded-full" style={{ width: `${85 + (i % 3) * 5}%`, transition: 'width 0.8s ease' }} />
                                 </div>
                             </div>
                         ))}
@@ -66,7 +66,7 @@ export function SkillGapBars({ strengths = [], weaknesses = [] }) {
                             <div key={i} className="flex items-center gap-3">
                                 <span className="text-xs text-gray-400 w-32 truncate">{typeof gap === 'string' ? gap.split('→')[0].replace('JOB requires:', '').trim() : gap}</span>
                                 <div className="flex-1 h-2 bg-gray-800 rounded-full overflow-hidden">
-                                    <div className="h-full bg-red-500/40 rounded-full" style={{ width: `${15 + Math.random() * 25}%`, transition: 'width 0.8s ease' }} />
+                                    <div className="h-full bg-red-500/40 rounded-full" style={{ width: `${15 + (i % 4) * 6}%`, transition: 'width 0.8s ease' }} />
                                 </div>
                             </div>
                         ))}
@@ -141,10 +141,10 @@ export function InterviewProgress({ stages = [], currentStatus }) {
                         <React.Fragment key={stage.id || i}>
                             <div className="flex-1 flex flex-col items-center gap-2">
                                 <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all ${completed
-                                        ? 'bg-green-500/20 border-green-500 text-green-400'
-                                        : isCurrent
-                                            ? 'bg-blue-500/20 border-blue-500 text-blue-400 animate-pulse'
-                                            : 'bg-gray-800 border-gray-700 text-gray-500'
+                                    ? 'bg-green-500/20 border-green-500 text-green-400'
+                                    : isCurrent
+                                        ? 'bg-blue-500/20 border-blue-500 text-blue-400 animate-pulse'
+                                        : 'bg-gray-800 border-gray-700 text-gray-500'
                                     }`}>
                                     {completed ? '✓' : i + 1}
                                 </div>
