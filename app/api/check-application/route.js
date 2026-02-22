@@ -23,7 +23,7 @@ export async function GET(request) {
         }
 
         const result = await query(
-            'SELECT id, job_title, company, application_date, notes, status FROM applications WHERE job_url = $1 AND user_id = $2',
+            'SELECT id, job_title, company, application_date, status FROM applications WHERE job_url = $1 AND user_id = $2',
             [jobUrl, session.user.id]
         );
 
@@ -37,7 +37,6 @@ export async function GET(request) {
                     jobTitle: existing.job_title,
                     company: existing.company,
                     applicationDate: existing.application_date,
-                    notes: existing.notes,
                     status: existing.status
                 }
             });
@@ -46,6 +45,6 @@ export async function GET(request) {
         return NextResponse.json({ success: true, exists: false });
     } catch (error) {
         console.error('Check application error:', error);
-        return NextResponse.json({ success: false, error: 'Failed to check application' }, { status: 500 });
+        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }

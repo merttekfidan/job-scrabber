@@ -58,14 +58,13 @@ export async function POST(request) {
 
         // Check for duplicate for this user
         const duplicateCheck = await query(
-            'SELECT id, application_date, notes, status FROM applications WHERE job_url = $1 AND user_id = $2',
+            'SELECT id, application_date, status FROM applications WHERE job_url = $1 AND user_id = $2',
             [jobUrl, userId]
         );
 
         if (duplicateCheck.rows.length > 0) {
             const existing = duplicateCheck.rows[0];
 
-            // If forceReapply is NOT set, return duplicate info so the extension can ask the user
             if (!body.forceReapply) {
                 return NextResponse.json({
                     success: true,
@@ -73,51 +72,92 @@ export async function POST(request) {
                     existingApplication: {
                         id: existing.id,
                         applicationDate: existing.application_date,
-                        notes: existing.notes,
                         status: existing.status
                     }
                 });
             }
 
             // User confirmed reapply — merge update, preserving existing notes
-            const existingNotes = existing.notes || '';
             const reapplyNote = `\n---\n[Reapplied on ${new Date().toISOString().split('T')[0]}]`;
-            const mergedNotes = existingNotes + reapplyNote;
 
-            const result = await query(
-                `UPDATE applications SET 
-          job_title = $1, company = $2, location = $3, work_mode = $4, salary = $5, 
-          application_date = $6, company_url = $7, status = $8, 
-          key_responsibilities = $9, required_skills = $10, preferred_skills = $11, 
-          company_description = $12, interview_prep_key_talking_points = $13, 
-          interview_prep_questions_to_ask = $14, interview_prep_potential_red_flags = $15, 
-          source = $16, original_content = $17, interview_stages = $18, role_summary = $19, 
-          formatted_content = $20, negative_signals = $21, 
-          hiring_manager = $22, company_info = $23, notes = $24, updated_at = NOW()
-        WHERE job_url = $25 AND user_id = $26 RETURNING id`,
-                [
-                    jobTitle, company, location, validWorkMode, salary, applicationDate, companyUrl,
-                    status || 'Applied',
-                    JSON.stringify(keyResponsibilities || []),
-                    JSON.stringify(requiredSkills || []),
-                    JSON.stringify(preferredSkills || []),
-                    companyDescription,
-                    JSON.stringify(interviewPrepNotes?.keyTalkingPoints || []),
-                    JSON.stringify(interviewPrepNotes?.questionsToAsk || []),
-                    JSON.stringify(interviewPrepNotes?.redFlags || interviewPrepNotes?.potentialRedFlags || []),
-                    metadata?.jobBoardSource || 'Unknown',
-                    originalContent || null,
-                    JSON.stringify(interviewStages || []),
-                    roleSummary || null,
-                    body.formattedContent || null,
-                    JSON.stringify(body.negativeSignals || []),
-                    JSON.stringify(hiringManager || {}),
-                    JSON.stringify(companyInfo || {}),
-                    mergedNotes,
-                    jobUrl,
-                    userId
-                ]
-            );
+            // Try update with notes merge, fallback without notes if column doesn't exist
+            let result;
+            try {
+                // First get existing notes
+                const notesResult = await query('SELECT notes FROM applications WHERE id = $1', [existing.id]).catch(() => null);
+                const existingNotes = notesResult?.rows?.[0]?.notes || '';
+                const mergedNotes = existingNotes + reapplyNote;
+
+                result = await query(
+                    `UPDATE applications SET 
+                  job_title = $1, company = $2, location = $3, work_mode = $4, salary = $5, 
+                  application_date = $6, company_url = $7, status = $8, 
+                  key_responsibilities = $9, required_skills = $10, preferred_skills = $11, 
+                  company_description = $12, interview_prep_key_talking_points = $13, 
+                  interview_prep_questions_to_ask = $14, interview_prep_potential_red_flags = $15, 
+                  source = $16, original_content = $17, interview_stages = $18, role_summary = $19, 
+                  formatted_content = $20, negative_signals = $21, 
+                  hiring_manager = $22, company_info = $23, notes = $24, updated_at = NOW()
+                WHERE job_url = $25 AND user_id = $26 RETURNING id`,
+                    [
+                        jobTitle, company, location, validWorkMode, salary, applicationDate, companyUrl,
+                        status || 'Applied',
+                        JSON.stringify(keyResponsibilities || []),
+                        JSON.stringify(requiredSkills || []),
+                        JSON.stringify(preferredSkills || []),
+                        companyDescription,
+                        JSON.stringify(interviewPrepNotes?.keyTalkingPoints || []),
+                        JSON.stringify(interviewPrepNotes?.questionsToAsk || []),
+                        JSON.stringify(interviewPrepNotes?.redFlags || interviewPrepNotes?.potentialRedFlags || []),
+                        metadata?.jobBoardSource || 'Unknown',
+                        originalContent || null,
+                        JSON.stringify(interviewStages || []),
+                        roleSummary || null,
+                        body.formattedContent || null,
+                        JSON.stringify(body.negativeSignals || []),
+                        JSON.stringify(hiringManager || {}),
+                        JSON.stringify(companyInfo || {}),
+                        mergedNotes,
+                        jobUrl,
+                        userId
+                    ]
+                );
+            } catch (notesErr) {
+                // Fallback: update WITHOUT notes column
+                result = await query(
+                    `UPDATE applications SET 
+                  job_title = $1, company = $2, location = $3, work_mode = $4, salary = $5, 
+                  application_date = $6, company_url = $7, status = $8, 
+                  key_responsibilities = $9, required_skills = $10, preferred_skills = $11, 
+                  company_description = $12, interview_prep_key_talking_points = $13, 
+                  interview_prep_questions_to_ask = $14, interview_prep_potential_red_flags = $15, 
+                  source = $16, original_content = $17, interview_stages = $18, role_summary = $19, 
+                  formatted_content = $20, negative_signals = $21, 
+                  hiring_manager = $22, company_info = $23, updated_at = NOW()
+                WHERE job_url = $24 AND user_id = $25 RETURNING id`,
+                    [
+                        jobTitle, company, location, validWorkMode, salary, applicationDate, companyUrl,
+                        status || 'Applied',
+                        JSON.stringify(keyResponsibilities || []),
+                        JSON.stringify(requiredSkills || []),
+                        JSON.stringify(preferredSkills || []),
+                        companyDescription,
+                        JSON.stringify(interviewPrepNotes?.keyTalkingPoints || []),
+                        JSON.stringify(interviewPrepNotes?.questionsToAsk || []),
+                        JSON.stringify(interviewPrepNotes?.redFlags || interviewPrepNotes?.potentialRedFlags || []),
+                        metadata?.jobBoardSource || 'Unknown',
+                        originalContent || null,
+                        JSON.stringify(interviewStages || []),
+                        roleSummary || null,
+                        body.formattedContent || null,
+                        JSON.stringify(body.negativeSignals || []),
+                        JSON.stringify(hiringManager || {}),
+                        JSON.stringify(companyInfo || {}),
+                        jobUrl,
+                        userId
+                    ]
+                );
+            }
             return NextResponse.json({ success: true, message: 'Application reapplied & merged', id: result.rows[0].id });
         }
 
