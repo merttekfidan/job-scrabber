@@ -9,13 +9,6 @@ const openDashboardBtn = document.getElementById('openDashboardBtn');
 const statusDiv = document.getElementById('status');
 const lastCaptureDiv = document.getElementById('lastCapture');
 const totalAppsSpan = document.getElementById('totalApps');
-const reapplyDialog = document.getElementById('reapplyDialog');
-const reapplyMessage = document.getElementById('reapplyMessage');
-const reapplyMergeBtn = document.getElementById('reapplyMergeBtn');
-const reaplyCancelBtn = document.getElementById('reaplyCancelBtn');
-
-// State for pending reapply
-let pendingReapplyData = null;
 
 // SVG icon templates for status
 const STATUS_ICONS = {
@@ -119,9 +112,9 @@ function showStatus(message, type = 'info') {
 }
 
 // ── Apply Button ──
-applyBtn.addEventListener('click', () => applyJob(false));
+applyBtn.addEventListener('click', () => applyJob());
 
-async function applyJob(forceReapply) {
+async function applyJob() {
   try {
     const result = await chrome.storage.local.get(['backendUrl']);
     if (!result.backendUrl) {
@@ -153,23 +146,8 @@ async function applyJob(forceReapply) {
 
         chrome.runtime.sendMessage({
           action: 'processJobData',
-          data: response.data,
-          forceReapply: forceReapply
+          data: response.data
         }, async (processResponse) => {
-          if (processResponse && processResponse.duplicate) {
-            // Duplicate detected — show reapply dialog
-            const existing = processResponse.existingApplication;
-            const dateStr = existing.applicationDate
-              ? new Date(existing.applicationDate).toLocaleDateString()
-              : 'before';
-            reapplyMessage.innerHTML = `You previously applied on <strong>${dateStr}</strong>${existing.status ? ` — Status: <strong>${existing.status}</strong>` : ''}.<br>Reapply and merge your notes?`;
-            pendingReapplyData = response.data;
-            reapplyDialog.classList.remove('hidden');
-            statusDiv.classList.add('hidden');
-            resetApplyBtn();
-            return;
-          }
-
           if (processResponse && processResponse.success) {
             showStatus('Saved!', 'success');
             await updateStats();
@@ -200,40 +178,6 @@ function resetApplyBtn() {
   applyBtn.classList.remove('processing');
   applyBtn.disabled = false;
 }
-
-// ── Reapply Dialog ──
-reapplyMergeBtn.addEventListener('click', () => {
-  reapplyDialog.classList.add('hidden');
-  if (pendingReapplyData) {
-    // Re-trigger with forceReapply = true
-    applyBtn.classList.add('processing');
-    applyBtn.disabled = true;
-    showStatus('Reapplying & merging…', 'info');
-
-    chrome.runtime.sendMessage({
-      action: 'processJobData',
-      data: pendingReapplyData,
-      forceReapply: true
-    }, async (processResponse) => {
-      if (processResponse && processResponse.success) {
-        showStatus('Reapplied & merged!', 'success');
-        await updateStats();
-        await loadLastCapture();
-      } else {
-        showStatus(processResponse?.error || 'Reapply failed', 'error');
-      }
-      resetApplyBtn();
-      pendingReapplyData = null;
-    });
-  }
-});
-
-reaplyCancelBtn.addEventListener('click', () => {
-  reapplyDialog.classList.add('hidden');
-  pendingReapplyData = null;
-  showStatus('Already tracked — skipped', 'info');
-  setTimeout(() => { statusDiv.classList.add('hidden'); }, 2500);
-});
 
 // ── Export CSV ──
 exportBtn.addEventListener('click', exportToCSV);
