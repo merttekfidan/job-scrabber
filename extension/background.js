@@ -25,17 +25,32 @@ async function processJobServerSide(extractedData) {
         // Step 1: Send raw content to server for AI processing
         const processUrl = baseUrl + '/api/extension/process';
 
-        const processResponse = await fetch(processUrl, {
-            method: 'POST',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                url: extractedData.url,
-                pageContent: extractedData.pageContent,
-                jobBoard: extractedData.jobBoard || 'Unknown',
-                pageTitle: extractedData.pageTitle || '',
-            })
-        });
+        // Add a 25-second timeout so it doesn't hang forever
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 25000);
+
+        let processResponse;
+        try {
+            processResponse = await fetch(processUrl, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                signal: controller.signal,
+                body: JSON.stringify({
+                    url: extractedData.url,
+                    pageContent: extractedData.pageContent,
+                    jobBoard: extractedData.jobBoard || 'Unknown',
+                    pageTitle: extractedData.pageTitle || '',
+                })
+            });
+        } catch (error) {
+            if (error.name === 'AbortError') {
+                throw new Error('AI processing timed out after 25 seconds. The page content might be too large or the server is busy.');
+            }
+            throw error;
+        } finally {
+            clearTimeout(timeoutId);
+        }
 
         if (!processResponse.ok) {
             const errorData = await processResponse.json().catch(() => ({}));

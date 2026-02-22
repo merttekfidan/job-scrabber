@@ -1,19 +1,23 @@
 // Content script for extracting job data from web pages
 // Now simplified - just grab raw content and let LLM do ALL the parsing
 
-// Listen for messages from popup
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.action === 'extractJobData') {
-        try {
-            const jobData = extractPageContent();
-            sendResponse({ success: true, data: jobData });
-        } catch (error) {
-            console.error('Extraction error:', error);
-            sendResponse({ success: false, error: error.message });
+if (!window.jobScrabberInjected) {
+    window.jobScrabberInjected = true;
+
+    // Listen for messages from popup
+    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+        if (request.action === 'extractJobData') {
+            try {
+                const jobData = extractPageContent();
+                sendResponse({ success: true, data: jobData });
+            } catch (error) {
+                console.error('Extraction error:', error);
+                sendResponse({ success: false, error: error.message });
+            }
         }
-    }
-    return true; // Keep message channel open for async response
-});
+        return true; // Keep message channel open for async response
+    });
+}
 
 // Extract raw page content for LLM to parse
 function extractPageContent() {
