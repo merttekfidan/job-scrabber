@@ -10,7 +10,7 @@ import {
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { parseJson, formatDate, getStatusClass } from './utils';
-import { MatchScoreGauge, SkillGapBars, CultureFitMeter, InterviewProgress } from './VisualFrameworks';
+import { MatchScoreGauge, SkillGapBars, InterviewProgress } from './VisualFrameworks';
 import HiringFrameworks from './HiringFrameworks';
 import { InterviewQuestionsList, QuestionsToAskList, RedFlagsList, QuickReferenceCard } from './InterviewPrepTools';
 import { formatSalary } from '@/lib/currencyUtils';
@@ -295,70 +295,49 @@ function CompanyTab({ app, isAnalyzing, onGenerateInsights, onShare }) {
                         </div>
                     </div>
 
-                    <CultureFitMeter cultureFit={insights.cultureFit} />
-
                     <div className="space-y-4">
-                        <div className="bg-gray-800/50 p-6 rounded-2xl border border-gray-700/50">
-                            <h4 className="text-green-400 font-bold mb-3">Why {app.company}?</h4>
-                            <div className="bg-green-500/5 p-4 rounded-xl border border-green-500/10 text-gray-300 italic">
-                                &quot;{insights.whyUsAnswer}&quot;
-                            </div>
-                        </div>
-                        <div className="bg-gray-800/50 p-6 rounded-2xl border border-gray-700/50">
-                            <h4 className="text-blue-400 font-bold mb-3">Why You?</h4>
-                            <div className="bg-blue-500/5 p-4 rounded-xl border border-blue-500/10 text-gray-300 italic">
-                                &quot;{insights.whyYouAnswer}&quot;
-                            </div>
-                        </div>
-
                         {insights.salaryContext && (
-                            <div className="bg-emerald-500/10 p-6 rounded-2xl border border-emerald-500/20">
+                            <div className="bg-emerald-500/10 p-5 rounded-2xl border border-emerald-500/20">
                                 <h4 className="text-emerald-400 font-bold mb-3 flex items-center gap-2">
                                     💰 Salary Intelligence
                                 </h4>
-                                <p className="text-gray-300 text-sm leading-relaxed">{insights.salaryContext}</p>
+                                {typeof insights.salaryContext === 'object' ? (
+                                    <div className="space-y-2">
+                                        {insights.salaryContext.range && <div className="flex items-center gap-2 text-sm"><span className="text-gray-500 font-medium w-24">Range:</span><span className="text-white font-semibold">{insights.salaryContext.range}</span></div>}
+                                        {insights.salaryContext.confidence && <div className="flex items-center gap-2 text-sm"><span className="text-gray-500 font-medium w-24">Confidence:</span><span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${insights.salaryContext.confidence === 'high' ? 'bg-green-500/20 text-green-400' : insights.salaryContext.confidence === 'medium' ? 'bg-amber-500/20 text-amber-400' : 'bg-gray-700 text-gray-400'}`}>{insights.salaryContext.confidence}</span></div>}
+                                        {insights.salaryContext.source && <div className="flex items-center gap-2 text-sm"><span className="text-gray-500 font-medium w-24">Source:</span><span className="text-gray-400 text-xs">{insights.salaryContext.source}</span></div>}
+                                    </div>
+                                ) : (
+                                    <p className="text-gray-300 text-sm leading-relaxed">{insights.salaryContext}</p>
+                                )}
                             </div>
                         )}
 
-                        {/* Hiring Urgency */}
+                        {/* Hiring Urgency — compact with signals as tags */}
                         {insights.hiringUrgency && (
-                            <div className={`p-5 rounded-2xl border ${insights.hiringUrgency.level === 'High' ? 'bg-red-500/10 border-red-500/20' :
+                            <div className={`p-4 rounded-2xl border flex flex-wrap items-center gap-3 ${insights.hiringUrgency.level === 'High' ? 'bg-red-500/10 border-red-500/20' :
                                 insights.hiringUrgency.level === 'Medium' ? 'bg-amber-500/10 border-amber-500/20' :
                                     'bg-gray-800/50 border-gray-700/50'
                                 }`}>
-                                <div className="flex items-center gap-2 mb-2">
-                                    <h4 className={`font-bold ${insights.hiringUrgency.level === 'High' ? 'text-red-400' :
-                                        insights.hiringUrgency.level === 'Medium' ? 'text-amber-400' : 'text-gray-400'
-                                        }`}>⏰ Hiring Urgency</h4>
-                                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${insights.hiringUrgency.level === 'High' ? 'bg-red-500/20 text-red-400' :
-                                        insights.hiringUrgency.level === 'Medium' ? 'bg-amber-500/20 text-amber-400' :
-                                            'bg-gray-700 text-gray-400'
-                                        }`}>{insights.hiringUrgency.level}</span>
-                                </div>
-                                {insights.hiringUrgency.signals?.length > 0 && (
-                                    <div className="flex flex-wrap gap-1.5 mb-2">
-                                        {insights.hiringUrgency.signals.map((s, i) => (
-                                            <span key={i} className="px-2 py-0.5 bg-gray-900/40 text-gray-400 text-[10px] rounded">{s}</span>
-                                        ))}
-                                    </div>
-                                )}
-                                {insights.hiringUrgency.recommendation && (
-                                    <p className="text-xs text-gray-400 italic">💡 {insights.hiringUrgency.recommendation}</p>
-                                )}
+                                <h4 className={`font-bold text-sm ${insights.hiringUrgency.level === 'High' ? 'text-red-400' :
+                                    insights.hiringUrgency.level === 'Medium' ? 'text-amber-400' : 'text-gray-400'
+                                    }`}>⏰ Hiring Urgency</h4>
+                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${insights.hiringUrgency.level === 'High' ? 'bg-red-500/20 text-red-400' :
+                                    insights.hiringUrgency.level === 'Medium' ? 'bg-amber-500/20 text-amber-400' :
+                                        'bg-gray-700 text-gray-400'
+                                    }`}>{insights.hiringUrgency.level}</span>
+                                {insights.hiringUrgency.signals?.map((s, i) => (
+                                    <span key={i} className="px-2 py-0.5 bg-gray-900/40 text-gray-400 text-[10px] rounded">{s}</span>
+                                ))}
                             </div>
                         )}
 
-                        {/* Remote Policy */}
+                        {/* Remote Policy — one-liner */}
                         {insights.remotePolicy && (
-                            <div className="bg-cyan-500/10 p-5 rounded-2xl border border-cyan-500/20">
-                                <h4 className="text-cyan-400 font-bold mb-2">🏠 Remote Work Policy</h4>
-                                <div className="flex items-center gap-2 mb-2">
-                                    <span className="px-2.5 py-0.5 bg-cyan-500/20 text-cyan-400 rounded-full text-xs font-bold">{insights.remotePolicy.type}</span>
-                                </div>
-                                <p className="text-gray-300 text-sm mb-1">{insights.remotePolicy.details}</p>
-                                {insights.remotePolicy.flexibility && (
-                                    <p className="text-xs text-gray-500 italic">{insights.remotePolicy.flexibility}</p>
-                                )}
+                            <div className="bg-cyan-500/10 p-4 rounded-2xl border border-cyan-500/20 flex flex-wrap items-center gap-3">
+                                <h4 className="text-cyan-400 font-bold text-sm">🏠 Remote Policy</h4>
+                                <span className="px-2.5 py-0.5 bg-cyan-500/20 text-cyan-400 rounded-full text-xs font-bold">{insights.remotePolicy.type}</span>
+                                <span className="text-gray-400 text-sm">{insights.remotePolicy.details}</span>
                             </div>
                         )}
 
@@ -379,21 +358,26 @@ function CompanyTab({ app, isAnalyzing, onGenerateInsights, onShare }) {
                             </div>
                         )}
 
-                        {/* Culture Signals with Ratings */}
+                        {/* Culture Signals — enriched with evidence */}
                         {insights.cultureSignals?.length > 0 && (
                             <div className="bg-gray-800/30 p-5 rounded-2xl border border-gray-700/50">
-                                <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3">Culture Signal Ratings</h4>
-                                <div className="space-y-2.5">
+                                <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Culture Signal Ratings</h4>
+                                <div className="space-y-3">
                                     {insights.cultureSignals.map((cs, i) => (
-                                        <div key={i} className="flex items-center gap-3">
-                                            <span className="text-xs text-gray-300 w-28 truncate font-medium">{cs.signal}</span>
-                                            <div className="flex-1 h-2.5 bg-gray-800 rounded-full overflow-hidden">
-                                                <div
-                                                    className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
-                                                    style={{ width: `${(cs.rating / 5) * 100}%`, transition: 'width 0.8s ease' }}
-                                                />
+                                        <div key={i}>
+                                            <div className="flex items-center gap-3">
+                                                <span className="text-xs text-gray-200 w-40 truncate font-medium" title={cs.signal}>{cs.signal}</span>
+                                                <div className="flex-1 h-2.5 bg-gray-800 rounded-full overflow-hidden">
+                                                    <div
+                                                        className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
+                                                        style={{ width: `${(cs.rating / 5) * 100}%`, transition: 'width 0.8s ease' }}
+                                                    />
+                                                </div>
+                                                <span className="text-[10px] text-gray-500 w-6 text-right">{cs.rating}/5</span>
                                             </div>
-                                            <span className="text-[10px] text-gray-500 w-6 text-right">{cs.rating}/5</span>
+                                            {cs.evidence && (
+                                                <p className="text-[11px] text-gray-500 mt-1 ml-1 italic truncate" title={cs.evidence}>📌 {cs.evidence}</p>
+                                            )}
                                         </div>
                                     ))}
                                 </div>
@@ -493,22 +477,75 @@ function CoachTab({ app, isAnalyzing, onAnalyzeJob, onUpdateDetails }) {
                 <h4 className="text-purple-400 font-bold mb-4 flex items-center gap-2 text-lg">
                     <User size={20} /> Career Coach&apos;s Strategy
                 </h4>
-                <div className="text-gray-200 leading-relaxed text-sm mb-6 bg-purple-500/5 p-4 rounded-xl italic">
-                    &quot;{app.personalized_analysis.prep?.tailoredAdvice}&quot;
-                </div>
-                <div className="space-y-4">
-                    <h5 className="text-white font-semibold text-sm uppercase tracking-wider">Tailored Talking Points</h5>
-                    <div className="grid grid-cols-1 gap-3">
+                {app.personalized_analysis.prep?.tailoredAdvice && (
+                    <p className="text-gray-300 text-sm leading-relaxed mb-5">
+                        {app.personalized_analysis.prep.tailoredAdvice}
+                    </p>
+                )}
+                <div className="space-y-3">
+                    <h5 className="text-white font-semibold text-xs uppercase tracking-wider flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 bg-purple-400 rounded-full"></span> Key Action Items
+                    </h5>
+                    <div className="grid grid-cols-1 gap-2">
                         {parseJson(app.personalized_analysis.prep?.keyTalkingPoints).map((tp, i) => (
-                            <div key={i} className="bg-gray-800/40 p-4 rounded-xl border border-gray-700/50">
-                                <div className="font-bold text-white mb-1">{tp.point}</div>
-                                <div className="text-gray-400 text-sm">{tp.explanation}</div>
-                            </div>
+                            <details key={i} className="group bg-gray-800/40 rounded-xl border border-gray-700/50 overflow-hidden">
+                                <summary className="flex items-start gap-3 p-3 cursor-pointer list-none select-none hover:bg-gray-800/60 transition-colors">
+                                    <span className="text-purple-400 font-bold text-sm mt-0.5 w-5 text-center shrink-0">
+                                        <span className="block group-open:hidden">+</span>
+                                        <span className="hidden group-open:block">−</span>
+                                    </span>
+                                    <span className="text-sm font-medium text-white leading-relaxed">{tp.point}</span>
+                                </summary>
+                                {tp.explanation && (
+                                    <div className="px-3 pb-3 pl-11 text-gray-400 text-xs leading-relaxed">
+                                        {tp.explanation}
+                                    </div>
+                                )}
+                            </details>
                         ))}
                     </div>
                 </div>
             </div>
 
+            {/* Interview Cheat Sheet */}
+            <div className="relative bg-amber-500/5 border-2 border-dashed border-amber-500/30 p-6 rounded-2xl" style={{ fontFamily: "'Caveat', cursive" }}>
+                <div className="absolute -top-3 left-4 bg-gray-900 px-3 py-0.5 rounded-full">
+                    <span className="text-amber-400 text-xs font-bold tracking-wider uppercase" style={{ fontFamily: 'inherit' }}>📋 Quick Cheat Sheet</span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                    <div>
+                        <h5 className="text-amber-400 font-bold text-sm mb-2" style={{ fontFamily: 'system-ui' }}>🎯 Lead With</h5>
+                        <ul className="space-y-1">
+                            {parseJson(app.personalized_analysis.swot?.strengths).slice(0, 3).map((s, i) => (
+                                <li key={i} className="text-xs text-gray-300 flex gap-2">
+                                    <span className="text-green-400 shrink-0">✓</span>
+                                    <span className="line-clamp-1" style={{ fontFamily: 'system-ui' }}>{typeof s === 'string' ? s.split('→')[0].replace('CV:', '').trim() : s}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                    <div>
+                        <h5 className="text-amber-400 font-bold text-sm mb-2" style={{ fontFamily: 'system-ui' }}>💬 Key Points</h5>
+                        <ul className="space-y-1">
+                            {parseJson(app.personalized_analysis.prep?.keyTalkingPoints).slice(0, 3).map((tp, i) => (
+                                <li key={i} className="text-xs text-gray-300 flex gap-2">
+                                    <span className="text-purple-400 shrink-0">→</span>
+                                    <span className="line-clamp-1" style={{ fontFamily: 'system-ui' }}>{tp.point}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                </div>
+                {app.personalized_analysis.swot?.matchScore != null && (
+                    <div className="mt-3 flex items-center gap-2 pt-3 border-t border-amber-500/20">
+                        <span className="text-xs text-gray-500" style={{ fontFamily: 'system-ui' }}>Match Score:</span>
+                        <div className="flex-1 h-2 bg-gray-800 rounded-full overflow-hidden">
+                            <div className="h-full bg-gradient-to-r from-amber-500 to-green-500 rounded-full" style={{ width: `${app.personalized_analysis.swot.matchScore}%`, transition: 'width 0.8s ease' }} />
+                        </div>
+                        <span className="text-xs font-bold text-amber-400" style={{ fontFamily: 'system-ui' }}>{app.personalized_analysis.swot.matchScore}%</span>
+                    </div>
+                )}
+            </div>
             <div className="flex justify-between items-center text-[10px] text-gray-500 px-2">
                 <span>Analyzed using CV: {app.personalized_analysis.cvFilename}</span>
                 <button
@@ -541,8 +578,9 @@ function SwotQuadrant({ color, icon, title, items }) {
             </h4>
             <ul className="space-y-2">
                 {(items || []).map((item, i) => (
-                    <li key={i} className="text-sm text-gray-300 flex items-start gap-2">
-                        <span className={`text-${color}-500 mt-1`}>•</span> {item}
+                    <li key={i} className="text-sm text-gray-300 flex items-start gap-2 group/item" title={item}>
+                        <span className={`text-${color}-500 mt-1 shrink-0`}>•</span>
+                        <span className="line-clamp-2 group-hover/item:line-clamp-none transition-all cursor-default">{item}</span>
                     </li>
                 ))}
             </ul>

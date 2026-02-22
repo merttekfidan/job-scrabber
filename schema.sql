@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS applications (
     interview_prep_potential_red_flags JSONB DEFAULT '[]',
     formatted_content TEXT,
     negative_signals JSONB DEFAULT '[]',
+    interview_prep_notes JSONB DEFAULT '{}',
     notes TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -107,12 +108,16 @@ CREATE TABLE IF NOT EXISTS verification_codes (
 CREATE INDEX IF NOT EXISTS idx_verification_codes_email 
     ON verification_codes(email, used, expires_at);
 
--- User Profiles (Groq API keys, settings)
+-- User Profiles (AI keys, settings)
 CREATE TABLE IF NOT EXISTS user_profiles (
     user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
     groq_api_key TEXT,
+    ai_providers JSONB DEFAULT '{}'::jsonb,
     settings JSONB DEFAULT '{}'::jsonb,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Multi-provider AI key pool (incremental)
+ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS ai_providers JSONB DEFAULT '{}'::jsonb;
 

@@ -126,6 +126,7 @@ export default function Dashboard({ session }) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id, updates })
             });
+            const data = await res.json();
             if (res.ok) {
                 setApplications(apps => apps.map(app =>
                     app.id === id ? { ...app, ...updates } : app
@@ -140,11 +141,12 @@ export default function Dashboard({ session }) {
                     setStats(statsData.stats);
                 }
             } else {
-                throw new Error('Failed to update');
+                console.error('Update API error:', res.status, data);
+                throw new Error(data.error || 'Failed to update');
             }
         } catch (error) {
-            console.error(error);
-            showToast('Failed to update', 'error');
+            console.error('handleUpdateDetails error:', error);
+            showToast(error.message || 'Failed to update', 'error');
         }
     };
 

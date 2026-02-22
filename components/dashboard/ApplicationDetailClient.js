@@ -458,24 +458,6 @@ export default function ApplicationDetailClient({ initialApp, isShared = false }
                             </div>
                         )}
 
-                        {/* Why Us / Why You */}
-                        {insights && (
-                            <div className="space-y-4">
-                                <div className="bg-gray-800/30 border border-gray-700/50 rounded-2xl p-6">
-                                    <h4 className="text-green-400 font-bold mb-2 text-sm uppercase tracking-wider">Why {app.company}?</h4>
-                                    <div className="bg-green-500/5 p-3 rounded-xl border border-green-500/10 text-gray-300 italic text-sm">
-                                        &quot;{insights.whyUsAnswer}&quot;
-                                    </div>
-                                </div>
-                                <div className="bg-gray-800/30 border border-gray-700/50 rounded-2xl p-6">
-                                    <h4 className="text-blue-400 font-bold mb-2 text-sm uppercase tracking-wider">Why Me?</h4>
-                                    <div className="bg-blue-500/5 p-3 rounded-xl border border-blue-500/10 text-gray-300 italic text-sm">
-                                        &quot;{insights.whyYouAnswer}&quot;
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
                     </div>
                 </div>
 

@@ -37,15 +37,17 @@ export async function POST(request) {
                 'status', 'notes', 'interview_stages', 'salary',
                 'work_mode', 'location', 'key_responsibilities',
                 'required_skills', 'preferred_skills', 'original_content',
-                'interview_prep_notes'
+                'interview_prep_notes', 'personalized_analysis'
             ];
 
+            const jsonFields = ['interview_stages', 'key_responsibilities', 'required_skills', 'preferred_skills', 'interview_prep_notes', 'personalized_analysis'];
+
             if (allowed.includes(key)) {
-                fields.push(`${key} = $${paramIndex}`);
-                // Handle JSON fields
-                if (['interview_stages', 'key_responsibilities', 'required_skills', 'preferred_skills', 'interview_prep_notes'].includes(key)) {
+                if (jsonFields.includes(key)) {
+                    fields.push(`${key} = $${paramIndex}::jsonb`);
                     values.push(typeof value === 'string' ? value : JSON.stringify(value));
                 } else {
+                    fields.push(`${key} = $${paramIndex}`);
                     values.push(value);
                 }
                 paramIndex++;
@@ -69,7 +71,7 @@ export async function POST(request) {
         return NextResponse.json({ success: true, message: 'Updated successfully', application: result.rows[0] });
 
     } catch (error) {
-        console.error('Update error:', error);
-        return NextResponse.json({ success: false, error: 'Failed to update application' }, { status: 500 });
+        console.error('Update error:', error.message, error.stack);
+        return NextResponse.json({ success: false, error: error.message || 'Failed to update application' }, { status: 500 });
     }
 }
