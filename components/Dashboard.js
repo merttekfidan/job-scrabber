@@ -15,6 +15,7 @@ import ApplicationFilters from './dashboard/ApplicationFilters';
 import ApplicationCard from './dashboard/ApplicationCard';
 import SmartAnalytics from './dashboard/SmartAnalytics';
 import JobDetailView from './dashboard/JobDetailView';
+import KanbanBoard from './dashboard/KanbanBoard';
 import { ApplicationListSkeleton } from './dashboard/Skeletons';
 import { parseJson } from './dashboard/utils';
 
@@ -280,7 +281,7 @@ export default function Dashboard({ session }) {
                     <div className="flex items-center bg-gray-900/60 rounded-lg p-1 gap-0.5 border border-white/5">
                         {[
                             { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-                            { id: 'applications', label: 'Pipeline', icon: LayoutList },
+                            { id: 'applications', label: 'Kanban Board', icon: LayoutList },
                             { id: 'coach', label: 'Coach', icon: Sparkles },
                         ].map(v => (
                             <button
@@ -383,56 +384,66 @@ export default function Dashboard({ session }) {
                                 totalCount={stats?.total || 0}
                             />
 
-                            {/* Applications List */}
-                            <section className="applications-section">
+                            {/* Main Content Area */}
+                            {view === 'applications' ? (
+                                <section className="mt-6">
+                                    <KanbanBoard
+                                        applications={applications}
+                                        isLoading={isLoading}
+                                        onCardClick={(id) => setSelectedJobId(id)}
+                                    />
+                                </section>
+                            ) : (
+                                <section className="applications-section">
 
-                                {isLoading && applications.length === 0 ? (
-                                    <ApplicationListSkeleton count={4} />
-                                ) : applications.length === 0 ? (
-                                    <div className="empty-state text-center py-20 opacity-70">
-                                        <Briefcase size={48} className="mx-auto mb-4" />
-                                        <h3>No applications found</h3>
-                                    </div>
-                                ) : (
-                                    <div className="space-y-3">
-                                        {applications.map(app => (
-                                            <ErrorBoundary key={app.id} fallbackTitle="Error loading application">
-                                                <ApplicationCard
-                                                    app={app}
-                                                    isExpanded={false}
-                                                    activeTab={activeTab}
-                                                    onToggleExpand={() => setSelectedJobId(app.id)}
-                                                    onSetActiveTab={setActiveTab}
-                                                    onUpdateDetails={handleUpdateDetails}
-                                                    onAnalyzeJob={handleAnalyzeJob}
-                                                    onGenerateInsights={handleGenerateInsights}
-                                                    onShare={handleShare}
-                                                    onDelete={(appToDelete) => {
-                                                        setSelectedApp(appToDelete);
-                                                        setShowDeleteModal(true);
-                                                    }}
-                                                    isAnalyzing={isAnalyzing}
-                                                />
-                                            </ErrorBoundary>
-                                        ))}
+                                    {isLoading && applications.length === 0 ? (
+                                        <ApplicationListSkeleton count={4} />
+                                    ) : applications.length === 0 ? (
+                                        <div className="empty-state text-center py-20 opacity-70">
+                                            <Briefcase size={48} className="mx-auto mb-4" />
+                                            <h3>No applications found</h3>
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-3">
+                                            {applications.map(app => (
+                                                <ErrorBoundary key={app.id} fallbackTitle="Error loading application">
+                                                    <ApplicationCard
+                                                        app={app}
+                                                        isExpanded={false}
+                                                        activeTab={activeTab}
+                                                        onToggleExpand={() => setSelectedJobId(app.id)}
+                                                        onSetActiveTab={setActiveTab}
+                                                        onUpdateDetails={handleUpdateDetails}
+                                                        onAnalyzeJob={handleAnalyzeJob}
+                                                        onGenerateInsights={handleGenerateInsights}
+                                                        onShare={handleShare}
+                                                        onDelete={(appToDelete) => {
+                                                            setSelectedApp(appToDelete);
+                                                            setShowDeleteModal(true);
+                                                        }}
+                                                        isAnalyzing={isAnalyzing}
+                                                    />
+                                                </ErrorBoundary>
+                                            ))}
 
-                                        {hasMore && !isLoading && (
-                                            <div className="flex justify-center mt-8">
-                                                <button
-                                                    className="btn btn-secondary px-8"
-                                                    onClick={() => {
-                                                        const nextPage = page + 1;
-                                                        setPage(nextPage);
-                                                        loadData(nextPage, false);
-                                                    }}
-                                                >
-                                                    Load More
-                                                </button>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-                            </section>
+                                            {hasMore && !isLoading && (
+                                                <div className="flex justify-center mt-8">
+                                                    <button
+                                                        className="btn btn-secondary px-8"
+                                                        onClick={() => {
+                                                            const nextPage = page + 1;
+                                                            setPage(nextPage);
+                                                            loadData(nextPage, false);
+                                                        }}
+                                                    >
+                                                        Load More
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </section>
+                            )}
                         </div>
 
                         {upcomingInterviews?.length > 0 && (

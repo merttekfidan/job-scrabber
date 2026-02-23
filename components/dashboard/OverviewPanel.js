@@ -157,15 +157,31 @@ export default function OverviewPanel({ app, isAnalyzing, onGenerateInsights, on
                         </div>
 
                         {insights.salaryContext && (
-                            <div className="bg-emerald-500/10 p-4 rounded-xl border border-emerald-500/20">
-                                <h4 className="text-emerald-400 font-bold mb-2 text-sm">💰 Salary Intelligence</h4>
+                            <div className="bg-emerald-500/10 p-4 rounded-xl border border-emerald-500/20 mt-4">
+                                <h4 className="text-emerald-400 font-bold mb-3 text-sm flex items-center gap-2">💰 Salary Intelligence</h4>
                                 {typeof insights.salaryContext === 'string' ? (
                                     <p className="text-gray-300 text-sm leading-relaxed">{insights.salaryContext}</p>
                                 ) : (
-                                    <div className="space-y-2 text-sm text-gray-300">
-                                        {insights.salaryContext.marketComparison && <p>📊 {insights.salaryContext.marketComparison}</p>}
-                                        {insights.salaryContext.negotiationLeverage && <p>💪 {insights.salaryContext.negotiationLeverage}</p>}
-                                        {insights.salaryContext.hiddenBenefits && <p>🎁 {insights.salaryContext.hiddenBenefits}</p>}
+                                    <div className="flex flex-col gap-2">
+                                        {insights.salaryContext.range && (
+                                            <div className="flex items-center justify-between bg-emerald-500/5 p-2 rounded-lg border border-emerald-500/10">
+                                                <span className="text-gray-400 text-xs font-medium uppercase tracking-wider">Est. Range</span>
+                                                <span className="text-emerald-300 font-bold text-sm">{insights.salaryContext.range}</span>
+                                            </div>
+                                        )}
+                                        <div className="flex items-center gap-2 mt-1">
+                                            {insights.salaryContext.confidence && (
+                                                <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase border ${insights.salaryContext.confidence === 'high' ? 'bg-green-500/10 text-green-400 border-green-500/20' : insights.salaryContext.confidence === 'medium' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' : 'bg-gray-800 text-gray-400 border-gray-700'}`}>
+                                                    {insights.salaryContext.confidence} Confidence
+                                                </span>
+                                            )}
+                                            {insights.salaryContext.source && (
+                                                <span className="text-gray-500 text-[10px] italic flex-1 truncate" title={insights.salaryContext.source}>Source: {insights.salaryContext.source}</span>
+                                            )}
+                                            {insights.salaryContext.marketComparison && (
+                                                <span className="text-gray-500 text-[10px] italic flex-1 truncate" title={insights.salaryContext.marketComparison}>Market: {insights.salaryContext.marketComparison}</span>
+                                            )}
+                                        </div>
                                     </div>
                                 )}
                             </div>
@@ -188,20 +204,23 @@ export default function OverviewPanel({ app, isAnalyzing, onGenerateInsights, on
                     )}
 
                     {personalAnalysis.swot && (
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {[
-                                { key: 'strengths', color: 'emerald', icon: '💪', title: 'Strengths' },
-                                { key: 'weaknesses', color: 'red', icon: '⚠️', title: 'Weaknesses' },
-                                { key: 'opportunities', color: 'blue', icon: '🚀', title: 'Opportunities' },
-                                { key: 'threats', color: 'amber', icon: '🛡️', title: 'Threats' },
-                            ].map(({ key, color, icon, title }) => {
+                                { key: 'strengths', bg: 'bg-emerald-500/5', border: 'border-emerald-500/15', text: 'text-emerald-400', icon: '💪', title: 'Strengths' },
+                                { key: 'weaknesses', bg: 'bg-red-500/5', border: 'border-red-500/15', text: 'text-red-400', icon: '⚠️', title: 'Weaknesses' },
+                                { key: 'opportunities', bg: 'bg-blue-500/5', border: 'border-blue-500/15', text: 'text-blue-400', icon: '🚀', title: 'Opportunities' },
+                                { key: 'threats', bg: 'bg-amber-500/5', border: 'border-amber-500/15', text: 'text-amber-400', icon: '🛡️', title: 'Threats' },
+                            ].map(({ key, bg, border, text, icon, title }) => {
                                 const items = personalAnalysis.swot[key] || [];
                                 return (
-                                    <div key={key} className={`bg-${color}-500/5 p-4 rounded-xl border border-${color}-500/15`}>
-                                        <h4 className={`text-${color}-400 font-bold mb-2 text-sm`}>{icon} {title}</h4>
-                                        <ul className="space-y-1">
+                                    <div key={key} className={`${bg} p-4 rounded-xl border ${border}`}>
+                                        <h4 className={`${text} font-bold mb-3 text-sm flex items-center gap-2`}><span>{icon}</span> {title}</h4>
+                                        <ul className="space-y-2">
                                             {items.map((item, i) => (
-                                                <li key={i} className="text-xs text-gray-300">{typeof item === 'string' ? item : item.point || JSON.stringify(item)}</li>
+                                                <li key={i} className="text-xs text-gray-300 leading-relaxed flex items-start gap-2">
+                                                    <span className={`${text} opacity-50 flex-shrink-0 mt-0.5`}>•</span>
+                                                    <span>{typeof item === 'string' ? item : item.point || JSON.stringify(item)}</span>
+                                                </li>
                                             ))}
                                         </ul>
                                     </div>

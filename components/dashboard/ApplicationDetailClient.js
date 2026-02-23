@@ -347,14 +347,146 @@ export default function ApplicationDetailClient({ initialApp, isShared = false }
 
                         {/* Company Insights */}
                         {insights && (
-                            <div className="bg-indigo-950/20 border border-indigo-500/20 rounded-2xl p-6 relative overflow-hidden group hover:border-indigo-500/40 transition-colors">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 blur-3xl rounded-full -mr-10 -mt-10"></div>
-                                <h3 className="text-indigo-400 font-bold text-lg mb-4 flex items-center gap-2 relative z-10">
-                                    <Globe size={20} /> Company Strategic Focus
-                                </h3>
-                                <p className="text-gray-300 leading-relaxed relative z-10 text-lg">
-                                    {insights.strategicFocus}
-                                </p>
+                            <div className="space-y-6">
+                                {/* Strategic Focus */}
+                                {insights.strategicFocus && (
+                                    <div className="bg-indigo-950/20 border border-indigo-500/20 rounded-2xl p-6 relative overflow-hidden group hover:border-indigo-500/40 transition-colors">
+                                        <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 blur-3xl rounded-full -mr-10 -mt-10"></div>
+                                        <h3 className="text-indigo-400 font-bold text-lg mb-4 flex items-center gap-2 relative z-10">
+                                            <Globe size={20} /> Company Strategic Focus
+                                        </h3>
+                                        <p className="text-gray-300 leading-relaxed relative z-10 text-lg">
+                                            {insights.strategicFocus}
+                                        </p>
+                                    </div>
+                                )}
+
+                                {/* Intelligence Grid */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {/* Salary Intelligence */}
+                                    {insights.salaryContext && (
+                                        <div className="bg-emerald-500/10 p-5 rounded-2xl border border-emerald-500/20">
+                                            <h4 className="text-emerald-400 font-bold mb-3 flex items-center gap-2">💰 Salary Intelligence</h4>
+                                            {typeof insights.salaryContext === 'object' ? (
+                                                <div className="flex flex-col gap-2">
+                                                    {insights.salaryContext.range && (
+                                                        <div className="flex items-center justify-between bg-emerald-500/5 p-2 rounded-lg border border-emerald-500/10">
+                                                            <span className="text-gray-400 text-xs font-medium uppercase tracking-wider">Est. Range</span>
+                                                            <span className="text-emerald-300 font-bold text-sm">{insights.salaryContext.range}</span>
+                                                        </div>
+                                                    )}
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        {insights.salaryContext.confidence && (
+                                                            <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase border ${insights.salaryContext.confidence === 'high' ? 'bg-green-500/10 text-green-400 border-green-500/20' : insights.salaryContext.confidence === 'medium' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' : 'bg-gray-800 text-gray-400 border-gray-700'}`}>
+                                                                {insights.salaryContext.confidence} Confidence
+                                                            </span>
+                                                        )}
+                                                        {insights.salaryContext.source && (
+                                                            <span className="text-gray-500 text-[10px] italic flex-1 truncate" title={insights.salaryContext.source}>Source: {insights.salaryContext.source}</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <p className="text-gray-300 text-sm leading-relaxed">{insights.salaryContext}</p>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {/* Competitor Context */}
+                                    {insights.competitorContext && (
+                                        <div className="bg-gray-800/50 p-5 rounded-2xl border border-gray-700/50">
+                                            <h4 className="text-violet-400 font-bold mb-3">🏁 Competitive Landscape</h4>
+                                            {insights.competitorContext.likelyCompetitors?.length > 0 && (
+                                                <div className="flex flex-wrap gap-2 mb-2">
+                                                    {insights.competitorContext.likelyCompetitors.map((c, i) => (
+                                                        <span key={i} className="px-2.5 py-1 bg-violet-500/10 text-violet-400 text-xs rounded-lg border border-violet-500/20">{c}</span>
+                                                    ))}
+                                                </div>
+                                            )}
+                                            {insights.competitorContext.differentiator && (
+                                                <p className="text-gray-400 text-sm italic">✦ {insights.competitorContext.differentiator}</p>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Policy Grid */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {/* Hiring Urgency */}
+                                    {insights.hiringUrgency && (
+                                        <div className={`p-4 rounded-2xl border flex flex-col gap-3 ${insights.hiringUrgency.level === 'High' ? 'bg-red-500/10 border-red-500/20' :
+                                            insights.hiringUrgency.level === 'Medium' ? 'bg-amber-500/10 border-amber-500/20' :
+                                                'bg-gray-800/50 border-gray-700/50'
+                                            }`}>
+                                            <div className="flex items-center justify-between">
+                                                <h4 className={`font-bold text-sm ${insights.hiringUrgency.level === 'High' ? 'text-red-400' :
+                                                    insights.hiringUrgency.level === 'Medium' ? 'text-amber-400' : 'text-gray-400'
+                                                    }`}>⏰ Hiring Urgency</h4>
+                                                <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase border ${insights.hiringUrgency.level === 'High' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
+                                                    insights.hiringUrgency.level === 'Medium' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' :
+                                                        'bg-gray-800 text-gray-400 border-gray-700'
+                                                    }`}>{insights.hiringUrgency.level}</span>
+                                            </div>
+                                            {insights.hiringUrgency.signals?.length > 0 && (
+                                                <div className="flex flex-wrap gap-1.5">
+                                                    {insights.hiringUrgency.signals.map((s, i) => (
+                                                        <span key={i} className="px-2 py-0.5 bg-gray-900/40 text-gray-400 border border-gray-700/50 text-[10px] rounded-md">{s}</span>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {/* Remote Policy */}
+                                    {insights.remotePolicy && (
+                                        <div className="bg-cyan-500/10 p-4 rounded-2xl border border-cyan-500/20 flex flex-col gap-2">
+                                            <div className="flex items-center justify-between">
+                                                <h4 className="text-cyan-400 font-bold text-sm">🏠 Remote Policy</h4>
+                                                <span className="px-2 py-0.5 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-md text-[10px] font-bold uppercase">{insights.remotePolicy.type}</span>
+                                            </div>
+                                            <span className="text-gray-400 text-xs italic line-clamp-2" title={insights.remotePolicy.details}>{insights.remotePolicy.details}</span>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Culture Signals */}
+                                {insights.cultureSignals?.length > 0 && (
+                                    <div className="bg-gray-800/30 p-5 rounded-2xl border border-gray-700/50">
+                                        <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Culture Signals</h4>
+                                        <div className="space-y-4">
+                                            {insights.cultureSignals.map((cs, i) => (
+                                                <div key={i} className="bg-gray-800/50 p-4 rounded-xl border border-gray-700/50">
+                                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+                                                        <span className="text-sm font-bold text-gray-200">{cs.signal}</span>
+                                                        <div className="flex items-center gap-3 w-full sm:w-1/2">
+                                                            <div className="flex-1 h-2 bg-gray-900 rounded-full overflow-hidden">
+                                                                <div
+                                                                    className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
+                                                                    style={{ width: `${(cs.rating / 5) * 100}%`, transition: 'width 0.8s ease' }}
+                                                                />
+                                                            </div>
+                                                            <span className="text-xs font-bold text-gray-400 w-8">{cs.rating}/5</span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        {cs.evidence && (
+                                                            <p className="text-xs text-gray-400 leading-relaxed">
+                                                                <span className="text-gray-500 font-medium mr-1.5">Evidence:</span>
+                                                                "{cs.evidence}"
+                                                            </p>
+                                                        )}
+                                                        {cs.implication && (
+                                                            <p className="text-xs text-indigo-300 leading-relaxed">
+                                                                <span className="text-indigo-400/70 font-medium mr-1.5">Implication:</span>
+                                                                {cs.implication}
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         )}
 

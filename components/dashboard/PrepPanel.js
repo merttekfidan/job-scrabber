@@ -7,6 +7,7 @@ import {
 import { parseJson } from './utils';
 import { InterviewProgress } from './VisualFrameworks';
 import { InterviewQuestionsList, QuestionsToAskList, RedFlagsList, QuickReferenceCard } from './InterviewPrepTools';
+import HiringFrameworks from './HiringFrameworks';
 
 export default function PrepPanel({ app, isAnalyzing, onAnalyzeJob, onUpdateDetails }) {
     const prep = typeof app.interview_prep_notes === 'string'
@@ -72,100 +73,62 @@ export default function PrepPanel({ app, isAnalyzing, onAnalyzeJob, onUpdateDeta
                 </div>
             </div>
 
-            {/* ── Key Talking Points ── */}
-            {talkingPoints.length > 0 && (
-                <div>
-                    <h3 className="text-base font-bold text-amber-400 mb-4 flex items-center gap-2">
-                        <span className="p-1.5 bg-amber-500/10 rounded-lg">💡</span> Key Talking Points
-                    </h3>
-                    <div className="space-y-2">
-                        {talkingPoints.map((item, i) => {
-                            const isObj = typeof item === 'object' && item !== null;
-                            const pointText = isObj ? item.point : item;
-                            const explanation = isObj ? item.explanation : null;
-                            return (
-                                <details
-                                    key={i}
-                                    className="group bg-amber-500/5 rounded-xl border border-amber-500/10 overflow-hidden hover:bg-amber-500/8 transition-colors"
-                                >
-                                    <summary className="flex gap-3 items-start p-3.5 cursor-pointer list-none select-none">
-                                        <span className="text-amber-500 font-bold text-sm mt-0.5 w-4 text-center flex-shrink-0">
-                                            <span className="block group-open:hidden">+</span>
-                                            <span className="hidden group-open:block">−</span>
-                                        </span>
-                                        <span className="text-sm font-medium text-amber-100 leading-relaxed">{pointText}</span>
-                                    </summary>
-                                    {explanation && (
-                                        <div className="px-3.5 pb-3.5 pl-10">
-                                            <p className="text-sm text-gray-400 leading-relaxed">{explanation}</p>
-                                        </div>
-                                    )}
-                                </details>
-                            );
-                        })}
-                    </div>
-                </div>
-            )}
-
-            {/* ── Questions to Ask ── */}
-            {questionsRaw.length > 0 && (
-                <div>
-                    <h3 className="text-base font-bold text-cyan-400 mb-4 flex items-center gap-2">
-                        <span className="p-1.5 bg-cyan-500/10 rounded-lg">❓</span> Questions to Ask
-                    </h3>
-                    <ul className="space-y-2">
-                        {questionsRaw.map((q, i) => {
-                            const isObj = typeof q === 'object' && q !== null;
-                            const question = isObj ? (q.question || q.text) : q;
-                            const why = isObj ? q.why : null;
-                            return (
-                                <li key={i} className="bg-cyan-500/5 p-3 rounded-lg border border-cyan-500/10">
-                                    <p className="text-sm text-cyan-100 font-medium">{question}</p>
-                                    {why && <p className="text-xs text-gray-500 mt-1 italic">{why}</p>}
-                                </li>
-                            );
-                        })}
-                    </ul>
-                </div>
+            {/* ── Quick Reference Card ── */}
+            {(talkingPoints.length > 0 || questionsRaw.length > 0) && (
+                <QuickReferenceCard app={app} talkingPoints={talkingPoints} questionsToAsk={questionsRaw} />
             )}
 
             {/* ── Likely Interview Questions ── */}
             {likelyQuestions.length > 0 && (
                 <div>
                     <h3 className="text-base font-bold text-orange-400 mb-4 flex items-center gap-2">
-                        <span className="p-1.5 bg-orange-500/10 rounded-lg"><GraduationCap size={16} /></span> Likely Questions
+                        <span className="p-1.5 bg-orange-500/10 rounded-lg"><GraduationCap size={16} /></span> Anticipated Questions
                     </h3>
-                    <div className="space-y-2">
-                        {likelyQuestions.map((item, i) => {
-                            const isObj = typeof item === 'object' && item !== null;
-                            const question = isObj ? item.question : item;
-                            const tip = isObj ? item.tip : null;
-                            return (
-                                <div key={i} className="bg-orange-500/5 p-3 rounded-lg border border-orange-500/10">
-                                    <p className="text-sm text-orange-100 font-medium">{question}</p>
-                                    {tip && <p className="text-xs text-gray-500 mt-1">💡 {tip}</p>}
-                                </div>
-                            );
-                        })}
-                    </div>
+                    <InterviewQuestionsList questions={likelyQuestions} />
+                </div>
+            )}
+
+            {/* ── Questions You Should Ask ── */}
+            {questionsRaw.length > 0 && (
+                <div className="pt-2">
+                    <h3 className="text-base font-bold text-cyan-400 mb-4 flex items-center gap-2">
+                        <span className="p-1.5 bg-cyan-500/10 rounded-lg">❓</span> Questions You Should Ask
+                    </h3>
+                    <QuestionsToAskList questions={questionsRaw} />
                 </div>
             )}
 
             {/* ── Red Flags ── */}
             {redFlagsRaw.length > 0 && (
-                <div>
+                <div className="pt-2">
                     <h3 className="text-base font-bold text-red-400 mb-4 flex items-center gap-2">
-                        <span className="p-1.5 bg-red-500/10 rounded-lg">🚩</span> Potential Red Flags
+                        <span className="p-1.5 bg-red-500/10 rounded-lg">🚩</span> Potential Red Flags & Probes
                     </h3>
-                    <ul className="space-y-2">
-                        {redFlagsRaw.map((flag, i) => {
-                            const isObj = typeof flag === 'object' && flag !== null;
-                            const text = isObj ? (flag.flag || flag.text) : flag;
-                            return (
-                                <li key={i} className="bg-red-500/5 p-3 rounded-lg border border-red-500/10 text-sm text-red-200">{text}</li>
-                            );
-                        })}
-                    </ul>
+                    <RedFlagsList redFlags={redFlagsRaw} />
+                </div>
+            )}
+
+            {/* ── AI Hiring Frameworks ── */}
+            {hasPersonalized && (
+                <div className="border-t border-white/5 pt-8">
+                    <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                        <Sparkles size={18} className="text-purple-400" /> Advanced Hiring Frameworks
+                    </h3>
+                    <HiringFrameworks
+                        appId={app.id}
+                        existingData={personalAnalysis?.hiringFrameworks}
+                        onDataUpdate={(framework, data) => {
+                            const currentAnalysis = app.personalized_analysis || {};
+                            const updatedAnalysis = {
+                                ...currentAnalysis,
+                                hiringFrameworks: {
+                                    ...(currentAnalysis.hiringFrameworks || {}),
+                                    [framework]: { data }
+                                }
+                            };
+                            onUpdateDetails(app.id, { personalized_analysis: updatedAnalysis });
+                        }}
+                    />
                 </div>
             )}
 

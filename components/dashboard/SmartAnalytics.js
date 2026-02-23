@@ -132,23 +132,23 @@ export default function SmartAnalytics() {
                         <Star size={18} className="text-amber-400 fill-amber-400" />
                         <span className="label-uppercase">Skill Demand</span>
                     </div>
-                    <div className="grid grid-cols-2 gap-x-6 gap-y-2">
-                        {skillHeatmap.slice(0, 10).map((item, i) => {
+                    <div className="flex flex-wrap gap-2.5">
+                        {skillHeatmap.slice(0, 15).map((item, i) => {
                             const maxCount = skillHeatmap[0].count;
                             const starCount = Math.max(1, Math.round((item.count / maxCount) * 5));
                             return (
-                                <div key={i} className="flex items-center gap-3">
-                                    <span className="text-xs font-medium w-28 text-right text-gray-400 truncate shrink-0" title={item.skill}>{item.skill}</span>
-                                    <div className="flex items-center gap-0.5">
+                                <div key={i} className="flex items-center gap-2 bg-gray-900/40 rounded-lg px-2.5 py-1.5 border border-amber-500/10 hover:border-amber-500/30 transition-colors">
+                                    <span className="text-xs font-medium text-gray-300 max-w-[140px] truncate" title={item.skill}>{item.skill}</span>
+                                    <div className="flex items-center gap-0.5 ml-1 border-l border-gray-700 pl-2">
                                         {[1, 2, 3, 4, 5].map(star => (
                                             <Star
                                                 key={star}
-                                                size={12}
-                                                className={star <= starCount ? 'text-amber-400 fill-amber-400' : 'text-gray-700'}
+                                                size={10}
+                                                className={star <= starCount ? 'text-amber-400 fill-amber-400' : 'hidden'}
                                             />
                                         ))}
+                                        <span className="text-[10px] text-gray-500 ml-1 font-mono">{item.count}</span>
                                     </div>
-                                    <span className="text-xs font-mono text-gray-600 w-6">{item.count}</span>
                                 </div>
                             );
                         })}
