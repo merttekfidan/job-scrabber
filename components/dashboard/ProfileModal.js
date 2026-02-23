@@ -34,18 +34,30 @@ const PROVIDERS = {
         placeholder: 'sk-or-...',
         description: 'Access 200+ models with a single key.',
     },
+    claude: {
+        name: 'Anthropic Claude',
+        logo: '🧠',
+        color: 'teal',
+        freeLimit: 'Pay-as-you-go ($5 credit)',
+        models: 'Claude 3.7 Sonnet → 3.5 Haiku',
+        docsUrl: 'https://console.anthropic.com/settings/keys',
+        placeholder: 'sk-ant-...',
+        description: 'Excellent reasoning and coding assistance.',
+    },
 };
 
 const COLORS = {
     orange: { border: 'border-orange-500/30', bg: 'bg-orange-500/5', badge: 'bg-orange-500/10 text-orange-400 border-orange-500/20', dot: 'bg-orange-400' },
     blue: { border: 'border-blue-500/30', bg: 'bg-blue-500/5', badge: 'bg-blue-500/10 text-blue-400 border-blue-500/20', dot: 'bg-blue-400' },
     purple: { border: 'border-purple-500/30', bg: 'bg-purple-500/5', badge: 'bg-purple-500/10 text-purple-400 border-purple-500/20', dot: 'bg-purple-400' },
+    teal: { border: 'border-teal-500/30', bg: 'bg-teal-500/5', badge: 'bg-teal-500/10 text-teal-400 border-teal-500/20', dot: 'bg-teal-400' },
 };
 
 const DEFAULT_META = {
     groq: { enabled: true, priority: 1, keyCount: 0 },
     gemini: { enabled: false, priority: 2, keyCount: 0 },
     openrouter: { enabled: false, priority: 3, keyCount: 0 },
+    claude: { enabled: false, priority: 4, keyCount: 0 },
 };
 
 function Toggle({ value, onChange }) {
