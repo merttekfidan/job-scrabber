@@ -1,7 +1,18 @@
 // Background service worker for Chrome extension
 
 // Import config
-importScripts('config.js');
+import { DEFAULT_CONFIG } from './config.js';
+
+// Get current environment config
+async function getEnvironmentConfig() {
+    const result = await chrome.storage.local.get(['environment']);
+    const isDev = result.environment === 'development';
+    return {
+        BACKEND_URL: isDev ? DEFAULT_CONFIG.DEV_URL : DEFAULT_CONFIG.PROD_URL,
+        IS_DEV: isDev,
+        VERSION: DEFAULT_CONFIG.VERSION
+    };
+}
 
 // Listen for messages from popup
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -16,6 +27,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 // Process job data through the server-side API
 async function processJobServerSide(extractedData) {
     try {
+        const CONFIG = await getEnvironmentConfig();
         const baseUrl = CONFIG.BACKEND_URL;
 
         // Step 1: Send raw content to server for AI processing
@@ -25,12 +37,15 @@ async function processJobServerSide(extractedData) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 25000);
 
+        const headers = { 'Content-Type': 'application/json' };
+        if (CONFIG.IS_DEV) headers['x-dev-extension'] = 'true';
+
         let processResponse;
         try {
             processResponse = await fetch(processUrl, {
                 method: 'POST',
                 credentials: 'include',
-                headers: { 'Content-Type': 'application/json' },
+                headers,
                 signal: controller.signal,
                 body: JSON.stringify({
                     url: extractedData.url,
@@ -110,12 +125,16 @@ async function saveApplicationLocally(applicationData) {
 // Sync application to remote storage
 async function syncToRemoteStorage(applicationData) {
     try {
+        const CONFIG = await getEnvironmentConfig();
         const saveUrl = CONFIG.BACKEND_URL + '/api/save';
+
+        const headers = { 'Content-Type': 'application/json' };
+        if (CONFIG.IS_DEV) headers['x-dev-extension'] = 'true';
 
         const response = await fetch(saveUrl, {
             method: 'POST',
             credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
+            headers,
             body: JSON.stringify(applicationData)
         });
 
@@ -138,12 +157,17 @@ async function syncToRemoteStorage(applicationData) {
 }
 
 // Handle installation
-chrome.runtime.onInstalled.addListener(() => {
-    console.log('Job Scrabber v' + CONFIG.VERSION + ' installed');
+chrome.runtime.onInstalled.addListener(async () => {
+    console.log('Job Scrabber v' + DEFAULT_CONFIG.VERSION + ' installed');
 
-    chrome.storage.local.get(['applications'], (result) => {
-        if (!result.applications) {
-            chrome.storage.local.set({ applications: [] });
-        }
-    });
+    // Default to production environment
+    const result = await chrome.storage.local.get(['applications', 'environment']);
+
+    if (!result.applications) {
+        chrome.storage.local.set({ applications: [] });
+    }
+
+    if (!result.environment) {
+        chrome.storage.local.set({ environment: 'production' });
+    }
 });

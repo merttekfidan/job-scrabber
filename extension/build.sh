@@ -38,11 +38,17 @@ build() {
   # Copy icons
   cp "${SCRIPT_DIR}/icons/"* "${out_dir}/icons/"
 
-  # Inject backend URL into config.js
+  # Configure backend URL and IS_DEV flag in config.js based on env
   if [[ "$OSTYPE" == "darwin"* ]]; then
-    sed -i '' "s|__BACKEND_URL__|${url}|g" "${out_dir}/config.js"
+    if [ "$env" = "prod" ]; then
+        sed -i '' "s|http://localhost:3000|${url}|g" "${out_dir}/config.js"
+        sed -i '' "s|IS_DEV: true|IS_DEV: false|" "${out_dir}/config.js"
+    fi
   else
-    sed -i "s|__BACKEND_URL__|${url}|g" "${out_dir}/config.js"
+    if [ "$env" = "prod" ]; then
+        sed -i "s|http://localhost:3000|${url}|g" "${out_dir}/config.js"
+        sed -i "s|IS_DEV: true|IS_DEV: false|" "${out_dir}/config.js"
+    fi
   fi
 
   # For production, restrict host_permissions to only the prod URL

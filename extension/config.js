@@ -1,6 +1,7 @@
-// Extension configuration — __BACKEND_URL__ is replaced at build time
-const CONFIG = {
-    BACKEND_URL: '__BACKEND_URL__',
+// Extension configuration fallbacks
+export const DEFAULT_CONFIG = {
+    PROD_URL: 'https://aware-endurance-production-13b8.up.railway.app',
+    DEV_URL: 'http://localhost:3000',
     APP_NAME: 'Job Scrabber',
     VERSION: '2.0.0'
 };

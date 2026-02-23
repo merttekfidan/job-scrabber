@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
+import { query } from '@/lib/db';
 import { callGroqAPI, parseAIResponse } from '@/lib/ai';
 import { JOB_EXTRACTION_PROMPT } from '@/lib/prompts';
 import { ExtensionProcessSchema, validateBody } from '@/lib/validations';
@@ -15,7 +16,16 @@ import { aiLimiter, getRateLimitKey } from '@/lib/rate-limit';
 export async function POST(req) {
     try {
         // Auth check — extension must be connected to a logged-in session
-        const session = await auth();
+        let session = await auth();
+
+        // Local Developer Bypass for Chrome Extension
+        if (!session?.user?.id && process.env.NODE_ENV !== 'production' && req.headers.get('x-dev-extension') === 'true') {
+            const devUser = await query('SELECT id, email, name FROM users WHERE email = $1', ['merttekfidan@gmail.com']);
+            if (devUser.rows.length > 0) {
+                session = { user: devUser.rows[0] };
+            }
+        }
+
         if (!session?.user?.id) {
             return NextResponse.json(
                 { success: false, error: 'Unauthorized. Please log in to the dashboard first.' },

@@ -94,7 +94,7 @@ export default function SmartAnalytics() {
                             />
                         ))}
                     </div>
-                    <span className="text-xs text-gray-500">Last 7 days</span>
+                    <span className="text-base text-gray-500">Last 7 days</span>
                 </div>
 
                 {/* Weekly Digest */}
@@ -103,7 +103,7 @@ export default function SmartAnalytics() {
                         <Zap size={18} className="text-blue-400" />
                         <span className="label-uppercase">Weekly Digest</span>
                     </div>
-                    <p className="text-sm text-gray-300 leading-relaxed">
+                    <p className="text-base text-gray-300 leading-relaxed">
                         Week trend: <span className="font-bold text-white flex items-center gap-1 inline-flex">
                             {weekChange > 0 ? `+${weekChange}` : `${weekChange}`}
                             {weekChange > 0 ? <TrendingUp size={14} className="text-emerald-400" /> :
@@ -111,14 +111,14 @@ export default function SmartAnalytics() {
                                     <Minus size={14} className="text-gray-400" />}
                         </span>
                     </p>
-                    <div className="flex gap-4 mt-auto text-xs text-gray-500">
+                    <div className="flex gap-4 mt-auto text-base text-gray-500">
                         <span>Avg response: <span className="text-white font-medium">
                             {avgResponseDays > 0 ? `${avgResponseDays}d` : '—'}
                         </span></span>
                     </div>
                     <button
                         onClick={loadAnalytics}
-                        className="mt-auto flex items-center gap-1.5 text-xs text-gray-500 hover:text-white transition-colors self-start"
+                        className="mt-auto flex items-center gap-1.5 text-base text-gray-500 hover:text-white transition-colors self-start"
                     >
                         <RefreshCw size={12} /> Refresh
                     </button>
@@ -138,7 +138,7 @@ export default function SmartAnalytics() {
                             const starCount = Math.max(1, Math.round((item.count / maxCount) * 5));
                             return (
                                 <div key={i} className="flex items-center gap-2 bg-gray-900/40 rounded-lg px-2.5 py-1.5 border border-amber-500/10 hover:border-amber-500/30 transition-colors">
-                                    <span className="text-xs font-medium text-gray-300 max-w-[140px] truncate" title={item.skill}>{item.skill}</span>
+                                    <span className="text-base font-medium text-gray-300 max-w-[140px] truncate" title={item.skill}>{item.skill}</span>
                                     <div className="flex items-center gap-0.5 ml-1 border-l border-gray-700 pl-2">
                                         {[1, 2, 3, 4, 5].map(star => (
                                             <Star

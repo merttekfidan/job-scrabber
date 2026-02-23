@@ -20,10 +20,10 @@ export default function OverviewPanel({ app, isAnalyzing, onGenerateInsights, on
             {/* ── Role Summary ── */}
             {app.role_summary && (
                 <div className="info-card">
-                    <h5 className="flex items-center gap-2 text-sm font-semibold text-white mb-3">
+                    <h5 className="flex items-center gap-2 text-base font-semibold text-white mb-3">
                         <Search size={14} className="text-blue-400" /> Position Summary
                     </h5>
-                    <p className="text-gray-300 text-sm leading-relaxed">{app.role_summary}</p>
+                    <p className="text-gray-300 text-base leading-relaxed">{app.role_summary}</p>
                 </div>
             )}
 
@@ -35,11 +35,11 @@ export default function OverviewPanel({ app, isAnalyzing, onGenerateInsights, on
                         <div className="p-4 rounded-xl border border-red-500/30 bg-red-500/5">
                             <div className="flex items-center gap-2 mb-3">
                                 <AlertTriangle size={16} className="text-red-400" />
-                                <span className="text-sm font-bold text-red-400">Red Flags</span>
+                                <span className="text-base font-bold text-red-400">Red Flags</span>
                             </div>
                             <ul className="space-y-1.5">
                                 {negativeSignals.map((signal, idx) => (
-                                    <li key={idx} className="text-sm text-red-300/80 flex items-start gap-2">
+                                    <li key={idx} className="text-base text-red-300/80 flex items-start gap-2">
                                         <span className="text-red-500 mt-0.5">•</span>{signal}
                                     </li>
                                 ))}
@@ -56,7 +56,7 @@ export default function OverviewPanel({ app, isAnalyzing, onGenerateInsights, on
                     <h4 className="label-uppercase mb-3">Key Responsibilities</h4>
                     <ul className="space-y-2">
                         {parseJson(app.key_responsibilities).map((item, index) => (
-                            <li key={index} className="text-sm text-white/80 flex items-start gap-2">
+                            <li key={index} className="text-base text-white/80 flex items-start gap-2">
                                 <span className="text-indigo-400 mt-0.5">•</span>{item}
                             </li>
                         ))}
@@ -70,10 +70,10 @@ export default function OverviewPanel({ app, isAnalyzing, onGenerateInsights, on
                     <h4 className="label-uppercase mb-3">Required Skills</h4>
                     <div className="flex flex-wrap gap-1.5">
                         {parseJson(app.required_skills).map((skill, i) => (
-                            <span key={i} className="px-2.5 py-1 text-xs rounded-lg bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">{skill}</span>
+                            <span key={i} className="px-2.5 py-1 text-base rounded-lg bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">{skill}</span>
                         ))}
                         {parseJson(app.required_skills).length === 0 && (
-                            <span className="text-gray-600 text-sm italic">None extracted</span>
+                            <span className="text-gray-600 text-base italic">None extracted</span>
                         )}
                     </div>
                 </div>
@@ -81,10 +81,10 @@ export default function OverviewPanel({ app, isAnalyzing, onGenerateInsights, on
                     <h4 className="label-uppercase mb-3">Preferred Skills</h4>
                     <div className="flex flex-wrap gap-1.5">
                         {parseJson(app.preferred_skills).map((skill, i) => (
-                            <span key={i} className="px-2.5 py-1 text-xs rounded-lg bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">{skill}</span>
+                            <span key={i} className="px-2.5 py-1 text-base rounded-lg bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">{skill}</span>
                         ))}
                         {parseJson(app.preferred_skills).length === 0 && (
-                            <span className="text-gray-600 text-sm italic">None extracted</span>
+                            <span className="text-gray-600 text-base italic">None extracted</span>
                         )}
                     </div>
                 </div>
@@ -99,14 +99,14 @@ export default function OverviewPanel({ app, isAnalyzing, onGenerateInsights, on
                     <div className="flex gap-2">
                         <button
                             onClick={() => onShare(app.id)}
-                            className="btn btn-sm bg-gray-700 hover:bg-gray-600 border-none text-gray-300 text-xs"
+                            className="btn btn-sm bg-gray-700 hover:bg-gray-600 border-none text-gray-300 text-base"
                         >
                             <Share2 size={12} className="mr-1.5" /> Share
                         </button>
                         <button
                             onClick={() => onGenerateInsights(app.id)}
                             disabled={isAnalyzing}
-                            className="btn btn-primary btn-sm bg-indigo-600 hover:bg-indigo-500 border-none text-xs disabled:opacity-50"
+                            className="btn btn-primary btn-sm bg-indigo-600 hover:bg-indigo-500 border-none text-base disabled:opacity-50"
                         >
                             {isAnalyzing ? <RefreshCw size={12} className="animate-spin mr-1.5" /> : <Sparkles size={12} className="mr-1.5" />}
                             {isAnalyzing ? 'Generating...' : 'Generate Insights'}
@@ -123,14 +123,14 @@ export default function OverviewPanel({ app, isAnalyzing, onGenerateInsights, on
                         <div>
                             <h4 className="text-lg font-bold text-white">{app.company}</h4>
                             {app.company_url && (
-                                <a href={app.company_url} target="_blank" className="text-blue-400 hover:underline text-xs flex items-center gap-1">
+                                <a href={app.company_url} target="_blank" className="text-blue-400 hover:underline text-base flex items-center gap-1">
                                     Visit Website <ExternalLink size={10} />
                                 </a>
                             )}
                         </div>
                     </div>
                     {app.company_description && (
-                        <p className="text-gray-300 text-sm leading-relaxed">{app.company_description}</p>
+                        <p className="text-gray-300 text-base leading-relaxed">{app.company_description}</p>
                     )}
                 </div>
 
@@ -140,33 +140,33 @@ export default function OverviewPanel({ app, isAnalyzing, onGenerateInsights, on
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {insights.strategicFocus && (
                                 <div className="bg-indigo-500/10 p-4 rounded-xl border border-indigo-500/20">
-                                    <h4 className="text-indigo-400 font-bold mb-2 text-sm flex items-center gap-2">
+                                    <h4 className="text-indigo-400 font-bold mb-2 text-base flex items-center gap-2">
                                         <Briefcase size={14} /> Strategic Focus
                                     </h4>
-                                    <p className="text-gray-300 text-sm leading-relaxed">{insights.strategicFocus}</p>
+                                    <p className="text-gray-300 text-base leading-relaxed">{insights.strategicFocus}</p>
                                 </div>
                             )}
                             {insights.cultureFit && (
                                 <div className="bg-pink-500/10 p-4 rounded-xl border border-pink-500/20">
-                                    <h4 className="text-pink-400 font-bold mb-2 text-sm flex items-center gap-2">
+                                    <h4 className="text-pink-400 font-bold mb-2 text-base flex items-center gap-2">
                                         <User size={14} /> Culture & Values
                                     </h4>
-                                    <p className="text-gray-300 text-sm leading-relaxed">{insights.cultureFit}</p>
+                                    <p className="text-gray-300 text-base leading-relaxed">{insights.cultureFit}</p>
                                 </div>
                             )}
                         </div>
 
                         {insights.salaryContext && (
                             <div className="bg-emerald-500/10 p-4 rounded-xl border border-emerald-500/20 mt-4">
-                                <h4 className="text-emerald-400 font-bold mb-3 text-sm flex items-center gap-2">💰 Salary Intelligence</h4>
+                                <h4 className="text-emerald-400 font-bold mb-3 text-base flex items-center gap-2">💰 Salary Intelligence</h4>
                                 {typeof insights.salaryContext === 'string' ? (
-                                    <p className="text-gray-300 text-sm leading-relaxed">{insights.salaryContext}</p>
+                                    <p className="text-gray-300 text-base leading-relaxed">{insights.salaryContext}</p>
                                 ) : (
                                     <div className="flex flex-col gap-2">
                                         {insights.salaryContext.range && (
                                             <div className="flex items-center justify-between bg-emerald-500/5 p-2 rounded-lg border border-emerald-500/10">
-                                                <span className="text-gray-400 text-xs font-medium uppercase tracking-wider">Est. Range</span>
-                                                <span className="text-emerald-300 font-bold text-sm">{insights.salaryContext.range}</span>
+                                                <span className="text-gray-400 text-base font-medium uppercase tracking-wider">Est. Range</span>
+                                                <span className="text-emerald-300 font-bold text-base">{insights.salaryContext.range}</span>
                                             </div>
                                         )}
                                         <div className="flex items-center gap-2 mt-1">
@@ -214,10 +214,10 @@ export default function OverviewPanel({ app, isAnalyzing, onGenerateInsights, on
                                 const items = personalAnalysis.swot[key] || [];
                                 return (
                                     <div key={key} className={`${bg} p-4 rounded-xl border ${border}`}>
-                                        <h4 className={`${text} font-bold mb-3 text-sm flex items-center gap-2`}><span>{icon}</span> {title}</h4>
+                                        <h4 className={`${text} font-bold mb-3 text-base flex items-center gap-2`}><span>{icon}</span> {title}</h4>
                                         <ul className="space-y-2">
                                             {items.map((item, i) => (
-                                                <li key={i} className="text-xs text-gray-300 leading-relaxed flex items-start gap-2">
+                                                <li key={i} className="text-base text-gray-300 leading-relaxed flex items-start gap-2">
                                                     <span className={`${text} opacity-50 flex-shrink-0 mt-0.5`}>•</span>
                                                     <span>{typeof item === 'string' ? item : item.point || JSON.stringify(item)}</span>
                                                 </li>
@@ -241,12 +241,12 @@ export default function OverviewPanel({ app, isAnalyzing, onGenerateInsights, on
             <div className="border-t border-white/5 pt-6">
                 <button
                     onClick={() => setShowOriginal(!showOriginal)}
-                    className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-300 transition-colors w-full"
+                    className="flex items-center gap-2 text-base text-gray-500 hover:text-gray-300 transition-colors w-full"
                 >
                     <ChevronDown size={14} className={`transition-transform ${showOriginal ? 'rotate-180' : ''}`} />
                     <span>Original Job Posting</span>
                     {app.job_url && (
-                        <a href={app.job_url} target="_blank" className="ml-auto text-blue-400 hover:underline text-xs flex items-center gap-1"
+                        <a href={app.job_url} target="_blank" className="ml-auto text-blue-400 hover:underline text-base flex items-center gap-1"
                             onClick={(e) => e.stopPropagation()}>
                             View Live <ExternalLink size={10} />
                         </a>
@@ -259,9 +259,9 @@ export default function OverviewPanel({ app, isAnalyzing, onGenerateInsights, on
                                 <ReactMarkdown remarkPlugins={[remarkGfm]}>{app.formatted_content}</ReactMarkdown>
                             </div>
                         ) : app.original_content ? (
-                            <div className="whitespace-pre-wrap text-gray-300 text-sm leading-7">{app.original_content}</div>
+                            <div className="whitespace-pre-wrap text-gray-300 text-base leading-7">{app.original_content}</div>
                         ) : (
-                            <p className="text-gray-500 text-sm text-center py-8">No content archived.</p>
+                            <p className="text-gray-500 text-base text-center py-8">No content archived.</p>
                         )}
                     </div>
                 )}

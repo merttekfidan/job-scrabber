@@ -30,12 +30,12 @@ export default function UpcomingInterviews({ interviews, onViewPrep }) {
                             onClick={() => onViewPrep(interview.appId)}
                         >
                             <div className="flex items-center justify-between">
-                                <span className="text-sm font-semibold text-white">{interview.appName}</span>
+                                <span className="text-base font-semibold text-white">{interview.appName}</span>
                                 <span className="px-2 py-0.5 text-[10px] rounded-full border border-indigo-500/30 text-indigo-300">
                                     {interview.type || interview.round}
                                 </span>
                             </div>
-                            <div className="flex items-center gap-3 text-xs text-gray-500">
+                            <div className="flex items-center gap-3 text-base text-gray-500">
                                 <span className="flex items-center gap-1">
                                     <CalendarIcon size={10} />
                                     {interviewDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}

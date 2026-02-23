@@ -33,7 +33,7 @@ export default function PrepPanel({ app, isAnalyzing, onAnalyzeJob, onUpdateDeta
                 <div className="bg-gray-800/30 p-8 rounded-2xl border border-dashed border-gray-700 text-center">
                     <Sparkles className="mx-auto mb-4 text-purple-400 animate-pulse" size={40} />
                     <h3 className="text-xl font-bold text-white mb-2">Personalized AI Coaching</h3>
-                    <p className="text-gray-400 mb-6 max-w-md mx-auto text-sm">
+                    <p className="text-gray-400 mb-6 max-w-md mx-auto text-base">
                         Cross-reference this job with your CV — get tailored talking points, SWOT analysis, and interview prep.
                     </p>
                     <button
@@ -58,14 +58,14 @@ export default function PrepPanel({ app, isAnalyzing, onAnalyzeJob, onUpdateDeta
                     </div>
                     <div className="flex-1 min-w-0">
                         <h3 className="text-base font-bold text-white">{app.job_title}</h3>
-                        <p className="text-sm text-gray-400">{app.company}</p>
+                        <p className="text-base text-gray-400">{app.company}</p>
                         {app.role_summary && (
-                            <p className="text-sm text-gray-300 mt-2 leading-relaxed">
+                            <p className="text-base text-gray-300 mt-2 leading-relaxed">
                                 <span className="text-blue-400 font-semibold">The Problem:</span> {app.role_summary}
                             </p>
                         )}
                         {hasPersonalized && personalAnalysis.prep?.tailoredAdvice && (
-                            <p className="text-sm text-emerald-300/80 mt-2 leading-relaxed italic">
+                            <p className="text-base text-emerald-300/80 mt-2 leading-relaxed italic">
                                 <span className="text-emerald-400 font-semibold not-italic">Your Positioning:</span> {personalAnalysis.prep.tailoredAdvice}
                             </p>
                         )}
@@ -140,7 +140,7 @@ export default function PrepPanel({ app, isAnalyzing, onAnalyzeJob, onUpdateDeta
                     </h3>
                     <div className="flex flex-wrap gap-2">
                         {prep.techStackToStudy.map((tech, i) => (
-                            <span key={i} className="px-3 py-1.5 bg-violet-500/10 text-violet-300 rounded-lg text-xs border border-violet-500/15 font-medium">{tech}</span>
+                            <span key={i} className="px-3 py-1.5 bg-violet-500/10 text-violet-300 rounded-lg text-base border border-violet-500/15 font-medium">{tech}</span>
                         ))}
                     </div>
                 </div>
@@ -153,7 +153,7 @@ export default function PrepPanel({ app, isAnalyzing, onAnalyzeJob, onUpdateDeta
                         <Users size={18} className="text-blue-400" /> Interview Rounds
                     </h3>
                     <button
-                        className="btn btn-secondary btn-sm flex items-center gap-2 text-xs"
+                        className="btn btn-secondary btn-sm flex items-center gap-2 text-base"
                         onClick={() => {
                             const currentStages = Array.isArray(stages) ? stages : [];
                             const newStage = {
@@ -166,7 +166,7 @@ export default function PrepPanel({ app, isAnalyzing, onAnalyzeJob, onUpdateDeta
                             onUpdateDetails(app.id, { interview_stages: [...currentStages, newStage] });
                         }}
                     >
-                        <div className="w-4 h-4 bg-green-500/20 text-green-400 rounded-full flex items-center justify-center text-xs">+</div>
+                        <div className="w-4 h-4 bg-green-500/20 text-green-400 rounded-full flex items-center justify-center text-base">+</div>
                         Add Round
                     </button>
                 </div>
@@ -179,7 +179,7 @@ export default function PrepPanel({ app, isAnalyzing, onAnalyzeJob, onUpdateDeta
 
                 {stages.length === 0 ? (
                     <div className="text-center py-8 bg-gray-800/30 rounded-xl border border-dashed border-gray-700">
-                        <p className="text-gray-500 text-sm">No interviews tracked yet. Click "Add Round" when you schedule one.</p>
+                        <p className="text-gray-500 text-base">No interviews tracked yet. Click "Add Round" when you schedule one.</p>
                     </div>
                 ) : (
                     <div className="space-y-3">
@@ -187,9 +187,9 @@ export default function PrepPanel({ app, isAnalyzing, onAnalyzeJob, onUpdateDeta
                             <div key={stage.id || idx} className="bg-gray-800/40 rounded-xl border border-gray-700/50 overflow-hidden">
                                 <div className="p-3 bg-gray-800/80 border-b border-gray-700/50 flex flex-wrap gap-3 items-center justify-between">
                                     <div className="flex items-center gap-3">
-                                        <span className="font-bold text-blue-400 text-sm">{stage.round}</span>
+                                        <span className="font-bold text-blue-400 text-base">{stage.round}</span>
                                         <select
-                                            className="bg-gray-900 border border-gray-700 text-gray-300 text-xs rounded-lg p-1.5 outline-none"
+                                            className="bg-gray-900 border border-gray-700 text-gray-300 text-base rounded-lg p-1.5 outline-none"
                                             value={stage.type}
                                             onChange={(e) => {
                                                 const newStages = [...stages];
@@ -206,7 +206,7 @@ export default function PrepPanel({ app, isAnalyzing, onAnalyzeJob, onUpdateDeta
                                     <div className="flex items-center gap-2">
                                         <input
                                             type="date"
-                                            className="bg-gray-900 border border-gray-700 text-gray-300 text-xs rounded-lg p-1.5 outline-none"
+                                            className="bg-gray-900 border border-gray-700 text-gray-300 text-base rounded-lg p-1.5 outline-none"
                                             value={stage.date}
                                             onChange={(e) => {
                                                 const newStages = [...stages];
@@ -229,7 +229,7 @@ export default function PrepPanel({ app, isAnalyzing, onAnalyzeJob, onUpdateDeta
                                 </div>
                                 <div className="p-3">
                                     <textarea
-                                        className="w-full bg-transparent text-sm text-gray-300 outline-none resize-none placeholder:text-gray-700"
+                                        className="w-full bg-transparent text-base text-gray-300 outline-none resize-none placeholder:text-gray-700"
                                         placeholder="Round notes..."
                                         rows={2}
                                         value={stage.notes || ''}

@@ -34,18 +34,30 @@ const PROVIDERS = {
         placeholder: 'sk-or-...',
         description: 'Access 200+ models with a single key.',
     },
+    claude: {
+        name: 'Anthropic Claude',
+        logo: '🧠',
+        color: 'teal',
+        freeLimit: 'Usage based',
+        models: 'Claude 3.5 Sonnet → 3 Haiku',
+        docsUrl: 'https://console.anthropic.com/settings/keys',
+        placeholder: 'sk-ant-...',
+        description: 'Powerful reasoning and coding capabilities.',
+    },
 };
 
 const COLORS = {
     orange: { border: 'border-orange-500/30', bg: 'bg-orange-500/5', badge: 'bg-orange-500/10 text-orange-400 border-orange-500/20', dot: 'bg-orange-400' },
     blue: { border: 'border-blue-500/30', bg: 'bg-blue-500/5', badge: 'bg-blue-500/10 text-blue-400 border-blue-500/20', dot: 'bg-blue-400' },
     purple: { border: 'border-purple-500/30', bg: 'bg-purple-500/5', badge: 'bg-purple-500/10 text-purple-400 border-purple-500/20', dot: 'bg-purple-400' },
+    teal: { border: 'border-teal-500/30', bg: 'bg-teal-500/5', badge: 'bg-teal-500/10 text-teal-400 border-teal-500/20', dot: 'bg-teal-400' },
 };
 
 const DEFAULT_META = {
     groq: { enabled: true, priority: 1, keyCount: 0 },
-    gemini: { enabled: false, priority: 2, keyCount: 0 },
-    openrouter: { enabled: false, priority: 3, keyCount: 0 },
+    claude: { enabled: false, priority: 2, keyCount: 0 },
+    gemini: { enabled: false, priority: 3, keyCount: 0 },
+    openrouter: { enabled: false, priority: 4, keyCount: 0 },
 };
 
 function Toggle({ value, onChange }) {
@@ -100,11 +112,11 @@ function ProviderCard({ providerKey, meta, onToggle, onMovePriority, onAddKey, o
     };
 
     const statusBadge = (r) => {
-        if (r.status === 'ok') return <span className="text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">✓ OK {r.latencyMs && `· ${r.latencyMs}ms`}</span>;
-        if (r.status === 'rate_limited') return <span className="text-xs text-yellow-400 bg-yellow-500/10 border border-yellow-500/20 px-2 py-0.5 rounded-full">⚠ Rate limited · {r.message}</span>;
-        if (r.status === 'invalid_key') return <span className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 px-2 py-0.5 rounded-full">✕ Invalid key</span>;
-        if (r.status === 'no_key') return <span className="text-xs text-gray-500 bg-gray-700/30 border border-gray-700 px-2 py-0.5 rounded-full">No keys</span>;
-        return <span className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 px-2 py-0.5 rounded-full">✕ {r.message}</span>;
+        if (r.status === 'ok') return <span className="text-base text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">✓ OK {r.latencyMs && `· ${r.latencyMs}ms`}</span>;
+        if (r.status === 'rate_limited') return <span className="text-base text-yellow-400 bg-yellow-500/10 border border-yellow-500/20 px-2 py-0.5 rounded-full">⚠ Rate limited · {r.message}</span>;
+        if (r.status === 'invalid_key') return <span className="text-base text-red-400 bg-red-500/10 border border-red-500/20 px-2 py-0.5 rounded-full">✕ Invalid key</span>;
+        if (r.status === 'no_key') return <span className="text-base text-gray-500 bg-gray-700/30 border border-gray-700 px-2 py-0.5 rounded-full">No keys</span>;
+        return <span className="text-base text-red-400 bg-red-500/10 border border-red-500/20 px-2 py-0.5 rounded-full">✕ {r.message}</span>;
     };
 
     return (
@@ -117,18 +129,18 @@ function ProviderCard({ providerKey, meta, onToggle, onMovePriority, onAddKey, o
                     <button onClick={() => onMovePriority(providerKey, 'down')} disabled={meta.priority === totalProviders}
                         className="text-gray-600 hover:text-gray-300 disabled:opacity-20 transition-colors"><ChevronDown size={14} /></button>
                 </div>
-                <span className="text-xs font-mono text-gray-500 w-4">{meta.priority}</span>
+                <span className="text-base font-mono text-gray-500 w-4">{meta.priority}</span>
                 <span className="text-lg">{pm.logo}</span>
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                        <span className="text-white font-semibold text-sm">{pm.name}</span>
+                        <span className="text-white font-semibold text-base">{pm.name}</span>
                         {meta.keyCount > 0 && meta.enabled && (
-                            <span className={`text-xs px-1.5 py-0.5 rounded-full border ${colors.badge}`}>
+                            <span className={`text-base px-1.5 py-0.5 rounded-full border ${colors.badge}`}>
                                 {meta.keyCount} key{meta.keyCount > 1 ? 's' : ''}
                             </span>
                         )}
                     </div>
-                    <div className="text-xs text-gray-500">{pm.description}</div>
+                    <div className="text-base text-gray-500">{pm.description}</div>
                 </div>
                 <Toggle value={meta.enabled} onChange={(v) => onToggle(providerKey, v)} />
                 {/* Test button */}
@@ -147,7 +159,7 @@ function ProviderCard({ providerKey, meta, onToggle, onMovePriority, onAddKey, o
             {/* Expanded body when enabled */}
             {meta.enabled && (
                 <div className="mt-3 pl-9 space-y-2">
-                    <div className="text-xs text-gray-500 flex gap-3">
+                    <div className="text-base text-gray-500 flex gap-3">
                         <span>Free: <span className="text-gray-300">{pm.freeLimit}</span></span>
                         <span className="text-gray-700">·</span>
                         <span>Models: <span className="text-gray-300">{pm.models}</span></span>
@@ -157,11 +169,11 @@ function ProviderCard({ providerKey, meta, onToggle, onMovePriority, onAddKey, o
                     {meta.keyCount > 0 && (
                         <div className="flex items-center gap-2 bg-black/30 rounded-lg px-3 py-2 border border-gray-700/40">
                             <CheckCircle size={13} className="text-emerald-400 flex-shrink-0" />
-                            <span className="text-sm text-gray-300 flex-1">
+                            <span className="text-base text-gray-300 flex-1">
                                 {meta.keyCount} active key{meta.keyCount > 1 ? 's' : ''} saved
                             </span>
                             <button onClick={() => onRemoveAllKeys(providerKey)}
-                                className="text-xs text-red-400 hover:text-red-300 transition-colors">
+                                className="text-base text-red-400 hover:text-red-300 transition-colors">
                                 Clear all
                             </button>
                         </div>
@@ -172,7 +184,7 @@ function ProviderCard({ providerKey, meta, onToggle, onMovePriority, onAddKey, o
                         <div className="space-y-1">
                             {testResult.map((r, i) => (
                                 <div key={i} className="flex items-center gap-2">
-                                    {testResult.length > 1 && <span className="text-xs text-gray-600 font-mono">key {i + 1}</span>}
+                                    {testResult.length > 1 && <span className="text-base text-gray-600 font-mono">key {i + 1}</span>}
                                     {statusBadge(r)}
                                 </div>
                             ))}
@@ -188,16 +200,16 @@ function ProviderCard({ providerKey, meta, onToggle, onMovePriority, onAddKey, o
                                 onChange={(e) => setNewKey(e.target.value)}
                                 onKeyDown={(e) => { if (e.key === 'Enter') handleAdd(); if (e.key === 'Escape') { setAdding(false); setNewKey(''); } }}
                                 placeholder={pm.placeholder}
-                                className="flex-1 bg-black/40 border border-gray-600/50 rounded-lg px-3 py-2 text-white placeholder-gray-600 text-sm font-mono focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20"
+                                className="flex-1 bg-black/40 border border-gray-600/50 rounded-lg px-3 py-2 text-white placeholder-gray-600 text-base font-mono focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20"
                             />
                             <button onClick={handleAdd} disabled={!newKey.trim() || addingLocal}
-                                className="btn btn-primary px-3 py-2 text-sm disabled:opacity-40 flex items-center gap-1">
+                                className="btn btn-primary px-3 py-2 text-base disabled:opacity-40 flex items-center gap-1">
                                 {addingLocal ? <Loader2 size={13} className="animate-spin" /> : null} Add
                             </button>
-                            <button onClick={() => { setAdding(false); setNewKey(''); }} className="px-3 py-2 text-sm text-gray-400 hover:text-white">✕</button>
+                            <button onClick={() => { setAdding(false); setNewKey(''); }} className="px-3 py-2 text-base text-gray-400 hover:text-white">✕</button>
                         </div>
                     ) : (
-                        <button onClick={() => setAdding(true)} className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-300 transition-colors py-1 w-full">
+                        <button onClick={() => setAdding(true)} className="flex items-center gap-1.5 text-base text-gray-500 hover:text-gray-300 transition-colors py-1 w-full">
                             <Plus size={13} /> Add API key
                             <a href={pm.docsUrl} target="_blank" rel="noopener noreferrer"
                                 onClick={(e) => e.stopPropagation()}
@@ -355,9 +367,9 @@ export default function ProfileModal({ isOpen, onClose, session }) {
                     ].map(tab => (
                         <button key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
-                            className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 ${activeTab === tab.id ? 'border-blue-500 text-blue-400' : 'border-transparent text-gray-400 hover:text-gray-300'}`}>
+                            className={`px-4 py-2.5 text-base font-medium border-b-2 transition-colors flex items-center gap-2 ${activeTab === tab.id ? 'border-blue-500 text-blue-400' : 'border-transparent text-gray-400 hover:text-gray-300'}`}>
                             {tab.icon} {tab.label}
-                            {tab.badge && <span className="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded-full">{tab.badge}</span>}
+                            {tab.badge && <span className="text-base bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded-full">{tab.badge}</span>}
                         </button>
                     ))}
                 </div>
@@ -373,7 +385,7 @@ export default function ProfileModal({ isOpen, onClose, session }) {
                             {activeTab === 'settings' && (
                                 <div className="space-y-6">
                                     <div className="bg-gray-800/40 border border-gray-700/50 rounded-xl p-5">
-                                        <h3 className="text-sm font-semibold text-gray-300 mb-4">Account Info</h3>
+                                        <h3 className="text-base font-semibold text-gray-300 mb-4">Account Info</h3>
                                         <div className="flex items-center gap-4">
                                             <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-700">
                                                 {session?.user?.image
@@ -382,12 +394,12 @@ export default function ProfileModal({ isOpen, onClose, session }) {
                                             </div>
                                             <div>
                                                 <div className="text-white font-medium">{session?.user?.name || 'User'}</div>
-                                                <div className="text-sm text-gray-400">{session?.user?.email}</div>
+                                                <div className="text-base text-gray-400">{session?.user?.email}</div>
                                             </div>
                                         </div>
                                     </div>
                                     <div className="bg-gray-800/40 border border-gray-700/50 rounded-xl p-5">
-                                        <h3 className="text-sm font-semibold text-gray-300 mb-4">Application Preferences</h3>
+                                        <h3 className="text-base font-semibold text-gray-300 mb-4">Application Preferences</h3>
                                         {[
                                             { label: 'Dark Mode', desc: 'Use dark theme across the dashboard', on: true },
                                             { label: 'Email Notifications', desc: 'Receive interview reminders via email', on: true },
@@ -396,8 +408,8 @@ export default function ProfileModal({ isOpen, onClose, session }) {
                                         ].map(item => (
                                             <div key={item.label} className="flex items-center justify-between py-3 border-b border-gray-700/50 last:border-0">
                                                 <div>
-                                                    <span className="text-gray-300 text-sm font-medium">{item.label}</span>
-                                                    <p className="text-gray-500 text-xs">{item.desc}</p>
+                                                    <span className="text-gray-300 text-base font-medium">{item.label}</span>
+                                                    <p className="text-gray-500 text-base">{item.desc}</p>
                                                 </div>
                                                 <div className={`w-10 h-5 ${item.on ? 'bg-blue-600 justify-end' : 'bg-gray-600 justify-start'} rounded-full flex items-center p-1`}>
                                                     <div className="w-4 h-4 bg-white rounded-full" />
@@ -411,11 +423,11 @@ export default function ProfileModal({ isOpen, onClose, session }) {
                             {activeTab === 'keys' && (
                                 <div className="space-y-4">
                                     {/* Info banner */}
-                                    <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-4 text-sm">
+                                    <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-4 text-base">
                                         <div className="font-semibold text-blue-400 mb-1 flex items-center gap-1.5">
                                             <Zap size={14} /> Smart AI Key Pool
                                         </div>
-                                        <p className="text-gray-400 text-xs leading-relaxed">
+                                        <p className="text-gray-400 text-base leading-relaxed">
                                             Add multiple keys per provider. When one hits its rate limit, the next is tried automatically. Providers are tried top → bottom.
                                         </p>
                                     </div>
@@ -436,7 +448,7 @@ export default function ProfileModal({ isOpen, onClose, session }) {
 
                                     {/* Routing preview */}
                                     {enabledWithKeys.length > 0 && (
-                                        <div className="bg-gray-800/30 border border-gray-700/30 rounded-xl p-3 text-xs text-gray-400">
+                                        <div className="bg-gray-800/30 border border-gray-700/30 rounded-xl p-3 text-base text-gray-400">
                                             <div className="text-gray-300 font-medium mb-1.5">Active routing chain:</div>
                                             <div className="flex flex-wrap items-center gap-1.5">
                                                 {enabledWithKeys.map(([k, cfg], i, arr) => (
@@ -455,7 +467,7 @@ export default function ProfileModal({ isOpen, onClose, session }) {
 
                                     {/* Status */}
                                     {statusData.message && (
-                                        <div className={`p-3 rounded-xl border text-sm text-center font-medium ${statusData.type === 'error' ? 'bg-red-500/10 border-red-500/20 text-red-400' : 'bg-green-500/10 border-green-500/20 text-green-400'}`}>
+                                        <div className={`p-3 rounded-xl border text-base text-center font-medium ${statusData.type === 'error' ? 'bg-red-500/10 border-red-500/20 text-red-400' : 'bg-green-500/10 border-green-500/20 text-green-400'}`}>
                                             {statusData.message}
                                         </div>
                                     )}

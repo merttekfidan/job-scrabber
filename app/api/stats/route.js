@@ -2,9 +2,18 @@ import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { auth } from '@/auth';
 
-export async function GET() {
+export async function GET(req) {
     try {
-        const session = await auth();
+        let session = await auth();
+
+        // Local Developer Bypass for Chrome Extension
+        if (!session?.user?.id && process.env.NODE_ENV !== 'production' && req.headers.get('x-dev-extension') === 'true') {
+            const devUser = await query('SELECT id, email, name FROM users WHERE email = $1', ['merttekfidan@gmail.com']);
+            if (devUser.rows.length > 0) {
+                session = { user: devUser.rows[0] };
+            }
+        }
+
         if (!session?.user?.id) {
             console.log('Stats API: Unauthorized');
             return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });

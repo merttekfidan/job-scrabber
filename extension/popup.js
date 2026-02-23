@@ -1,3 +1,18 @@
+import { DEFAULT_CONFIG } from './config.js';
+
+let CONFIG = DEFAULT_CONFIG;
+
+// Get current environment config
+async function getEnvironmentConfig() {
+  const result = await chrome.storage.local.get(['environment']);
+  const isDev = result.environment === 'development';
+  return {
+    BACKEND_URL: isDev ? DEFAULT_CONFIG.DEV_URL : DEFAULT_CONFIG.PROD_URL,
+    IS_DEV: isDev,
+    VERSION: DEFAULT_CONFIG.VERSION
+  };
+}
+
 // DOM Elements
 const applyBtn = document.getElementById('applyBtn');
 const exportBtn = document.getElementById('exportBtn');
@@ -17,16 +32,67 @@ const STATUS_ICONS = {
 
 // Initialize popup
 document.addEventListener('DOMContentLoaded', async () => {
+  CONFIG = await getEnvironmentConfig();
+
   await updateStats();
   await loadLastCapture();
   await checkConnection();
 
+  await checkAlreadyApplied();
+
   // Load auto-export preference
-  const result = await chrome.storage.local.get(['autoExport']);
+  const result = await chrome.storage.local.get(['autoExport', 'environment']);
   if (result.autoExport) {
     document.getElementById('autoExport').checked = result.autoExport;
   }
+
+  // Set environment toggle state
+  const envSelect = document.getElementById('environmentToggle');
+  if (envSelect) {
+    envSelect.value = result.environment || 'production';
+    envSelect.addEventListener('change', async (e) => {
+      await chrome.storage.local.set({ environment: e.target.value });
+
+      // Update config and re-check connection
+      CONFIG = await getEnvironmentConfig();
+      await checkConnection();
+    });
+  }
 });
+
+// Check if the current tab URL has already been applied to
+async function checkAlreadyApplied() {
+  try {
+    const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!tabs || tabs.length === 0) return;
+
+    // Normalize current URL (strip query params and trailing slashes for clean matching)
+    let currentUrl = tabs[0].url;
+    if (!currentUrl || currentUrl.startsWith('chrome://')) return;
+
+    const cleanCurrentUrl = currentUrl.split('?')[0].replace(/\/$/, '');
+
+    const result = await chrome.storage.local.get(['applications']);
+    const applications = result.applications || [];
+
+    const hasApplied = applications.some(app => {
+      if (!app.url) return false;
+      const cleanAppUrl = app.url.split('?')[0].replace(/\/$/, '');
+      return cleanCurrentUrl === cleanAppUrl;
+    });
+
+    if (hasApplied) {
+      document.getElementById('alreadyAppliedBadge').classList.remove('hidden');
+
+      // Update the apply button visually
+      applyBtn.style.backgroundColor = '#4b5563'; // gray-600
+      applyBtn.style.borderColor = '#374151'; // gray-700
+      document.querySelector('#applyBtn .btn-text').textContent = 'Update Application';
+    }
+  } catch (error) {
+    console.error('Failed to check already applied status:', error);
+  }
+}
 
 // Check connection to backend
 async function checkConnection() {
@@ -38,7 +104,13 @@ async function checkConnection() {
     const baseUrl = CONFIG.BACKEND_URL;
     const statsUrl = baseUrl + '/api/stats';
 
-    const response = await fetch(statsUrl, { credentials: 'include' });
+    const headers = {};
+    if (CONFIG.IS_DEV) headers['x-dev-extension'] = 'true';
+
+    const response = await fetch(statsUrl, {
+      credentials: 'include',
+      headers
+    });
 
     if (response.status === 401) {
       statusDot.className = 'status-dot disconnected';
@@ -209,3 +281,11 @@ document.getElementById('autoExport').addEventListener('change', async (e) => {
 openDashboardBtn.addEventListener('click', () => {
   window.open(CONFIG.BACKEND_URL, '_blank');
 });
+
+// Open Privacy Policy
+const privacyPolicyBtn = document.getElementById('privacyPolicyBtn');
+if (privacyPolicyBtn) {
+  privacyPolicyBtn.addEventListener('click', () => {
+    window.open(CONFIG.BACKEND_URL + '/privacy', '_blank');
+  });
+}

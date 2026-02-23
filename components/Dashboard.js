@@ -272,7 +272,7 @@ export default function Dashboard({ session }) {
                     {/* Logo */}
                     <div className="flex items-center gap-3">
                         <div className="h-8 w-8 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)' }}>
-                            <span className="text-sm font-black text-white">JS</span>
+                            <span className="text-base font-black text-white">JS</span>
                         </div>
                         <span className="text-lg font-bold tracking-tight text-white">Job Scrabber</span>
                     </div>
@@ -287,7 +287,7 @@ export default function Dashboard({ session }) {
                             <button
                                 key={v.id}
                                 onClick={() => setView(v.id)}
-                                className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ${view === v.id
+                                className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-base font-medium transition-all duration-200 ${view === v.id
                                     ? 'text-white shadow-lg'
                                     : 'text-gray-500 hover:text-gray-200'
                                     }`}
@@ -332,7 +332,7 @@ export default function Dashboard({ session }) {
                                 // eslint-disable-next-line @next/next/no-img-element
                                 <img src={session.user.image} alt="Avatar" className="w-8 h-8 rounded-full border border-white/10" />
                             ) : (
-                                <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white" style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)' }}>
+                                <div className="w-8 h-8 rounded-full flex items-center justify-center text-base font-bold text-white" style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)' }}>
                                     {(session?.user?.email || 'U')[0].toUpperCase()}
                                 </div>
                             )}
@@ -369,13 +369,17 @@ export default function Dashboard({ session }) {
                 ) : (
                     <div className={upcomingInterviews?.length > 0 ? "grid grid-cols-1 lg:grid-cols-4 gap-6" : "space-y-6"}>
                         <div className={upcomingInterviews?.length > 0 ? "lg:col-span-3 space-y-6" : "space-y-6"}>
-                            <ErrorBoundary fallbackTitle="Failed to load stats">
-                                <StatsGrid stats={stats} />
-                            </ErrorBoundary>
+                            {view === 'dashboard' && (
+                                <>
+                                    <ErrorBoundary fallbackTitle="Failed to load stats">
+                                        <StatsGrid stats={stats} />
+                                    </ErrorBoundary>
 
-                            <ErrorBoundary fallbackTitle="Failed to load analytics">
-                                <SmartAnalytics />
-                            </ErrorBoundary>
+                                    <ErrorBoundary fallbackTitle="Failed to load analytics">
+                                        <SmartAnalytics />
+                                    </ErrorBoundary>
+                                </>
+                            )}
 
                             <ApplicationFilters
                                 filters={filters}
@@ -391,6 +395,10 @@ export default function Dashboard({ session }) {
                                         applications={applications}
                                         isLoading={isLoading}
                                         onCardClick={(id) => setSelectedJobId(id)}
+                                        onStatusChange={(id, newStatus) => {
+                                            handleUpdateDetails(id, { status: newStatus });
+                                            showToast('Application status updated');
+                                        }}
                                     />
                                 </section>
                             ) : (

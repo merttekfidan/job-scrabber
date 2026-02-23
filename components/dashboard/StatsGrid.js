@@ -40,7 +40,7 @@ function MetricCard({ icon: Icon, value, label, trend, sparkline, color, iconBg 
                     <span className="label-uppercase">{label}</span>
                 </div>
                 {trend !== undefined && trend !== null && (
-                    <div className={`flex items-center gap-1 text-xs font-medium ${isPositive ? 'text-emerald-400' : 'text-red-400'}`}>
+                    <div className={`flex items-center gap-1 text-base font-medium ${isPositive ? 'text-emerald-400' : 'text-red-400'}`}>
                         {isPositive ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
                         {Math.abs(trend)}%
                     </div>

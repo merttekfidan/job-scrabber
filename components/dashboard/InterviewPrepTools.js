@@ -88,7 +88,7 @@ export function InterviewQuestionsList({ questions = [] }) {
                                         }}
                                     >
                                         <MessageCircleQuestion size={16} className={`mt-0.5 flex-shrink-0 ${style.text}`} />
-                                        <span className="text-sm text-gray-200 leading-relaxed flex-1">{item.question}</span>
+                                        <span className="text-base text-gray-200 leading-relaxed flex-1">{item.question}</span>
                                         <ChevronDown
                                             size={14}
                                             className={`text-gray-500 flex-shrink-0 mt-0.5 transition-transform ${expandedIndex === item.originalIndex ? 'rotate-180' : ''}`}
@@ -98,7 +98,7 @@ export function InterviewQuestionsList({ questions = [] }) {
                                         <div className="px-4 pb-4 pl-11 animate-in fade-in slide-in-from-top-1 duration-200">
                                             <div className="flex items-start gap-2 bg-gray-900/40 rounded-lg p-3 border border-gray-700/20">
                                                 <Lightbulb size={13} className="text-amber-400 mt-0.5 flex-shrink-0" />
-                                                <p className="text-xs text-gray-400 leading-relaxed">{item.hint}</p>
+                                                <p className="text-base text-gray-400 leading-relaxed">{item.hint}</p>
                                             </div>
                                         </div>
                                     )}
@@ -137,7 +137,7 @@ export function QuestionsToAskList({ questions = [] }) {
                     <div key={type}>
                         <div className="flex items-center gap-2 mb-3">
                             <span className="text-base">{style.icon}</span>
-                            <span className={`text-xs font-bold ${style.text}`}>{type}</span>
+                            <span className={`text-base font-bold ${style.text}`}>{type}</span>
                             <span className="text-[10px] text-gray-600">({items.length})</span>
                         </div>
                         <div className="space-y-2.5">
@@ -146,11 +146,11 @@ export function QuestionsToAskList({ questions = [] }) {
                                     key={item.index}
                                     className={`${style.bg} ${style.border} border rounded-xl p-4`}
                                 >
-                                    <p className="text-sm text-gray-200 font-medium leading-relaxed mb-1">
+                                    <p className="text-base text-gray-200 font-medium leading-relaxed mb-1">
                                         {typeof item.question === 'string' ? item.question : item.question}
                                     </p>
                                     {item.reason && (
-                                        <p className="text-xs text-gray-500 leading-relaxed mt-2 flex items-start gap-1.5">
+                                        <p className="text-base text-gray-500 leading-relaxed mt-2 flex items-start gap-1.5">
                                             <span className="text-gray-600 flex-shrink-0">→</span>
                                             {item.reason}
                                         </p>
@@ -179,7 +179,7 @@ export function RedFlagsList({ redFlags = [] }) {
                         <div className="flex items-start gap-3">
                             <Shield size={16} className="text-red-400 mt-0.5 flex-shrink-0" />
                             <div className="flex-1 min-w-0">
-                                <p className="text-sm text-red-200/90 font-medium leading-relaxed">{item.flag}</p>
+                                <p className="text-base text-red-200/90 font-medium leading-relaxed">{item.flag}</p>
                                 {item.evidence && (
                                     <p className="text-[11px] text-gray-500 mt-1.5 italic leading-relaxed">
                                         &quot;{item.evidence}&quot;
@@ -190,7 +190,7 @@ export function RedFlagsList({ redFlags = [] }) {
                         {item.whatToAsk && (
                             <div className="mt-3 ml-7 bg-gray-900/40 rounded-lg p-3 border border-gray-700/20">
                                 <p className="text-[10px] text-gray-500 uppercase tracking-wider font-bold mb-1">Ask This</p>
-                                <p className="text-xs text-gray-300 leading-relaxed">{item.whatToAsk}</p>
+                                <p className="text-base text-gray-300 leading-relaxed">{item.whatToAsk}</p>
                             </div>
                         )}
                     </div>
@@ -243,7 +243,7 @@ export function QuickReferenceCard({ app, talkingPoints = [], questionsToAsk = [
     return (
         <div className="bg-gray-800/20 rounded-2xl border border-gray-700/40 overflow-hidden">
             <div className="flex items-center justify-between px-5 py-3 border-b border-gray-700/30">
-                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+                <h4 className="text-base font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
                     📋 Quick Reference Card
                 </h4>
                 <button
@@ -253,7 +253,7 @@ export function QuickReferenceCard({ app, talkingPoints = [], questionsToAsk = [
                     {copied ? <><CheckCircle size={12} /> Copied!</> : <><Copy size={12} /> Copy</>}
                 </button>
             </div>
-            <pre className="text-xs text-gray-300 p-5 overflow-x-auto whitespace-pre-wrap font-mono leading-relaxed max-h-[300px] overflow-y-auto">
+            <pre className="text-base text-gray-300 p-5 overflow-x-auto whitespace-pre-wrap font-mono leading-relaxed max-h-[300px] overflow-y-auto">
                 {refText}
             </pre>
         </div>

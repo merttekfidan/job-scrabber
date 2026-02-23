@@ -90,7 +90,7 @@ export default function CvUpload() {
                         </div>
                         <div>
                             <h2 className="text-xl font-bold text-white">Career Coach Analysis</h2>
-                            <p className="text-sm text-blue-300/70">Based on your active CV: {cvData.filename}</p>
+                            <p className="text-base text-blue-300/70">Based on your active CV: {cvData.filename}</p>
                         </div>
                     </div>
                     <p className="text-gray-300 leading-relaxed italic">&quot;{analysis.summary}&quot;</p>
@@ -109,7 +109,7 @@ export default function CvUpload() {
                             <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-white/10 rounded-xl cursor-pointer hover:border-blue-500/40 hover:bg-blue-500/5 transition-all group">
                                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
                                     <FileText className="w-8 h-8 mb-3 text-gray-500 group-hover:text-blue-400 transition-colors" />
-                                    <p className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">
+                                    <p className="text-base text-gray-400 group-hover:text-gray-300 transition-colors">
                                         {file ? file.name : <span className="font-semibold">Click to upload PDF</span>}
                                     </p>
                                 </div>
@@ -117,7 +117,7 @@ export default function CvUpload() {
                             </label>
 
                             {error && (
-                                <div className="flex items-center gap-2 text-red-400 text-xs bg-red-400/10 p-3 rounded-lg">
+                                <div className="flex items-center gap-2 text-red-400 text-base bg-red-400/10 p-3 rounded-lg">
                                     <AlertCircle size={14} /> {error}
                                 </div>
                             )}
@@ -142,13 +142,13 @@ export default function CvUpload() {
                             <h3 className="text-lg font-bold text-white mb-4">Professional Profile</h3>
                             <div className="space-y-4">
                                 <div>
-                                    <label className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-2 block">Level</label>
-                                    <span className="px-3 py-1 bg-purple-500/20 text-purple-400 rounded-full text-xs font-bold border border-purple-500/20">
+                                    <label className="text-base text-gray-500 uppercase font-bold tracking-wider mb-2 block">Level</label>
+                                    <span className="px-3 py-1 bg-purple-500/20 text-purple-400 rounded-full text-base font-bold border border-purple-500/20">
                                         {analysis.experienceLevel}
                                     </span>
                                 </div>
                                 <div>
-                                    <label className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-2 block">Top Expertise</label>
+                                    <label className="text-base text-gray-500 uppercase font-bold tracking-wider mb-2 block">Top Expertise</label>
                                     <div className="flex flex-wrap gap-2">
                                         {analysis.topSkills?.map((skill, i) => (
                                             <span key={i} className="px-2 py-1 bg-white/5 text-gray-400 rounded text-[10px] border border-white/5">
@@ -178,7 +178,7 @@ export default function CvUpload() {
                                     <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2 text-green-400">
                                         <TrendingUp size={18} /> Market Fit
                                     </h3>
-                                    <p className="text-sm text-gray-400 leading-relaxed">{analysis.marketFit}</p>
+                                    <p className="text-base text-gray-400 leading-relaxed">{analysis.marketFit}</p>
                                 </div>
                                 <div className="bg-gray-900/40 backdrop-blur-xl border border-white/5 rounded-2xl p-6">
                                     <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2 text-amber-400">
@@ -186,7 +186,7 @@ export default function CvUpload() {
                                     </h3>
                                     <ul className="space-y-3">
                                         {analysis.coachingAdvice?.map((tip, i) => (
-                                            <li key={i} className="text-sm text-gray-400 flex gap-2">
+                                            <li key={i} className="text-base text-gray-400 flex gap-2">
                                                 <span className="text-amber-500 font-bold">•</span> {tip}
                                             </li>
                                         ))}
@@ -200,36 +200,36 @@ export default function CvUpload() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-4">
                                         <div className="bg-green-500/5 p-4 rounded-xl border border-green-500/10">
-                                            <h4 className="text-sm font-bold text-green-400 mb-2 uppercase tracking-wide">Strengths</h4>
+                                            <h4 className="text-base font-bold text-green-400 mb-2 uppercase tracking-wide">Strengths</h4>
                                             <ul className="space-y-2">
                                                 {analysis.swot.strengths?.map((s, i) => (
-                                                    <li key={i} className="text-xs text-gray-400 flex gap-2"><CheckCircle size={12} className="text-green-500 flex-shrink-0 mt-0.5" /> {s}</li>
+                                                    <li key={i} className="text-base text-gray-400 flex gap-2"><CheckCircle size={12} className="text-green-500 flex-shrink-0 mt-0.5" /> {s}</li>
                                                 ))}
                                             </ul>
                                         </div>
                                         <div className="bg-blue-500/5 p-4 rounded-xl border border-blue-500/10">
-                                            <h4 className="text-sm font-bold text-blue-400 mb-2 uppercase tracking-wide">Opportunities</h4>
+                                            <h4 className="text-base font-bold text-blue-400 mb-2 uppercase tracking-wide">Opportunities</h4>
                                             <ul className="space-y-2">
                                                 {analysis.swot.opportunities?.map((o, i) => (
-                                                    <li key={i} className="text-xs text-gray-400 flex gap-2"><Sparkles size={12} className="text-blue-500 flex-shrink-0 mt-0.5" /> {o}</li>
+                                                    <li key={i} className="text-base text-gray-400 flex gap-2"><Sparkles size={12} className="text-blue-500 flex-shrink-0 mt-0.5" /> {o}</li>
                                                 ))}
                                             </ul>
                                         </div>
                                     </div>
                                     <div className="space-y-4">
                                         <div className="bg-amber-500/5 p-4 rounded-xl border border-amber-500/10">
-                                            <h4 className="text-sm font-bold text-amber-400 mb-2 uppercase tracking-wide">Weaknesses</h4>
+                                            <h4 className="text-base font-bold text-amber-400 mb-2 uppercase tracking-wide">Weaknesses</h4>
                                             <ul className="space-y-2">
                                                 {analysis.swot.weaknesses?.map((w, i) => (
-                                                    <li key={i} className="text-xs text-gray-400 flex gap-2"><AlertCircle size={12} className="text-amber-500 flex-shrink-0 mt-0.5" /> {w}</li>
+                                                    <li key={i} className="text-base text-gray-400 flex gap-2"><AlertCircle size={12} className="text-amber-500 flex-shrink-0 mt-0.5" /> {w}</li>
                                                 ))}
                                             </ul>
                                         </div>
                                         <div className="bg-red-500/5 p-4 rounded-xl border border-red-500/10">
-                                            <h4 className="text-sm font-bold text-red-400 mb-2 uppercase tracking-wide">Threats</h4>
+                                            <h4 className="text-base font-bold text-red-400 mb-2 uppercase tracking-wide">Threats</h4>
                                             <ul className="space-y-2">
                                                 {analysis.swot.threats?.map((t, i) => (
-                                                    <li key={i} className="text-xs text-gray-400 flex gap-2"><AlertCircle size={12} className="text-red-500 flex-shrink-0 mt-0.5" /> {t}</li>
+                                                    <li key={i} className="text-base text-gray-400 flex gap-2"><AlertCircle size={12} className="text-red-500 flex-shrink-0 mt-0.5" /> {t}</li>
                                                 ))}
                                             </ul>
                                         </div>

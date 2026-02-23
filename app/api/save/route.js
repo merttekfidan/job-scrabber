@@ -6,7 +6,16 @@ import { standardLimiter, getRateLimitKey } from '@/lib/rate-limit';
 
 export async function POST(request) {
     try {
-        const session = await auth();
+        let session = await auth();
+
+        // Local Developer Bypass for Chrome Extension
+        if (!session?.user?.id && process.env.NODE_ENV !== 'production' && request.headers.get('x-dev-extension') === 'true') {
+            const devUser = await query('SELECT id, email, name FROM users WHERE email = $1', ['merttekfidan@gmail.com']);
+            if (devUser.rows.length > 0) {
+                session = { user: devUser.rows[0] };
+            }
+        }
+
         if (!session?.user?.id) {
             return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
         }

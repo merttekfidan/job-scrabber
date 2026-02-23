@@ -35,7 +35,7 @@ export default function JobDetailView({
                 <div className="container flex items-center justify-between py-3">
                     <button
                         onClick={onBack}
-                        className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm font-medium group"
+                        className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-base font-medium group"
                     >
                         <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
                         Back to Pipeline
@@ -75,9 +75,9 @@ export default function JobDetailView({
                                         {app.company?.charAt(0) || '?'}
                                     </div>
                                     <div className="min-w-0">
-                                        <h3 className="font-bold text-white text-sm truncate">{app.company}</h3>
+                                        <h3 className="font-bold text-white text-base truncate">{app.company}</h3>
                                         {app.company_url && (
-                                            <a href={app.company_url} target="_blank" className="text-blue-400 hover:underline text-xs flex items-center gap-1">
+                                            <a href={app.company_url} target="_blank" className="text-blue-400 hover:underline text-base flex items-center gap-1">
                                                 <Globe size={10} /> Website
                                             </a>
                                         )}
@@ -86,26 +86,26 @@ export default function JobDetailView({
 
                                 <div className="space-y-3">
                                     {app.salary && (
-                                        <div className="flex items-center gap-2 text-sm">
+                                        <div className="flex items-center gap-2 text-base">
                                             <DollarSign size={14} className="text-emerald-400 flex-shrink-0" />
-                                            <span className="text-emerald-300 font-medium text-xs">{app.salary}</span>
+                                            <span className="text-emerald-300 font-medium text-base">{app.salary}</span>
                                         </div>
                                     )}
                                     {app.location && (
-                                        <div className="flex items-center gap-2 text-sm">
+                                        <div className="flex items-center gap-2 text-base">
                                             <MapPin size={14} className="text-blue-400 flex-shrink-0" />
-                                            <span className="text-gray-300 text-xs">{app.location}</span>
+                                            <span className="text-gray-300 text-base">{app.location}</span>
                                         </div>
                                     )}
                                     {app.work_mode && (
-                                        <div className="flex items-center gap-2 text-sm">
+                                        <div className="flex items-center gap-2 text-base">
                                             <Building2 size={14} className="text-purple-400 flex-shrink-0" />
-                                            <span className="text-gray-300 text-xs">{app.work_mode}</span>
+                                            <span className="text-gray-300 text-base">{app.work_mode}</span>
                                         </div>
                                     )}
-                                    <div className="flex items-center gap-2 text-sm">
+                                    <div className="flex items-center gap-2 text-base">
                                         <Calendar size={14} className="text-gray-500 flex-shrink-0" />
-                                        <span className="text-gray-500 text-xs">{formatDate(app.application_date || app.created_at)}</span>
+                                        <span className="text-gray-500 text-base">{formatDate(app.application_date || app.created_at)}</span>
                                     </div>
                                 </div>
                             </div>
@@ -114,7 +114,7 @@ export default function JobDetailView({
                             <div className="glass-card p-4">
                                 <label className="label-uppercase mb-2 block">Status</label>
                                 <select
-                                    className="w-full bg-gray-900/50 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:ring-1 focus:ring-indigo-500/50 outline-none"
+                                    className="w-full bg-gray-900/50 border border-white/10 rounded-lg px-3 py-2 text-white text-base focus:ring-1 focus:ring-indigo-500/50 outline-none"
                                     value={app.status}
                                     onChange={(e) => onUpdateDetails(app.id, { status: e.target.value })}
                                 >
@@ -145,7 +145,7 @@ export default function JobDetailView({
                             {/* Delete */}
                             <button
                                 onClick={() => onDelete(app)}
-                                className="w-full px-4 py-2.5 text-red-400/60 hover:text-red-400 hover:bg-red-900/20 rounded-xl transition-all text-xs font-medium flex items-center justify-center gap-2 border border-transparent hover:border-red-500/20"
+                                className="w-full px-4 py-2.5 text-red-400/60 hover:text-red-400 hover:bg-red-900/20 rounded-xl transition-all text-base font-medium flex items-center justify-center gap-2 border border-transparent hover:border-red-500/20"
                             >
                                 <XCircle size={14} /> Delete Application
                             </button>
@@ -160,7 +160,7 @@ export default function JobDetailView({
                                 <button
                                     key={tab.id}
                                     onClick={() => setActiveTab(tab.id)}
-                                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-md text-sm font-medium transition-all ${activeTab === tab.id
+                                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-md text-base font-medium transition-all ${activeTab === tab.id
                                             ? 'bg-white/10 text-white shadow-lg'
                                             : 'text-gray-500 hover:text-gray-300'
                                         }`}

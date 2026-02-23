@@ -3,7 +3,7 @@
 import React from 'react';
 import { Search, SlidersHorizontal, ChevronDown } from 'lucide-react';
 
-const selectClass = "appearance-none bg-gray-900/50 border border-white/10 rounded-lg py-2 pl-3 pr-8 text-sm text-gray-400 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all cursor-pointer";
+const selectClass = "appearance-none bg-gray-900/50 border border-white/10 rounded-lg py-2 pl-3 pr-8 text-base text-gray-400 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all cursor-pointer";
 
 export default function ApplicationFilters({ filters, setFilters, companies = [], totalCount }) {
     return (
@@ -14,7 +14,7 @@ export default function ApplicationFilters({ filters, setFilters, companies = []
                 <input
                     type="text"
                     placeholder={`Search ${totalCount || ''} jobs, companies, skills...`}
-                    className="w-full bg-gray-900/50 border border-white/10 rounded-lg py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all"
+                    className="w-full bg-gray-900/50 border border-white/10 rounded-lg py-2 pl-9 pr-4 text-base text-white focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all"
                     value={filters.search}
                     onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
                 />
