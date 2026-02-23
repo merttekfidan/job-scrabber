@@ -3,8 +3,6 @@ const applyBtn = document.getElementById('applyBtn');
 const exportBtn = document.getElementById('exportBtn');
 const settingsToggle = document.getElementById('settingsToggle');
 const settingsPanel = document.getElementById('settingsPanel');
-const sheetsUrlInput = document.getElementById('sheetsUrl');
-const saveSettingsBtn = document.getElementById('saveSettings');
 const openDashboardBtn = document.getElementById('openDashboardBtn');
 const statusDiv = document.getElementById('status');
 const lastCaptureDiv = document.getElementById('lastCapture');
@@ -19,10 +17,15 @@ const STATUS_ICONS = {
 
 // Initialize popup
 document.addEventListener('DOMContentLoaded', async () => {
-  await loadSettings();
   await updateStats();
   await loadLastCapture();
   await checkConnection();
+
+  // Load auto-export preference
+  const result = await chrome.storage.local.get(['autoExport']);
+  if (result.autoExport) {
+    document.getElementById('autoExport').checked = result.autoExport;
+  }
 });
 
 // Check connection to backend
@@ -32,14 +35,7 @@ async function checkConnection() {
   const userEmailSpan = userStatusDiv.querySelector('.user-email');
 
   try {
-    const backendUrl = sheetsUrlInput.value.trim();
-    if (!backendUrl) {
-      statusDot.className = 'status-dot disconnected';
-      userEmailSpan.textContent = 'No backend URL';
-      return;
-    }
-
-    const baseUrl = backendUrl.replace(/\/api\/save\/?$/, '');
+    const baseUrl = CONFIG.BACKEND_URL;
     const statsUrl = baseUrl + '/api/stats';
 
     const response = await fetch(statsUrl, { credentials: 'include' });
@@ -65,19 +61,6 @@ async function checkConnection() {
     statusDot.className = 'status-dot disconnected';
     userEmailSpan.textContent = 'Offline';
   }
-}
-
-// Load settings from storage
-async function loadSettings() {
-  const result = await chrome.storage.local.get(['backendUrl', 'autoExport']);
-  if (result.backendUrl) {
-    sheetsUrlInput.value = result.backendUrl;
-    openDashboardBtn.classList.remove('hidden');
-  }
-  if (result.autoExport) {
-    document.getElementById('autoExport').checked = result.autoExport;
-  }
-  updateToggleState();
 }
 
 // Update statistics
@@ -116,13 +99,6 @@ applyBtn.addEventListener('click', () => applyJob());
 
 async function applyJob() {
   try {
-    const result = await chrome.storage.local.get(['backendUrl']);
-    if (!result.backendUrl) {
-      showStatus('Set your backend URL in Settings', 'error');
-      settingsPanel.classList.remove('hidden');
-      return;
-    }
-
     applyBtn.classList.add('processing');
     applyBtn.disabled = true;
     showStatus('Extracting job data…', 'info');
@@ -223,61 +199,13 @@ settingsToggle.addEventListener('click', () => {
   settingsPanel.classList.toggle('hidden');
 });
 
-saveSettingsBtn.addEventListener('click', async () => {
-  const backendUrl = sheetsUrlInput.value.trim();
-  const autoExport = document.getElementById('autoExport').checked;
-
-  if (!backendUrl) {
-    showStatus('Enter a backend URL', 'error');
-    return;
-  }
-
-  await chrome.storage.local.set({ backendUrl, autoExport });
-
-  if (backendUrl) {
-    openDashboardBtn.classList.remove('hidden');
-  } else {
-    openDashboardBtn.classList.add('hidden');
-  }
-
-  showStatus('Settings saved!', 'success');
-  settingsPanel.classList.add('hidden');
-  await checkConnection();
+// Auto-export toggle — save immediately on change
+document.getElementById('autoExport').addEventListener('change', async (e) => {
+  await chrome.storage.local.set({ autoExport: e.target.checked });
+  showStatus(e.target.checked ? 'Auto-export enabled' : 'Auto-export disabled', 'success');
 });
 
-// Environment Toggle
-const envLiveBtn = document.getElementById('envLive');
-const envLocalBtn = document.getElementById('envLocal');
-const LIVE_URL = 'https://aware-endurance-production-13b8.up.railway.app';
-const LOCAL_URL = 'http://localhost:3000';
-
-function setEnvironment(env) {
-  if (env === 'live') {
-    sheetsUrlInput.value = LIVE_URL;
-    envLiveBtn.classList.add('active');
-    envLocalBtn.classList.remove('active');
-  } else {
-    sheetsUrlInput.value = LOCAL_URL;
-    envLocalBtn.classList.add('active');
-    envLiveBtn.classList.remove('active');
-  }
-}
-
-envLiveBtn.addEventListener('click', () => setEnvironment('live'));
-envLocalBtn.addEventListener('click', () => setEnvironment('local'));
-sheetsUrlInput.addEventListener('input', updateToggleState);
-
-function updateToggleState() {
-  const currentUrl = sheetsUrlInput.value.trim();
-  envLiveBtn.classList.toggle('active', currentUrl === LIVE_URL);
-  envLocalBtn.classList.toggle('active', currentUrl === LOCAL_URL);
-}
-
 // Open Dashboard
-openDashboardBtn.addEventListener('click', async () => {
-  const result = await chrome.storage.local.get(['backendUrl']);
-  if (result.backendUrl) {
-    const dashboardUrl = result.backendUrl.replace(/\/api\/save\/?$/, '');
-    window.open(dashboardUrl, '_blank');
-  }
+openDashboardBtn.addEventListener('click', () => {
+  window.open(CONFIG.BACKEND_URL, '_blank');
 });

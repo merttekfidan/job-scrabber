@@ -5,6 +5,7 @@
     --foreground: #171717;
 }
 
+/* stylelint-disable at-rule-no-unknown */
 @theme inline {
     --color-background: var(--background);
     --color-foreground: var(--foreground);
@@ -98,6 +99,14 @@
     --font-size-xl: 1.25rem;
     --font-size-2xl: 1.5rem;
     --font-size-3xl: 2rem;
+
+    /* Glow Colors (Lovable design system) */
+    --glow-purple: #8b5cf6;
+    --glow-indigo: #6366f1;
+    --glow-cyan: #06b6d4;
+    --color-success: #22c55e;
+    --color-warning: #eab308;
+    --color-destructive: #ef4444;
 }
 
 body {
@@ -140,7 +149,7 @@ body {
 
 /* Layout Components */
 .container {
-    max-width: 1100px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 0 var(--spacing-lg);
 }
@@ -973,4 +982,191 @@ body {
     width: 24px;
     height: 24px;
     color: var(--accent-green);
+}
+
+/* ===================================
+   Lovable Design System Utilities
+   =================================== */
+
+.glass-card {
+    background: var(--bg-card);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+}
+
+.glass-card-hover {
+    background: var(--bg-card);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    transition: all 300ms ease;
+}
+
+.glass-card-hover:hover {
+    border-color: rgba(139, 92, 246, 0.4);
+    box-shadow: 0 0 30px -5px rgba(139, 92, 246, 0.3);
+}
+
+.label-uppercase {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--text-tertiary);
+}
+
+.stat-value {
+    font-size: 1.875rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+}
+
+.gradient-bg {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(99, 102, 241, 0.1));
+}
+
+.glow-text {
+    background: linear-gradient(to right, var(--glow-purple), var(--glow-indigo));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.glow-border {
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    box-shadow: 0 0 15px -3px rgba(139, 92, 246, 0.4);
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+.shimmer {
+    background: linear-gradient(90deg, var(--bg-tertiary) 0%, var(--bg-secondary) 50%, var(--bg-tertiary) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
+}
+
+/* Tab styling for application cards */
+.tab-trigger {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    white-space: nowrap;
+}
+
+.tab-trigger:hover {
+    color: var(--text-secondary);
+    background: var(--glass-bg);
+}
+
+.tab-trigger.active {
+    color: var(--text-primary);
+    background: rgba(0, 0, 0, 0.6);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Status badge colors */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    font-size: 10px;
+    font-weight: 600;
+    border-radius: var(--radius-full);
+    border: 1px solid;
+}
+
+.status-badge.applied {
+    background: rgba(102, 126, 234, 0.15);
+    color: #667eea;
+    border-color: rgba(102, 126, 234, 0.3);
+}
+
+.status-badge.interview {
+    background: rgba(79, 172, 254, 0.15);
+    color: #4facfe;
+    border-color: rgba(79, 172, 254, 0.3);
+}
+
+.status-badge.offer {
+    background: rgba(34, 197, 94, 0.15);
+    color: #22c55e;
+    border-color: rgba(34, 197, 94, 0.3);
+}
+
+.status-badge.rejected {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.status-badge.withdrawn {
+    background: rgba(234, 179, 8, 0.15);
+    color: #eab308;
+    border-color: rgba(234, 179, 8, 0.3);
+}
+
+.status-badge.accepted {
+    background: rgba(34, 197, 94, 0.2);
+    color: #4ade80;
+    border-color: rgba(34, 197, 94, 0.4);
+}
+
+/* Info card (for company intel, strategy, etc.) */
+.info-card {
+    padding: 12px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--glass-border);
+    background: rgba(26, 26, 36, 0.3);
+}
+
+.info-card h5 {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--text-tertiary);
+    margin-bottom: 6px;
+}
+
+.info-card p {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+}
+
+/* SWOT grid colors */
+.swot-strengths {
+    border-color: rgba(34, 197, 94, 0.3);
+}
+
+.swot-weaknesses {
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.swot-opportunities {
+    border-color: rgba(102, 126, 234, 0.3);
+}
+
+.swot-threats {
+    border-color: rgba(234, 179, 8, 0.3);
 }

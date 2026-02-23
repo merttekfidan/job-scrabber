@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Job Tracker</title>
+  <title>Job Scrabber</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 
@@ -17,7 +17,7 @@
           <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
           <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
         </svg>
-        <span>Job Tracker</span>
+        <span>Job Scrabber</span>
       </div>
       <div id="userStatus" class="user-status">
         <span class="status-dot"></span>
@@ -68,7 +68,7 @@
           </svg>
           <span>Export</span>
         </button>
-        <button id="openDashboardBtn" class="tool-btn hidden" title="Open Dashboard">
+        <button id="openDashboardBtn" class="tool-btn" title="Open Dashboard">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round">
             <rect x="3" y="3" width="7" height="7" />
@@ -89,22 +89,16 @@
         </button>
       </div>
 
-      <!-- Settings Panel -->
+      <!-- Settings Panel (simplified) -->
       <div id="settingsPanel" class="settings-panel hidden">
-        <div class="env-toggle">
-          <button type="button" class="env-btn active" data-env="live" id="envLive">Live</button>
-          <button type="button" class="env-btn" data-env="local" id="envLocal">Local</button>
-        </div>
-        <div class="setting-group">
-          <label for="sheetsUrl">Backend URL</label>
-          <input type="text" id="sheetsUrl" placeholder="https://your-backend.up.railway.app">
-        </div>
         <div class="setting-row">
           <label class="checkbox-label">
             <input type="checkbox" id="autoExport">
-            Auto-export CSV
+            Auto-export CSV on save
           </label>
-          <button id="saveSettings" class="save-btn">Save</button>
+        </div>
+        <div class="version-info">
+          v2.0.0 · AI Career Co-Pilot
         </div>
       </div>
 
@@ -115,6 +109,7 @@
     </footer>
   </div>
 
+  <script src="config.js"></script>
   <script src="popup.js"></script>
 </body>
 

@@ -1,5 +1,8 @@
 // Background service worker for Chrome extension
 
+// Import config
+importScripts('config.js');
+
 // Listen for messages from popup
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'processJobData') {
@@ -13,14 +16,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 // Process job data through the server-side API
 async function processJobServerSide(extractedData) {
     try {
-        const result = await chrome.storage.local.get(['backendUrl']);
-        const backendUrl = result.backendUrl;
-
-        if (!backendUrl) {
-            throw new Error('Backend URL not configured. Please set it in extension settings.');
-        }
-
-        const baseUrl = backendUrl.replace(/\/api\/save\/?$/, '');
+        const baseUrl = CONFIG.BACKEND_URL;
 
         // Step 1: Send raw content to server for AI processing
         const processUrl = baseUrl + '/api/extension/process';
@@ -114,15 +110,7 @@ async function saveApplicationLocally(applicationData) {
 // Sync application to remote storage
 async function syncToRemoteStorage(applicationData) {
     try {
-        const result = await chrome.storage.local.get(['backendUrl']);
-        const backendUrl = result.backendUrl;
-
-        if (!backendUrl) {
-            console.log('Backend URL not configured, skipping remote sync');
-            return null;
-        }
-
-        const saveUrl = backendUrl.replace(/\/api\/save\/?$/, '') + '/api/save';
+        const saveUrl = CONFIG.BACKEND_URL + '/api/save';
 
         const response = await fetch(saveUrl, {
             method: 'POST',
@@ -151,7 +139,7 @@ async function syncToRemoteStorage(applicationData) {
 
 // Handle installation
 chrome.runtime.onInstalled.addListener(() => {
-    console.log('Job Application Tracker installed');
+    console.log('Job Scrabber v' + CONFIG.VERSION + ' installed');
 
     chrome.storage.local.get(['applications'], (result) => {
         if (!result.applications) {

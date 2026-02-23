@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-    RefreshCw, Search, X,
-    Briefcase, MapPin, DollarSign, Banknote, Calendar,
+    RefreshCw, Search, X, ChevronDown,
+    Briefcase, MapPin, DollarSign, Banknote, Calendar, Building2,
     ExternalLink, CheckCircle, XCircle,
-    AlertCircle, User, Sparkles, Share2
+    AlertCircle, AlertTriangle, User, Sparkles, Share2,
+    GraduationCap, MessageSquare, Bot, FileText, Users
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -114,63 +115,62 @@ function ApplicationCardComponent({
     isAnalyzing,
 }) {
     return (
-        <div
-            className={`bg-gray-900/40 backdrop-blur-md border border-white/5 rounded-xl p-4 transition-all group ${isExpanded ? 'border-blue-500/30 ring-1 ring-blue-500/20' : ''}`}
-        >
+        <div className={`glass-card-hover overflow-hidden ${isExpanded ? 'glow-border' : ''}`}>
             {/* Collapsed Header */}
-            <div
-                className="flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer hover:bg-gray-800/40 rounded-lg -m-2 p-2 transition-colors"
+            <button
+                className="w-full p-5 text-left"
                 onClick={onToggleExpand}
             >
-                <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3 mb-1">
-                        <h3 className="text-base font-bold text-white truncate">{app.job_title}</h3>
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide border ${getStatusClass(app.status)}`}>
-                            {app.status}
-                        </span>
+                <div className="flex items-start justify-between gap-4">
+                    <div className="space-y-1.5 min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                            <h3 className="text-base font-semibold truncate text-white">{app.job_title}</h3>
+                            <span className={`status-badge ${app.status?.toLowerCase().replace(/\s+/g, '')}`}>
+                                {app.status}
+                            </span>
+                        </div>
+                        <div className="flex items-center gap-3 text-xs text-gray-500 flex-wrap">
+                            <span className="flex items-center gap-1"><Building2 size={12} />{app.company}</span>
+                            <span className="flex items-center gap-1"><MapPin size={12} />{app.location || 'Remote'}</span>
+                            <span className="flex items-center gap-1"><DollarSign size={12} />{app.salary ? formatSalary(app.salary, app.location) : 'N/A'}</span>
+                            <span className="flex items-center gap-1"><Calendar size={12} />{formatDate(app.application_date)}</span>
+                        </div>
+                        <div className="flex gap-1.5 mt-2 flex-wrap">
+                            {parseJson(app.required_skills).slice(0, 4).map((skill, i) => (
+                                <span key={i} className="px-2 py-0.5 text-[10px] rounded-md bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 font-medium max-w-[150px] truncate" title={skill}>
+                                    {skill}
+                                </span>
+                            ))}
+                            {parseJson(app.required_skills).length > 4 && (
+                                <span className="text-[10px] text-gray-600 self-center">+{parseJson(app.required_skills).length - 4}</span>
+                            )}
+                        </div>
                     </div>
-                    <div className="text-sm text-gray-400 font-medium">{app.company}</div>
+                    <ChevronDown size={18} className={`text-gray-500 transition-transform shrink-0 mt-1 ${isExpanded ? 'rotate-180' : ''}`} />
                 </div>
-                <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500 font-medium">
-                    <div className="flex items-center gap-1.5"><MapPin size={14} /> {app.location || 'Remote'}</div>
-                    <div className="flex items-center gap-1.5"><Banknote size={14} /> {app.salary ? formatSalary(app.salary, app.location) : 'N/A'}</div>
-                    <div className="flex items-center gap-1.5"><Calendar size={14} /> {formatDate(app.application_date)}</div>
-                </div>
-            </div>
-
-            {/* Skill Tags */}
-            <div className="mt-3 flex flex-wrap gap-1.5">
-                {parseJson(app.required_skills).slice(0, 4).map((skill, i) => (
-                    <span key={i} className="px-2 py-0.5 bg-white/5 text-gray-400 border border-white/5 rounded text-[10px]">
-                        {skill}
-                    </span>
-                ))}
-                {parseJson(app.required_skills).length > 4 && (
-                    <span className="px-2 py-0.5 text-gray-500 text-[10px]">+{parseJson(app.required_skills).length - 4}</span>
-                )}
-            </div>
+            </button>
 
             {/* Expanded Content */}
             {isExpanded && (
-                <div className="mt-6 border-t border-gray-700/50 pt-6 animate-in fade-in slide-in-from-top-2 duration-300">
+                <div className="px-5 pb-5 border-t border-white/5 pt-4">
                     {/* Tabs */}
-                    <div className="flex border-b border-gray-700/50 mb-6 gap-6 overflow-x-auto">
-                        {['details', 'company', 'prep', 'notes', 'coach', 'content', 'interviews'].map((tab) => (
+                    <div className="flex gap-1 mb-6 overflow-x-auto bg-gray-900/40 rounded-lg p-1">
+                        {[
+                            { id: 'details', label: 'Details', icon: Briefcase },
+                            { id: 'company', label: 'Intel', icon: Building2 },
+                            { id: 'prep', label: 'Prep', icon: GraduationCap },
+                            { id: 'notes', label: 'Notes', icon: MessageSquare },
+                            { id: 'coach', label: 'Coach', icon: Bot },
+                            { id: 'content', label: 'Post', icon: FileText },
+                            { id: 'interviews', label: 'Interviews', icon: Users },
+                        ].map(tab => (
                             <button
-                                key={tab}
-                                onClick={(e) => { e.stopPropagation(); onSetActiveTab(tab); }}
-                                className={`pb-3 font-medium text-sm transition-colors relative capitalize ${activeTab === tab ? 'text-blue-400' : 'text-gray-400 hover:text-gray-200'}`}
+                                key={tab.id}
+                                onClick={(e) => { e.stopPropagation(); onSetActiveTab(tab.id); }}
+                                className={`tab-trigger ${activeTab === tab.id ? 'active' : ''}`}
                             >
-                                {tab === 'details' && 'Job Details'}
-                                {tab === 'company' && 'Company Intelligence'}
-                                {tab === 'prep' && 'Interview Prep'}
-                                {tab === 'notes' && 'My Notes'}
-                                {tab === 'coach' && 'AI Coach'}
-                                {tab === 'content' && 'Original Post'}
-                                {tab === 'interviews' && 'Interviews'}
-                                {activeTab === tab && (
-                                    <div className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-400 rounded-t-full"></div>
-                                )}
+                                <tab.icon size={12} />
+                                {tab.label}
                             </button>
                         ))}
                     </div>
@@ -201,9 +201,9 @@ function ApplicationCardComponent({
                     </div>
 
                     {/* Persistent Footer */}
-                    <div className="mt-6 pt-4 border-t border-gray-700/50 flex justify-end">
+                    <div className="mt-6 pt-4 border-t border-white/5 flex justify-end">
                         <button
-                            className="px-4 py-2 text-red-400 hover:text-red-300 hover:bg-red-900/20 rounded-lg transition-colors text-sm font-medium flex items-center gap-2"
+                            className="px-4 py-2 text-red-400/70 hover:text-red-400 hover:bg-red-900/20 rounded-lg transition-colors text-sm font-medium flex items-center gap-2"
                             onClick={(e) => { e.stopPropagation(); onDelete(app); }}
                         >
                             <XCircle size={16} /> Delete Application
@@ -590,45 +590,39 @@ function SwotQuadrant({ color, icon, title, items }) {
 
 function DetailsTab({ app, onUpdateDetails, onDelete }) {
     return (
-        <div className="space-y-6">
-            <div className="space-y-4">
-                {app.role_summary && (
-                    <div className="bg-gray-800/30 p-4 rounded-xl border border-gray-700/50">
-                        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-2">
-                            <Search size={12} /> Position Summary
-                        </h3>
-                        <p className="text-gray-300 leading-relaxed text-sm">{app.role_summary}</p>
-                    </div>
-                )}
+        <div className="space-y-4">
+            {app.role_summary && (
+                <div className="info-card">
+                    <h5><Search size={12} className="inline mr-1" />Position Summary</h5>
+                    <p>{app.role_summary}</p>
+                </div>
+            )}
 
-                {(() => {
-                    const negativeSignals = parseJson(app.negative_signals);
-                    if (negativeSignals && negativeSignals.length > 0) {
-                        return (
-                            <div className="bg-red-500/10 p-4 rounded-xl border border-red-500/30">
-                                <h3 className="text-xs font-bold text-red-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-                                    <XCircle size={14} /> Who They Are NOT Looking For
-                                </h3>
-                                <ul className="space-y-2">
-                                    {negativeSignals.map((signal, idx) => (
-                                        <li key={idx} className="flex gap-2 text-red-200/80 text-sm">
-                                            <span className="text-red-500 font-bold">•</span>
-                                            <span>{signal}</span>
-                                        </li>
-                                    ))}
-                                </ul>
+            {(() => {
+                const negativeSignals = parseJson(app.negative_signals);
+                if (negativeSignals && negativeSignals.length > 0) {
+                    return (
+                        <div className="p-3 rounded-lg border border-red-500/30 bg-red-500/5">
+                            <div className="flex items-center gap-1.5 mb-2">
+                                <AlertTriangle size={14} className="text-red-400" />
+                                <span className="label-uppercase" style={{ color: '#ef4444' }}>Red Flags</span>
                             </div>
-                        );
-                    }
-                    return null;
-                })()}
-            </div>
+                            <ul className="space-y-1">
+                                {negativeSignals.map((signal, idx) => (
+                                    <li key={idx} className="text-xs text-red-300/80">{signal}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    );
+                }
+                return null;
+            })()}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-gray-800/50 p-4 rounded-xl border border-gray-700/50">
-                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">Status</label>
+            <div className="grid grid-cols-2 gap-4">
+                <div className="info-card">
+                    <h5>Status</h5>
                     <select
-                        className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                        className="w-full bg-gray-900/50 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:ring-1 focus:ring-indigo-500/50 outline-none"
                         value={app.status}
                         onClick={e => e.stopPropagation()}
                         onChange={(e) => onUpdateDetails(app.id, { status: e.target.value })}
@@ -641,54 +635,40 @@ function DetailsTab({ app, onUpdateDetails, onDelete }) {
                         <option value="Accepted">Accepted</option>
                     </select>
                 </div>
-                <div className="bg-gray-800/50 p-4 rounded-xl border border-gray-700/50">
-                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">Salary</label>
+                <div className="info-card">
+                    <h5>Salary</h5>
                     <div className="text-lg font-medium text-white">{app.salary || 'Not listed'}</div>
                 </div>
             </div>
 
             <div>
-                <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-                    <span className="p-1 bg-blue-500/10 rounded-md text-blue-400"><Briefcase size={16} /></span>
-                    Key Responsibilities
-                </h3>
-                <ul className="space-y-2">
+                <h4 className="label-uppercase mb-3">Responsibilities</h4>
+                <ul className="space-y-1.5">
                     {parseJson(app.key_responsibilities).map((item, index) => (
-                        <li key={index} className="flex gap-3 text-gray-300 bg-gray-800/30 p-3 rounded-lg border border-gray-700/30">
-                            <span className="text-blue-400 mt-1">•</span>
-                            <span className="leading-relaxed">{item}</span>
+                        <li key={index} className="text-sm text-white/80 flex items-start gap-2">
+                            <span className="text-indigo-400 mt-0.5">•</span>{item}
                         </li>
                     ))}
                     {parseJson(app.key_responsibilities).length === 0 && (
-                        <p className="text-gray-500 italic">No responsibilities extracted.</p>
+                        <p className="text-gray-500 italic text-sm">No responsibilities extracted.</p>
                     )}
                 </ul>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-2 gap-4">
                 <div>
-                    <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-                        <span className="p-1 bg-green-500/10 rounded-md text-green-400">✓</span>
-                        Required Skills
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
+                    <h4 className="label-uppercase mb-2">Required Skills</h4>
+                    <div className="flex flex-wrap gap-1.5">
                         {parseJson(app.required_skills).map((skill, index) => (
-                            <span key={index} className="px-3 py-1.5 bg-green-500/10 text-green-400 rounded-lg text-sm font-medium border border-green-500/20">
-                                {skill}
-                            </span>
+                            <span key={index} className="px-2 py-0.5 text-[10px] rounded-md bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">{skill}</span>
                         ))}
                     </div>
                 </div>
                 <div>
-                    <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-                        <span className="p-1 bg-purple-500/10 rounded-md text-purple-400">★</span>
-                        Preferred Skills
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
+                    <h4 className="label-uppercase mb-2">Preferred Skills</h4>
+                    <div className="flex flex-wrap gap-1.5">
                         {parseJson(app.preferred_skills).map((skill, index) => (
-                            <span key={index} className="px-3 py-1.5 bg-purple-500/10 text-purple-400 rounded-lg text-sm font-medium border border-purple-500/20">
-                                {skill}
-                            </span>
+                            <span key={index} className="px-2 py-0.5 text-[10px] rounded-md bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">{skill}</span>
                         ))}
                     </div>
                 </div>
