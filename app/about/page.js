@@ -3,8 +3,8 @@ import Link from 'next/link';
 import { ArrowLeft, Target, Shield, Users } from 'lucide-react';
 
 export const metadata = {
-    title: 'About | Job Scrabber',
-    description: 'Learn more about Job Scrabber and our mission to simplify the job hunt.',
+    title: 'About | HuntIQ',
+    description: 'Learn more about HuntIQ and our mission to simplify the job hunt.',
 };
 
 export default function AboutPage() {
@@ -17,7 +17,7 @@ export default function AboutPage() {
                         <span className="font-medium text-white">Back to App</span>
                     </Link>
                     <div className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">
-                        Job Scrabber
+                        HuntIQ
                     </div>
                 </div>
             </header>
@@ -25,10 +25,10 @@ export default function AboutPage() {
             <main className="container py-20 max-w-4xl mx-auto">
                 <div className="text-center mb-16">
                     <h1 className="text-4xl md:text-5xl font-black text-white mb-6">
-                        About <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">Job Scrabber</span>
+                        About <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">HuntIQ</span>
                     </h1>
                     <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-                        We built Job Scrabber because the modern job hunt is broken.
+                        We built HuntIQ because the modern job hunt is broken.
                         Tracking applications across dozens of portals shouldn't require a master's degree in spreadsheet management.
                     </p>
                 </div>
@@ -49,7 +49,7 @@ export default function AboutPage() {
                         </div>
                         <h3 className="text-xl font-bold text-white mb-3">Privacy First</h3>
                         <p className="text-gray-400">
-                            Your career data is yours. We don't sell your data to recruiters or third parties. What happens in Job Scrabber stays in Job Scrabber.
+                            Your career data is yours. We don't sell your data to recruiters or third parties. What happens in HuntIQ stays in HuntIQ.
                         </p>
                     </div>
                     <div className="glass-card p-8 rounded-2xl border border-white/5 bg-gray-900/40">
@@ -67,13 +67,13 @@ export default function AboutPage() {
                     <h2 className="text-3xl font-bold text-white mb-6">The Story</h2>
                     <div className="space-y-4 text-gray-300 text-lg leading-relaxed">
                         <p>
-                            Job Scrabber started as a simple Chrome extension to right-click and save jobs from LinkedIn and generic ATS portals.
+                            HuntIQ started as a simple Chrome extension to right-click and save jobs from LinkedIn and generic ATS portals.
                         </p>
                         <p>
                             As the job market became more competitive, simply saving links wasn't enough. We integrated AI to help analyze job descriptions against resumes, identify skill gaps, and generate tailored interview prep questions.
                         </p>
                         <p>
-                            Today, Job Scrabber is an all-in-one command center for your career transition. From the first application to the final offer, we're here to help you stay organized and confident.
+                            Today, HuntIQ is an all-in-one command center for your career transition. From the first application to the final offer, we're here to help you stay organized and confident.
                         </p>
                     </div>
                 </div>

@@ -27,10 +27,8 @@ export default async function Home() {
       <nav className="fixed top-0 w-full z-50 bg-[#060608]/80 backdrop-blur-xl border-b border-white/5">
         <div className="container mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center shadow-lg shadow-purple-500/20">
-              <span className="text-sm font-black text-white">JS</span>
-            </div>
-            <span className="text-lg font-bold text-white tracking-tight">Job Scrabber</span>
+            <Image src="/logo.png" alt="HuntIQ Logo" width={32} height={32} className="w-8 h-8 rounded-lg object-cover shadow-lg shadow-purple-500/20" />
+            <span className="text-lg font-bold text-white tracking-tight">HuntIQ</span>
           </div>
           <div className="flex items-center gap-4">
             <Link href="/login" className="text-sm font-medium text-gray-300 hover:text-white transition-colors hidden sm:block">
@@ -59,7 +57,7 @@ export default async function Home() {
           </h1>
 
           <p className="text-lg md:text-xl text-gray-400 mb-8 max-w-3xl mx-auto font-light leading-relaxed">
-            I designed Job Scrabber for myself after feeling the pain of being disorganized. The first purpose? Track the interview process in every single step perfectly. The bonus? AI support using the models you choose to get a real edge.
+            I designed HuntIQ for myself after feeling the pain of being disorganized. The first purpose? Track the interview process in every single step perfectly. The bonus? AI support using the models you choose to get a real edge.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
@@ -174,7 +172,7 @@ export default async function Home() {
       <footer className="border-t border-white/5 py-8 bg-[#0a0a0f]">
         <div className="container mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span className="text-white font-bold text-sm tracking-tight">Job Scrabber <span className="text-gray-500 font-normal">Beta</span></span>
+            <span className="text-white font-bold text-sm tracking-tight">HuntIQ <span className="text-gray-500 font-normal">Beta</span></span>
           </div>
           <div className="flex gap-6 text-xs text-gray-500 hover:text-white transition-colors">
             <Link href="/about" className="hover:text-gray-300">Story</Link>

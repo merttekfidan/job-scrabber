@@ -7,7 +7,7 @@ A comprehensive job application tracking dashboard, now built with **Next.js 14+
 - **Responsive Dashboard**: Track applications, interviews, and offers in a clean, dark-mode UI.
 - **Analytics**: Visual charts for application trends, status distribution, and top companies.
 - **Filtering & Search**: Advanced filtering by status, company, work mode, and full-text search.
-- **Chrome Extension Support**: API ready to accept data from the Job Scrabber extension.
+- **Chrome Extension Support**: API ready to accept data from the HuntIQ extension.
 - **Export Data**: Export your applications to CSV.
 
 ## Tech Stack

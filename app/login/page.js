@@ -89,12 +89,10 @@ export default function LoginPage() {
         <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a] text-white">
             <div className="bg-gray-900/40 p-8 rounded-2xl border border-white/5 w-full max-w-md text-center">
                 <div className="flex justify-center mb-6">
-                    <div className="p-3 bg-blue-500/10 rounded-xl">
-                        <Briefcase size={32} className="text-blue-400" />
-                    </div>
+                    <img src="/logo.png" alt="HuntIQ Logo" className="w-16 h-16 rounded-2xl shadow-lg shadow-purple-500/20 object-cover" />
                 </div>
                 <h1 className="text-2xl font-bold mb-2">
-                    {step === 'email' ? 'Welcome to Job Scrabber' : 'Check Your Email'}
+                    {step === 'email' ? 'Welcome to HuntIQ' : 'Check Your Email'}
                 </h1>
                 <p className="text-gray-400 mb-8">
                     {step === 'email'

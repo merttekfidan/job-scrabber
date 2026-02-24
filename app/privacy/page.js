@@ -1,6 +1,6 @@
 export const metadata = {
-    title: 'Privacy Policy — Job Scrabber',
-    description: 'How Job Scrabber handles your data',
+    title: 'Privacy Policy — HuntIQ',
+    description: 'How HuntIQ handles your data',
 };
 
 export default function PrivacyPolicy() {
@@ -66,7 +66,7 @@ export default function PrivacyPolicy() {
                 </div>
 
                 <div className="mt-12 pt-8 border-t border-gray-800 text-xs text-gray-600">
-                    <p>Job Scrabber is a personal project by Mert Tekfidan.</p>
+                    <p>HuntIQ is a personal project by Mert Tekfidan.</p>
                 </div>
             </div>
         </main>

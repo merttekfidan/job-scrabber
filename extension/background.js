@@ -158,7 +158,7 @@ async function syncToRemoteStorage(applicationData) {
 
 // Handle installation
 chrome.runtime.onInstalled.addListener(async () => {
-    console.log('Job Scrabber v' + DEFAULT_CONFIG.VERSION + ' installed');
+    console.log('HuntIQ v' + DEFAULT_CONFIG.VERSION + ' installed');
 
     // Default to production environment
     const result = await chrome.storage.local.get(['applications', 'environment']);

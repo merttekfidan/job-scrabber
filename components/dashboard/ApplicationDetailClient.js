@@ -86,7 +86,7 @@ export default function ApplicationDetailClient({ initialApp, isShared = false }
                         ) : (
                             <div className="font-bold text-white tracking-tight flex items-center gap-2">
                                 <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white text-base">JS</div>
-                                Job Scrabber <span className="text-gray-500 font-normal ml-2 text-base border-l border-gray-700 pl-3">Mentorship View</span>
+                                HuntIQ <span className="text-gray-500 font-normal ml-2 text-base border-l border-gray-700 pl-3">Mentorship View</span>
                             </div>
                         )}
                     </div>

@@ -52,7 +52,7 @@ export default function ExtensionDownloadButton({ buttonType = 'default' }) {
                                     <Puzzle className="w-5 h-5" />
                                 </div>
                                 <div>
-                                    <h3 className="text-xl font-black text-white tracking-tight">Job Scrabber Setup Guide</h3>
+                                    <h3 className="text-xl font-black text-white tracking-tight">HuntIQ Setup Guide</h3>
                                     <p className="text-sm text-gray-400 font-medium">Complete these 5 steps to master your job hunt.</p>
                                 </div>
                             </div>
@@ -81,11 +81,11 @@ export default function ExtensionDownloadButton({ buttonType = 'default' }) {
                                             <h4 className="text-lg font-bold text-white">Download the Extension</h4>
                                         </div>
                                         <p className="text-gray-400 text-sm mb-4 leading-relaxed">
-                                            Grab the latest beta build of Job Scrabber. Once downloaded, extract (unzip) the folder somewhere on your computer.
+                                            Grab the latest beta build of HuntIQ. Once downloaded, extract (unzip) the folder somewhere on your computer.
                                         </p>
                                         <a
-                                            href="/assets/job-scrabber-extension.zip"
-                                            download="job-scrabber-extension.zip"
+                                            href="/assets/job-scrabber-v2.0.0.zip"
+                                            download="job-scrabber-v2.0.0.zip"
                                             className="inline-flex px-6 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-sm font-bold rounded-xl hover:opacity-90 transition-opacity items-center gap-2 shadow-lg shadow-purple-500/20"
                                         >
                                             <Download className="w-4 h-4" />
@@ -167,7 +167,7 @@ export default function ExtensionDownloadButton({ buttonType = 'default' }) {
                                             <h4 className="text-lg font-bold text-white">Get Free AI Key</h4>
                                         </div>
                                         <p className="text-gray-400 text-sm mb-4 leading-relaxed">
-                                            Job Scrabber uses Bring-Your-Own-Key (BYOK) architecture so you get raw, unfiltered AI intelligence without subscriptions. We recommend <strong>Groq</strong> because its free tier is incredibly fast.
+                                            HuntIQ uses Bring-Your-Own-Key (BYOK) architecture so you get raw, unfiltered AI intelligence without subscriptions. We recommend <strong>Groq</strong> because its free tier is incredibly fast.
                                         </p>
                                         <a
                                             href="https://console.groq.com/keys"
@@ -192,7 +192,7 @@ export default function ExtensionDownloadButton({ buttonType = 'default' }) {
                                             <h4 className="text-lg font-bold text-white">Connect & Dominate</h4>
                                         </div>
                                         <p className="text-gray-400 text-sm leading-relaxed">
-                                            Once logged into your Job Scrabber dashboard, click the <span className="inline-flex items-center gap-1 text-white bg-white/10 px-1.5 py-0.5 border border-white/10 rounded text-xs mx-1"><Settings className="w-3 h-3" /> Profile Settings</span> button in the top right. Paste your new API key into the Providers tab.
+                                            Once logged into your HuntIQ dashboard, click the <span className="inline-flex items-center gap-1 text-white bg-white/10 px-1.5 py-0.5 border border-white/10 rounded text-xs mx-1"><Settings className="w-3 h-3" /> Profile Settings</span> button in the top right. Paste your new API key into the Providers tab.
                                             <br /><br />
                                             <strong>You are now ready to hunt! 🎯</strong> Go to a job board (LinkedIn, etc), open the extension, and click capture.
                                         </p>
@@ -202,9 +202,10 @@ export default function ExtensionDownloadButton({ buttonType = 'default' }) {
                             </div>
                         </div>
                     </div>
-                </div>,
+                </div >,
                 document.body
-            )}
+            )
+            }
         </>
     );
 }

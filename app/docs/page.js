@@ -3,8 +3,8 @@ import Link from 'next/link';
 import { ArrowLeft, BookOpen, Download, Cpu, LayoutList, Share2 } from 'lucide-react';
 
 export const metadata = {
-    title: 'Documentation | Job Scrabber',
-    description: 'Learn how to use Job Scrabber effectively to organize your job search.',
+    title: 'Documentation | HuntIQ',
+    description: 'Learn how to use HuntIQ effectively to organize your job search.',
 };
 
 export default function DocsPage() {
@@ -17,7 +17,7 @@ export default function DocsPage() {
                         <span className="font-medium text-white">Back to App</span>
                     </Link>
                     <div className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">
-                        Job Scrabber Docs
+                        HuntIQ Docs
                     </div>
                 </div>
             </header>
@@ -45,7 +45,7 @@ export default function DocsPage() {
                             <h2 className="text-3xl font-bold text-white">Getting Started</h2>
                         </div>
                         <p className="text-gray-400 text-lg">
-                            Job Scrabber is your central hub for job hunting. To get the most out of the platform, you'll want to use both the web dashboard and the Chrome Extension.
+                            HuntIQ is your central hub for job hunting. To get the most out of the platform, you'll want to use both the web dashboard and the Chrome Extension.
                         </p>
                         <div className="glass-card p-6 border-l-4 border-l-purple-500 rounded-r-xl bg-purple-900/10">
                             <strong>Quick Tip:</strong> Upload your latest CV in the "Coach" tab first. Our AI uses your CV to generate personalized insights for every job you save.
@@ -65,7 +65,7 @@ export default function DocsPage() {
                         <ul className="space-y-3 text-gray-300 list-disc list-inside">
                             <li>Supported on LinkedIn, Indeed, Glassdoor, and most standard ATS systems (Greenhouse, Lever).</li>
                             <li>Click the extension icon on any job posting to verify the parsed data.</li>
-                            <li>Click "Save Application" to immediately inject it into your Job Scrabber dashboard.</li>
+                            <li>Click "Save Application" to immediately inject it into your HuntIQ dashboard.</li>
                         </ul>
                     </section>
 
@@ -92,7 +92,7 @@ export default function DocsPage() {
                             <h2 className="text-3xl font-bold text-white">AI Processing Tools</h2>
                         </div>
                         <p className="text-gray-400">
-                            Job Scrabber connects to top-tier AI providers (Groq, Claude, OpenAI) to superpower your prep.
+                            HuntIQ connects to top-tier AI providers (Groq, Claude, OpenAI) to superpower your prep.
                         </p>
                         <div className="grid sm:grid-cols-2 gap-4 mt-4">
                             <div className="bg-gray-900 border border-gray-700 p-5 rounded-xl">

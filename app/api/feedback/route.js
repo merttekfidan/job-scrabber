@@ -29,7 +29,7 @@ export async function POST(request) {
             await resend.emails.send({
                 from: 'Feedback <onboarding@resend.dev>', // Default resend testing email
                 to: 'merttekfidan@gmail.com', // Admin email
-                subject: `New Job Scrabber Feedback: ${type}`,
+                subject: `New HuntIQ Feedback: ${type}`,
                 html: `
                     <h3>New Feedback Received</h3>
                     <p><strong>From:</strong> ${userEmail}</p>

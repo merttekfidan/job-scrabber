@@ -45,8 +45,8 @@ async function testProvider(providerKey, apiKey) {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${apiKey}`,
                     ...(providerKey === 'openrouter' && {
-                        'HTTP-Referer': 'https://job-scrabber.app',
-                        'X-Title': 'Job Scrabber',
+                        'HTTP-Referer': 'https://huntiq.work',
+                        'X-Title': 'HuntIQ',
                     }),
                 },
                 body: JSON.stringify({

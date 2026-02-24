@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Job Scrabber — AI Career Co-Pilot",
+  "name": "HuntIQ — AI Career Co-Pilot",
   "version": "2.0.0",
   "description": "Your AI career companion. Capture job listings from 15+ boards, get AI analysis, prep, and track apps easily.",
   "permissions": [

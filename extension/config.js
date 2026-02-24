@@ -1,7 +1,7 @@
 // Extension configuration fallbacks
 export const DEFAULT_CONFIG = {
-    PROD_URL: 'https://aware-endurance-production-13b8.up.railway.app',
+    PROD_URL: 'https://huntiq.work',
     DEV_URL: 'http://localhost:3000',
-    APP_NAME: 'Job Scrabber',
+    APP_NAME: 'HuntIQ',
     VERSION: '2.0.0'
 };

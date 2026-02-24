@@ -19,10 +19,10 @@ export const viewport = {
 };
 
 export const metadata = {
-  title: "Job Scrabber — AI-Powered Job Application Tracker",
+  title: "HuntIQ — AI-Powered Job Application Tracker",
   description: "Track job applications, get AI coaching, prep for interviews, and land your dream role faster.",
   openGraph: {
-    title: "Job Scrabber",
+    title: "HuntIQ",
     description: "AI-powered job application tracking and interview coaching",
     type: "website",
   },

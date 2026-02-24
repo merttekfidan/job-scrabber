@@ -271,10 +271,8 @@ export default function Dashboard({ session }) {
                 <div className="flex items-center justify-between px-6 py-3">
                     {/* Logo */}
                     <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)' }}>
-                            <span className="text-base font-black text-white">JS</span>
-                        </div>
-                        <span className="text-lg font-bold tracking-tight text-white">Job Scrabber</span>
+                        <img src="/logo.png" alt="HuntIQ" className="h-8 w-8 rounded-lg object-cover" />
+                        <span className="text-lg font-bold tracking-tight text-white">HuntIQ</span>
                     </div>
 
                     {/* View Toggle */}
