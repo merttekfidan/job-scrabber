@@ -12,7 +12,7 @@ const ALLOWED_ORIGINS = [
 ].filter(Boolean);
 
 // Chrome extension origins (chrome-extension://ID)
-const EXTENSION_ORIGIN_PATTERN = /^chrome-extension:\/\/[a-z]{32}$/;
+const EXTENSION_ORIGIN_PATTERN = /^chrome-extension:\/\/[a-z0-9]{32}$/;
 
 function isAllowedOrigin(origin) {
     if (!origin) return true; // Same-origin requests have no origin header

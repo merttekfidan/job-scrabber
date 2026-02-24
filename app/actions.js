@@ -10,9 +10,9 @@ export async function authenticate(prevState, formData) {
         if (error instanceof AuthError) {
             switch (error.type) {
                 case "CredentialsSignin":
-                    return "Invalid credentials."
+                    return error.cause?.err?.message || "Invalid credentials."
                 default:
-                    return "Something went wrong."
+                    return error.cause?.err?.message || "Something went wrong."
             }
         }
         throw error

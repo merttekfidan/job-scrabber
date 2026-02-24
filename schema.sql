@@ -121,3 +121,12 @@ CREATE TABLE IF NOT EXISTS user_profiles (
 -- Multi-provider AI key pool (incremental)
 ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS ai_providers JSONB DEFAULT '{}'::jsonb;
 
+-- Feedback Table
+CREATE TABLE IF NOT EXISTS feedbacks (
+    id SERIAL PRIMARY KEY,
+    user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    email VARCHAR(255),
+    type VARCHAR(50) DEFAULT 'general',
+    content TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

@@ -14,6 +14,8 @@ import ProfileModal from './dashboard/ProfileModal';
 import ApplicationFilters from './dashboard/ApplicationFilters';
 import ApplicationCard from './dashboard/ApplicationCard';
 import SmartAnalytics from './dashboard/SmartAnalytics';
+import JobDetailView from './dashboard/JobDetailView';
+import KanbanBoard from './dashboard/KanbanBoard';
 import { ApplicationListSkeleton } from './dashboard/Skeletons';
 import { parseJson } from './dashboard/utils';
 
@@ -40,6 +42,7 @@ export default function Dashboard({ session }) {
     const [activeTab, setActiveTab] = useState('details');
     const [view, setView] = useState('dashboard');
     const [isProfileOpen, setIsProfileOpen] = useState(false);
+    const [selectedJobId, setSelectedJobId] = useState(null);
 
     // ─── Filter Effects ────────────────────────────────
 
@@ -220,6 +223,7 @@ export default function Dashboard({ session }) {
                 setApplications(apps => apps.filter(a => a.id !== selectedApp.id));
                 setShowDeleteModal(false);
                 setSelectedApp(null);
+                setSelectedJobId(null);
                 showToast('Application deleted');
                 const statsRes = await fetch('/api/stats');
                 const statsData = await statsRes.json();
@@ -263,67 +267,81 @@ export default function Dashboard({ session }) {
     return (
         <div className="min-h-screen">
             {/* Header */}
-            <header className="header">
-                <div className="container header-content">
-                    <div className="logo">
-                        <Briefcase className="logo-icon" />
-                        <h1>Job Tracker</h1>
-                    </div>
-                    <div className="header-actions">
-                        <div className="flex bg-gray-900/40 p-1 rounded-xl border border-white/5 mr-4">
-                            <button
-                                className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${view === 'dashboard' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-400 hover:text-gray-200'}`}
-                                onClick={() => setView('dashboard')}
-                            >
-                                <LayoutDashboard size={16} /> Dashboard
-                            </button>
-                            <button
-                                className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${view === 'applications' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-400 hover:text-gray-200'}`}
-                                onClick={() => setView('applications')}
-                            >
-                                <LayoutList size={16} /> Pipeline
-                            </button>
-                            <button
-                                className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${view === 'coach' ? 'bg-purple-600 text-white shadow-lg' : 'text-gray-400 hover:text-gray-200'}`}
-                                onClick={() => setView('coach')}
-                            >
-                                <Sparkles size={16} /> Personal Coach
-                            </button>
+            <header className="glass-card sticky top-0 z-50" style={{ borderRadius: 0, borderTop: 'none', borderLeft: 'none', borderRight: 'none' }}>
+                <div className="flex items-center justify-between px-6 py-3">
+                    {/* Logo */}
+                    <div className="flex items-center gap-3">
+                        <div className="h-8 w-8 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)' }}>
+                            <span className="text-base font-black text-white">JS</span>
                         </div>
-                        <button className="btn btn-secondary" onClick={exportCSV}>
-                            <Download size={18} /> Export CSV
+                        <span className="text-lg font-bold tracking-tight text-white">Job Scrabber</span>
+                    </div>
+
+                    {/* View Toggle */}
+                    <div className="flex items-center bg-gray-900/60 rounded-lg p-1 gap-0.5 border border-white/5">
+                        {[
+                            { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+                            { id: 'applications', label: 'Kanban Board', icon: LayoutList },
+                            { id: 'coach', label: 'Coach', icon: Sparkles },
+                        ].map(v => (
+                            <button
+                                key={v.id}
+                                onClick={() => setView(v.id)}
+                                className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-base font-medium transition-all duration-200 ${view === v.id
+                                    ? 'text-white shadow-lg'
+                                    : 'text-gray-500 hover:text-gray-200'
+                                    }`}
+                                style={view === v.id ? {
+                                    background: v.id === 'coach' ? '#7c3aed' : '#667eea',
+                                    boxShadow: `0 0 12px -2px ${v.id === 'coach' ? 'rgba(124,58,237,0.5)' : 'rgba(102,126,234,0.5)'}`
+                                } : {}}
+                            >
+                                <v.icon size={16} />
+                                <span className="hidden sm:inline">{v.label}</span>
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => { setPage(1); loadData(1, true); }}
+                            className="p-2 rounded-lg text-gray-500 hover:text-white hover:bg-gray-800/50 transition-colors"
+                            title="Refresh"
+                        >
+                            <RefreshCw size={16} />
                         </button>
-                        <button className="btn btn-primary" onClick={() => { setPage(1); loadData(1, true); }}>
-                            <RefreshCw size={18} /> Refresh
+                        <button
+                            onClick={exportCSV}
+                            className="p-2 rounded-lg text-gray-500 hover:text-white hover:bg-gray-800/50 transition-colors"
+                            title="Export CSV"
+                        >
+                            <Download size={16} />
                         </button>
 
-                        <div className="flex items-center gap-4 pl-4 border-l border-white/10 ml-2">
-                            <span className="hidden sm:inline-block text-sm text-gray-400 font-medium">
-                                {session?.user?.name || session?.user?.email}
-                            </span>
-                            <div className="flex items-center gap-2">
-                                <button
-                                    onClick={() => setIsProfileOpen(true)}
-                                    className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
-                                    title="Profile Settings"
-                                >
-                                    <Settings size={20} />
-                                </button>
-                                {session?.user?.image ? (
-                                    // eslint-disable-next-line @next/next/no-img-element
-                                    <img src={session.user.image} alt="Avatar" className="w-8 h-8 rounded-full border border-gray-700 bg-gray-800" />
-                                ) : (
-                                    <div className="w-8 h-8 rounded-full border border-gray-700 bg-gray-800 flex items-center justify-center text-gray-400">
-                                        <User size={16} />
-                                    </div>
-                                )}
-                            </div>
+                        {/* User */}
+                        <div className="flex items-center gap-2 pl-3 border-l border-white/10 ml-1">
+                            <button
+                                onClick={() => setIsProfileOpen(true)}
+                                className="p-1.5 rounded-lg text-gray-500 hover:text-white hover:bg-gray-800/50 transition-colors"
+                                title="Profile Settings"
+                            >
+                                <Settings size={16} />
+                            </button>
+                            {session?.user?.image ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img src={session.user.image} alt="Avatar" className="w-8 h-8 rounded-full border border-white/10" />
+                            ) : (
+                                <div className="w-8 h-8 rounded-full flex items-center justify-center text-base font-bold text-white" style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)' }}>
+                                    {(session?.user?.email || 'U')[0].toUpperCase()}
+                                </div>
+                            )}
                             <button
                                 onClick={() => signOut()}
-                                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all"
+                                className="p-2 rounded-lg text-red-400/70 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                                title="Logout"
                             >
                                 <LogOut size={16} />
-                                <span className="hidden md:inline">Logout</span>
                             </button>
                         </div>
                     </div>
@@ -331,88 +349,123 @@ export default function Dashboard({ session }) {
             </header>
 
             <main className="main container">
-                {view === 'coach' ? (
+                {/* Full-page Job Detail View */}
+                {selectedJobId && applications.find(a => a.id === selectedJobId) ? (
+                    <JobDetailView
+                        app={applications.find(a => a.id === selectedJobId)}
+                        onBack={() => setSelectedJobId(null)}
+                        onUpdateDetails={handleUpdateDetails}
+                        onAnalyzeJob={handleAnalyzeJob}
+                        onGenerateInsights={handleGenerateInsights}
+                        onShare={handleShare}
+                        onDelete={(appToDelete) => {
+                            setSelectedApp(appToDelete);
+                            setShowDeleteModal(true);
+                        }}
+                        isAnalyzing={isAnalyzing}
+                    />
+                ) : view === 'coach' ? (
                     <CvUpload />
                 ) : (
-                    <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
-                        <div className="xl:col-span-3 space-y-6">
-                            <ErrorBoundary fallbackTitle="Failed to load stats">
-                                <StatsGrid stats={stats} />
-                            </ErrorBoundary>
+                    <div className={upcomingInterviews?.length > 0 ? "grid grid-cols-1 lg:grid-cols-4 gap-6" : "space-y-6"}>
+                        <div className={upcomingInterviews?.length > 0 ? "lg:col-span-3 space-y-6" : "space-y-6"}>
+                            {view === 'dashboard' && (
+                                <>
+                                    <ErrorBoundary fallbackTitle="Failed to load stats">
+                                        <StatsGrid stats={stats} />
+                                    </ErrorBoundary>
 
-                            <ErrorBoundary fallbackTitle="Failed to load analytics">
-                                <SmartAnalytics />
-                            </ErrorBoundary>
+                                    <ErrorBoundary fallbackTitle="Failed to load analytics">
+                                        <SmartAnalytics />
+                                    </ErrorBoundary>
+                                </>
+                            )}
 
                             <ApplicationFilters
                                 filters={filters}
                                 setFilters={setFilters}
                                 companies={companies}
+                                totalCount={stats?.total || 0}
                             />
 
-                            {/* Applications List */}
-                            <section className="applications-section">
-                                <div className="applications-header">
-                                    <span className="applications-count">{stats?.total || 0} Total Applications</span>
+                            {/* Main Content Area */}
+                            {view === 'applications' ? (
+                                <section className="mt-6">
+                                    <KanbanBoard
+                                        applications={applications}
+                                        isLoading={isLoading}
+                                        onCardClick={(id) => setSelectedJobId(id)}
+                                        onStatusChange={(id, newStatus) => {
+                                            handleUpdateDetails(id, { status: newStatus });
+                                            showToast('Application status updated');
+                                        }}
+                                    />
+                                </section>
+                            ) : (
+                                <section className="applications-section">
+
+                                    {isLoading && applications.length === 0 ? (
+                                        <ApplicationListSkeleton count={4} />
+                                    ) : applications.length === 0 ? (
+                                        <div className="empty-state text-center py-20 opacity-70">
+                                            <Briefcase size={48} className="mx-auto mb-4" />
+                                            <h3>No applications found</h3>
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-3">
+                                            {applications.map(app => (
+                                                <ErrorBoundary key={app.id} fallbackTitle="Error loading application">
+                                                    <ApplicationCard
+                                                        app={app}
+                                                        isExpanded={false}
+                                                        activeTab={activeTab}
+                                                        onToggleExpand={() => setSelectedJobId(app.id)}
+                                                        onSetActiveTab={setActiveTab}
+                                                        onUpdateDetails={handleUpdateDetails}
+                                                        onAnalyzeJob={handleAnalyzeJob}
+                                                        onGenerateInsights={handleGenerateInsights}
+                                                        onShare={handleShare}
+                                                        onDelete={(appToDelete) => {
+                                                            setSelectedApp(appToDelete);
+                                                            setShowDeleteModal(true);
+                                                        }}
+                                                        isAnalyzing={isAnalyzing}
+                                                    />
+                                                </ErrorBoundary>
+                                            ))}
+
+                                            {hasMore && !isLoading && (
+                                                <div className="flex justify-center mt-8">
+                                                    <button
+                                                        className="btn btn-secondary px-8"
+                                                        onClick={() => {
+                                                            const nextPage = page + 1;
+                                                            setPage(nextPage);
+                                                            loadData(nextPage, false);
+                                                        }}
+                                                    >
+                                                        Load More
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </section>
+                            )}
+                        </div>
+
+                        {upcomingInterviews?.length > 0 && (
+                            <div className="lg:col-span-1">
+                                <div className="sticky top-24 space-y-6">
+                                    <ErrorBoundary fallbackTitle="Failed to load interviews">
+                                        <UpcomingInterviews
+                                            interviews={upcomingInterviews}
+                                            onViewPrep={(appId) => setSelectedJobId(appId)}
+                                        />
+                                    </ErrorBoundary>
                                 </div>
-
-                                {isLoading && applications.length === 0 ? (
-                                    <ApplicationListSkeleton count={4} />
-                                ) : applications.length === 0 ? (
-                                    <div className="empty-state text-center py-20 opacity-70">
-                                        <Briefcase size={48} className="mx-auto mb-4" />
-                                        <h3>No applications found</h3>
-                                    </div>
-                                ) : (
-                                    <div className="space-y-3">
-                                        {applications.map(app => (
-                                            <ErrorBoundary key={app.id} fallbackTitle="Error loading application">
-                                                <ApplicationCard
-                                                    app={app}
-                                                    isExpanded={expandedId === app.id}
-                                                    activeTab={activeTab}
-                                                    onToggleExpand={() => setExpandedId(expandedId === app.id ? null : app.id)}
-                                                    onSetActiveTab={setActiveTab}
-                                                    onUpdateDetails={handleUpdateDetails}
-                                                    onAnalyzeJob={handleAnalyzeJob}
-                                                    onGenerateInsights={handleGenerateInsights}
-                                                    onShare={handleShare}
-                                                    onDelete={(appToDelete) => {
-                                                        setSelectedApp(appToDelete);
-                                                        setShowDeleteModal(true);
-                                                    }}
-                                                    isAnalyzing={isAnalyzing}
-                                                />
-                                            </ErrorBoundary>
-                                        ))}
-
-                                        {hasMore && !isLoading && (
-                                            <div className="flex justify-center mt-8">
-                                                <button
-                                                    className="btn btn-secondary px-8"
-                                                    onClick={() => {
-                                                        const nextPage = page + 1;
-                                                        setPage(nextPage);
-                                                        loadData(nextPage, false);
-                                                    }}
-                                                >
-                                                    Load More
-                                                </button>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-                            </section>
-                        </div>
-
-                        <div className="xl:col-span-1 space-y-6">
-                            <ErrorBoundary fallbackTitle="Failed to load interviews">
-                                <UpcomingInterviews
-                                    interviews={upcomingInterviews}
-                                    onViewPrep={(appId) => setExpandedId(appId)}
-                                />
-                            </ErrorBoundary>
-                        </div>
+                            </div>
+                        )}
                     </div>
                 )}
             </main>

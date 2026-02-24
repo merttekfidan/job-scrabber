@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Job Scrabber",
-  "version": "1.1.0",
-  "description": "AI-powered job application tracker with interview preparation tools",
+  "name": "Job Scrabber — AI Career Co-Pilot",
+  "version": "2.0.0",
+  "description": "Your AI career companion. Capture job listings from 15+ boards, get AI analysis, prep, and track apps easily.",
   "permissions": [
     "activeTab",
     "storage",
@@ -24,7 +24,8 @@
     }
   },
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "type": "module"
   },
   "content_scripts": [
     {
@@ -44,7 +45,18 @@
         "*://*.greenhouse.io/*",
         "*://*.workday.com/*",
         "*://*.myworkdayjobs.com/*",
-        "*://*.smartrecruiters.com/*"
+        "*://*.smartrecruiters.com/*",
+        "*://*.nofluffjobs.com/*",
+        "*://*.pracuj.pl/*",
+        "*://*.justjoin.it/*",
+        "*://*.remoteok.com/*",
+        "*://*.weworkremotely.com/*",
+        "*://*.angel.co/*",
+        "*://*.hired.com/*",
+        "*://*.reed.co.uk/*",
+        "*://*.totaljobs.com/*",
+        "*://*.stepstone.de/*",
+        "*://*.xing.com/*"
       ],
       "js": [
         "content.js"

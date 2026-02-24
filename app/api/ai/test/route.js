@@ -23,19 +23,18 @@ async function testProvider(providerKey, apiKey) {
                     generationConfig: { maxOutputTokens: 10 },
                 }),
             });
-        } else if (config.type === 'anthropic') {
-            const model = config.models[0];
+        } else if (config.type === 'claude') {
             response = await fetch(config.endpoint, {
                 method: 'POST',
                 headers: {
                     'x-api-key': apiKey,
                     'anthropic-version': '2023-06-01',
-                    'content-type': 'application/json'
+                    'content-type': 'application/json',
                 },
                 body: JSON.stringify({
-                    model,
+                    model: config.models[0],
                     messages: [{ role: 'user', content: TEST_PROMPT }],
-                    max_tokens: 10
+                    max_tokens: 10,
                 }),
             });
         } else {

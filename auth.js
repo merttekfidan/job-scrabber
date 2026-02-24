@@ -20,9 +20,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 : 'authjs.session-token',
             options: {
                 httpOnly: true,
-                sameSite: 'lax',
+                sameSite: 'none',
                 path: '/',
-                secure: process.env.NODE_ENV === 'production',
+                secure: true,
             },
         },
     },
@@ -52,26 +52,36 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 const email = credentials.email;
                 const code = credentials.code;
 
-                if (!email || !code) return null;
+                if (!email || !code) throw new Error("Please provide both email and code.");
 
                 try {
-                    // Verify OTP from database
-                    const codeResult = await pool.query(
-                        `SELECT * FROM verification_codes 
-                         WHERE email = $1 AND code = $2 AND used = FALSE AND expires_at > NOW()
-                         ORDER BY created_at DESC LIMIT 1`,
-                        [email, code]
+                    // Check if code exists for this email regardless of validity
+                    const allCodes = await pool.query(
+                        `SELECT * FROM verification_codes WHERE email = $1 ORDER BY created_at DESC LIMIT 1`,
+                        [email]
                     );
 
-                    if (codeResult.rows.length === 0) {
-                        // Invalid or expired code
-                        return null;
+                    if (allCodes.rows.length === 0) {
+                        throw new Error("No code requested for this email. Please click 'Send Login Code'.");
                     }
 
+                    const latestCode = allCodes.rows[0];
+
+                    if (code !== latestCode.code) {
+                        throw new Error("Invalid 6-digit code. Please check your email and try again.");
+                    }
+
+                    if (latestCode.used) {
+                        throw new Error("This code has already been used. Please request a new one.");
+                    }
+
+                    if (new Date() > new Date(latestCode.expires_at)) {
+                        throw new Error("This code has expired. Please request a new one.");
+                    }
                     // Mark code as used
                     await pool.query(
                         'UPDATE verification_codes SET used = TRUE WHERE id = $1',
-                        [codeResult.rows[0].id]
+                        [latestCode.id]
                     );
 
                     // Check if user exists

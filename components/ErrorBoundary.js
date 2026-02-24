@@ -31,7 +31,7 @@ export default class ErrorBoundary extends React.Component {
                         <h3 className="text-lg font-bold text-white mb-2">
                             {this.props.fallbackTitle || 'Something went wrong'}
                         </h3>
-                        <p className="text-gray-400 text-sm mb-4">
+                        <p className="text-gray-400 text-base mb-4">
                             {this.state.error?.message || 'An unexpected error occurred.'}
                         </p>
                         <button

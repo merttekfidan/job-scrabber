@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Job Tracker</title>
+  <title>Job Scrabber</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 
@@ -17,13 +17,25 @@
           <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
           <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
         </svg>
-        <span>Job Tracker</span>
+        <span>Job Scrabber</span>
       </div>
       <div id="userStatus" class="user-status">
         <span class="status-dot"></span>
         <span class="user-email">Connecting…</span>
       </div>
     </header>
+
+    <!-- Already Applied Alert -->
+    <div id="alreadyAppliedBadge" class="hidden"
+      style="background-color: #f59e0b; color: #fffbeb; padding: 10px 14px; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #d97706;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+        <line x1="12" y1="9" x2="12" y2="13" />
+        <line x1="12" y1="17" x2="12.01" y2="17" />
+      </svg>
+      <span>You have already saved this job.</span>
+    </div>
 
     <main>
       <!-- Apply Button -->
@@ -68,7 +80,7 @@
           </svg>
           <span>Export</span>
         </button>
-        <button id="openDashboardBtn" class="tool-btn hidden" title="Open Dashboard">
+        <button id="openDashboardBtn" class="tool-btn" title="Open Dashboard">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round">
             <rect x="3" y="3" width="7" height="7" />
@@ -89,22 +101,26 @@
         </button>
       </div>
 
-      <!-- Settings Panel -->
+      <!-- Settings Panel (simplified) -->
       <div id="settingsPanel" class="settings-panel hidden">
-        <div class="env-toggle">
-          <button type="button" class="env-btn active" data-env="live" id="envLive">Live</button>
-          <button type="button" class="env-btn" data-env="local" id="envLocal">Local</button>
-        </div>
-        <div class="setting-group">
-          <label for="sheetsUrl">Backend URL</label>
-          <input type="text" id="sheetsUrl" placeholder="https://your-backend.up.railway.app">
-        </div>
         <div class="setting-row">
           <label class="checkbox-label">
             <input type="checkbox" id="autoExport">
-            Auto-export CSV
+            Auto-export CSV on save
           </label>
-          <button id="saveSettings" class="save-btn">Save</button>
+        </div>
+        <div class="setting-row" style="margin-top: 12px;">
+          <label style="display: block; font-size: 11px; color: #9ca3af; margin-bottom: 4px;">Server Environment</label>
+          <select id="environmentToggle"
+            style="width: 100%; background: #374151; color: white; border: 1px solid #4b5563; border-radius: 4px; padding: 4px 8px; font-size: 12px; outline: none;">
+            <option value="production">Production (Railway)</option>
+            <option value="development">Local Development</option>
+          </select>
+        </div>
+        <div class="version-info" style="display: flex; justify-content: space-between; align-items: center;">
+          <span>v2.0.0 · AI Career Co-Pilot</span>
+          <a href="#" id="privacyPolicyBtn" style="color: #9ca3af; text-decoration: underline; font-size: 11px;">Privacy
+            Policy</a>
         </div>
       </div>
 
@@ -115,7 +131,7 @@
     </footer>
   </div>
 
-  <script src="popup.js"></script>
+  <script type="module" src="popup.js"></script>
 </body>
 
 </html>

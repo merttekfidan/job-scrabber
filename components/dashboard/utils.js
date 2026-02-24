@@ -30,3 +30,11 @@ export function getStatusClass(status) {
     if (status?.includes('Offer')) return 'bg-green-500/10 text-green-400 border-green-500/20';
     return 'bg-red-500/10 text-red-400 border-red-500/20';
 }
+
+/**
+ * Format salary to ensure it has a $ prefix if valid
+ */
+export function formatSalary(salary) {
+    if (!salary || salary === 'Not specified' || salary.toLowerCase() === 'n/a') return '';
+    return typeof salary === 'string' && salary.startsWith('$') ? salary : `$\${salary}`;
+}

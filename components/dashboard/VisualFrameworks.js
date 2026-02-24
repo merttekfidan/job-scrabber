@@ -29,7 +29,7 @@ export function MatchScoreGauge({ score = 0 }) {
                     <span className="text-[10px] text-gray-400 uppercase tracking-wider font-bold">Match</span>
                 </div>
             </div>
-            <span className="text-xs text-gray-500 font-medium">
+            <span className="text-base text-gray-500 font-medium">
                 {score >= 75 ? 'Strong Match' : score >= 50 ? 'Moderate Match' : score >= 25 ? 'Partial Match' : 'Low Match'}
             </span>
         </div>
@@ -45,11 +45,11 @@ export function SkillGapBars({ strengths = [], weaknesses = [] }) {
         <div className="space-y-4">
             {strengths.length > 0 && (
                 <div>
-                    <h5 className="text-xs font-bold text-green-400 uppercase tracking-wider mb-2">✓ Matched Skills</h5>
+                    <h5 className="text-base font-bold text-green-400 uppercase tracking-wider mb-2">✓ Matched Skills</h5>
                     <div className="space-y-1.5">
                         {strengths.slice(0, 6).map((skill, i) => (
                             <div key={i} className="flex items-center gap-3">
-                                <span className="text-xs text-gray-300 w-32 truncate">{typeof skill === 'string' ? skill.split('→')[0].replace('CV:', '').trim() : skill}</span>
+                                <span className="text-base text-gray-300 w-32 truncate">{typeof skill === 'string' ? skill.split('→')[0].replace('CV:', '').trim() : skill}</span>
                                 <div className="flex-1 h-2 bg-gray-800 rounded-full overflow-hidden">
                                     <div className="h-full bg-green-500/60 rounded-full" style={{ width: `${85 + (i % 3) * 5}%`, transition: 'width 0.8s ease' }} />
                                 </div>
@@ -60,11 +60,11 @@ export function SkillGapBars({ strengths = [], weaknesses = [] }) {
             )}
             {weaknesses.length > 0 && (
                 <div>
-                    <h5 className="text-xs font-bold text-red-400 uppercase tracking-wider mb-2">✗ Gaps to Address</h5>
+                    <h5 className="text-base font-bold text-red-400 uppercase tracking-wider mb-2">✗ Gaps to Address</h5>
                     <div className="space-y-1.5">
                         {weaknesses.slice(0, 6).map((gap, i) => (
                             <div key={i} className="flex items-center gap-3">
-                                <span className="text-xs text-gray-400 w-32 truncate">{typeof gap === 'string' ? gap.split('→')[0].replace('JOB requires:', '').trim() : gap}</span>
+                                <span className="text-base text-gray-400 w-32 truncate">{typeof gap === 'string' ? gap.split('→')[0].replace('JOB requires:', '').trim() : gap}</span>
                                 <div className="flex-1 h-2 bg-gray-800 rounded-full overflow-hidden">
                                     <div className="h-full bg-red-500/40 rounded-full" style={{ width: `${15 + (i % 4) * 6}%`, transition: 'width 0.8s ease' }} />
                                 </div>
@@ -96,11 +96,11 @@ export function CultureFitMeter({ cultureFit }) {
 
     return (
         <div className="bg-gray-800/30 p-5 rounded-2xl border border-gray-700/50">
-            <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Culture Signals</h4>
+            <h4 className="text-base font-bold text-gray-400 uppercase tracking-wider mb-4">Culture Signals</h4>
             <div className="space-y-3">
                 {keywords.map((kw, i) => (
                     <div key={i} className="flex items-center gap-3">
-                        <span className="text-xs text-gray-300 w-28 truncate font-medium">{kw}</span>
+                        <span className="text-base text-gray-300 w-28 truncate font-medium">{kw}</span>
                         <div className="flex-1 h-3 bg-gray-800 rounded-full overflow-hidden">
                             <div
                                 className={`h-full ${intensityColors[i % intensityColors.length]} rounded-full opacity-60`}
@@ -131,7 +131,7 @@ export function InterviewProgress({ stages = [], currentStatus }) {
 
     return (
         <div className="bg-gray-800/30 p-5 rounded-2xl border border-gray-700/50">
-            <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Interview Progress</h4>
+            <h4 className="text-base font-bold text-gray-400 uppercase tracking-wider mb-4">Interview Progress</h4>
             <div className="flex items-center gap-1">
                 {sortedStages.map((stage, i) => {
                     const completed = isPastDate(stage.date);
@@ -140,7 +140,7 @@ export function InterviewProgress({ stages = [], currentStatus }) {
                     return (
                         <React.Fragment key={stage.id || i}>
                             <div className="flex-1 flex flex-col items-center gap-2">
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all ${completed
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-base font-bold border-2 transition-all ${completed
                                     ? 'bg-green-500/20 border-green-500 text-green-400'
                                     : isCurrent
                                         ? 'bg-blue-500/20 border-blue-500 text-blue-400 animate-pulse'
