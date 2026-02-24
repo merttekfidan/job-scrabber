@@ -76,8 +76,10 @@ build() {
   if [ "$env" = "prod" ]; then
     cd "$out_dir"
     zip -r "${SCRIPT_DIR}/dist/job-scrabber-v2.0.0.zip" . -x ".*"
+    mkdir -p "${SCRIPT_DIR}/../public/assets"
+    cp "${SCRIPT_DIR}/dist/job-scrabber-v2.0.0.zip" "${SCRIPT_DIR}/../public/assets/job-scrabber-extension.zip"
     cd "$SCRIPT_DIR"
-    echo "📦 Created job-scrabber-v2.0.0.zip"
+    echo "📦 Created job-scrabber-v2.0.0.zip and copied to public/assets/"
   fi
 
   echo "✅ ${env} build ready at: dist/extension-${env}/"

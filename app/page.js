@@ -3,6 +3,7 @@ import Link from "next/link";
 import Dashboard from '@/components/Dashboard';
 import Image from 'next/image';
 import { Download, Sparkles } from 'lucide-react';
+import ExtensionDownloadButton from '@/components/ExtensionDownloadButton';
 
 export const metadata = {
   title: 'Job Tracker',
@@ -62,13 +63,8 @@ export default async function Home() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
-            <Link href="/login" className="w-full sm:w-auto px-8 py-3.5 bg-white text-black text-base font-bold rounded-xl hover:bg-gray-100 transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
-              Start Hunting - It's Free
-            </Link>
-            <a href="#how-it-works" className="w-full sm:w-auto px-8 py-3.5 bg-white/5 border border-white/10 text-white text-base font-medium rounded-xl hover:bg-white/10 transition-all flex items-center justify-center gap-2">
-              <Download className="w-4 h-4 text-gray-400" />
-              Get Extension
-            </a>
+            <ExtensionDownloadButton buttonType="primary" />
+            <ExtensionDownloadButton />
           </div>
 
           <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-white/5 border border-white/5 text-sm font-medium text-gray-400 backdrop-blur-sm shadow-inner">
