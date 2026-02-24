@@ -8,6 +8,8 @@ const { auth } = NextAuth(authConfig)
 const ALLOWED_ORIGINS = [
     process.env.NEXT_PUBLIC_APP_URL,                      // Production domain
     'https://aware-endurance-production-13b8.up.railway.app',
+    'https://www.huntiq.work',
+    'https://huntiq.work',
     process.env.NODE_ENV !== 'production' && 'http://localhost:3000',
 ].filter(Boolean);
 

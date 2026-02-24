@@ -1170,3 +1170,46 @@ body {
 .swot-threats {
     border-color: rgba(234, 179, 8, 0.3);
 }
+
+/* ===================================
+   Hero Preview Shell (Landing Page)
+   =================================== */
+.hero-preview-shell {
+    position: relative;
+    padding: 1px;
+    border-radius: 1.25rem;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.1));
+    box-shadow:
+        0 0 50px rgba(139, 92, 246, 0.08),
+        0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+.hero-preview-shell>* {
+    position: relative;
+    z-index: 1;
+}
+
+.hero-preview-shell::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: #0a0a0f;
+    margin: 1px;
+    z-index: 0;
+}
+
+/* Inner wrapper for tab bar + preview */
+.hero-preview-shell>.flex,
+.hero-preview-shell>div:first-child {
+    position: relative;
+    z-index: 2;
+    padding: 0.75rem 0.75rem 0;
+}
+
+.hero-preview-shell>div:last-child {
+    position: relative;
+    z-index: 2;
+    padding: 0 0.75rem 0.75rem;
+    margin-top: 0.5rem;
+}

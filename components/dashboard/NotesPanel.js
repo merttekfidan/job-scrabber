@@ -8,6 +8,7 @@ export default function NotesPanel({ app, onUpdateDetails }) {
     const [saved, setSaved] = useState(false);
     const textareaRef = useRef(null);
     const saveTimeout = useRef(null);
+    const savingRef = useRef(false);
 
     // Load notes from app data
     useEffect(() => {
@@ -23,33 +24,41 @@ export default function NotesPanel({ app, onUpdateDetails }) {
     }
 
     const saveNotes = useCallback(async (value) => {
-        let currentPrep = {};
-        if (typeof app.interview_prep_notes === 'string') {
-            currentPrep = safeJsonParse(app.interview_prep_notes) || {};
-        } else if (app.interview_prep_notes) {
-            currentPrep = app.interview_prep_notes;
+        if (savingRef.current) return; // Prevent overlapping saves
+        savingRef.current = true;
+
+        try {
+            let currentPrep = {};
+            if (typeof app.interview_prep_notes === 'string') {
+                currentPrep = safeJsonParse(app.interview_prep_notes) || {};
+            } else if (app.interview_prep_notes) {
+                currentPrep = app.interview_prep_notes;
+            }
+
+            const updatedPrep = {
+                keyTalkingPoints: [],
+                questionsToAsk: [],
+                potentialRedFlags: [],
+                techStackToStudy: [],
+                ...currentPrep,
+                generalNotes: value
+            };
+
+            await onUpdateDetails(app.id, { interview_prep_notes: updatedPrep });
+            setSaved(true);
+            setTimeout(() => setSaved(false), 2000);
+        } finally {
+            savingRef.current = false;
         }
-
-        const updatedPrep = {
-            keyTalkingPoints: [],
-            questionsToAsk: [],
-            potentialRedFlags: [],
-            techStackToStudy: [],
-            ...currentPrep,
-            generalNotes: value
-        };
-
-        await onUpdateDetails(app.id, { interview_prep_notes: updatedPrep });
-        setSaved(true);
-        setTimeout(() => setSaved(false), 2000);
     }, [app.id, app.interview_prep_notes, onUpdateDetails]);
 
     // Auto-save on blur
     const handleBlur = () => {
+        if (saveTimeout.current) clearTimeout(saveTimeout.current);
         saveNotes(notes);
     };
 
-    // Auto-save after 2s of no typing
+    // Auto-save after 3s of no typing
     const handleChange = (e) => {
         const value = e.target.value;
         setNotes(value);
@@ -58,7 +67,7 @@ export default function NotesPanel({ app, onUpdateDetails }) {
         if (saveTimeout.current) clearTimeout(saveTimeout.current);
         saveTimeout.current = setTimeout(() => {
             saveNotes(value);
-        }, 2000);
+        }, 3000);
     };
 
     // Cleanup

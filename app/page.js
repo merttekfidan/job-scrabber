@@ -2,7 +2,8 @@ import { auth } from "@/auth";
 import Link from "next/link";
 import Dashboard from '@/components/Dashboard';
 import Image from 'next/image';
-import { Download, Sparkles } from 'lucide-react';
+import { Sparkles, MousePointerClick, Kanban, Brain, Rocket } from 'lucide-react';
+import HeroPreview from '@/components/HeroPreview';
 import ExtensionDownloadButton from '@/components/ExtensionDownloadButton';
 
 export const metadata = {
@@ -41,36 +42,70 @@ export default async function Home() {
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-16 md:pt-48 md:pb-24 overflow-hidden">
+      {/* Hero Section — Devin-style Split Banner */}
+      <section className="relative pt-28 pb-12 md:pt-40 md:pb-20 overflow-hidden">
         {/* Subtle Background Glow */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-purple-600/10 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute top-1/4 left-1/3 w-[500px] h-[400px] bg-purple-600/10 rounded-full blur-[150px] pointer-events-none" />
+        <div className="absolute bottom-0 right-1/4 w-[400px] h-[300px] bg-blue-600/8 rounded-full blur-[120px] pointer-events-none" />
 
-        <div className="container mx-auto px-6 relative z-10 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-xs font-medium text-blue-300 mb-8 backdrop-blur-sm">
-            <Sparkles className="w-3 h-3" />
-            Public Beta v0.9
-          </div>
+        <div className="container mx-auto px-6 relative z-10">
+          <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
 
-          <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight mb-6 max-w-4xl mx-auto leading-[1.1]">
-            I built this because the job hunt is chaos.
-          </h1>
+            {/* —— Left Column: Text + CTA + Steps —— */}
+            <div className="flex-1 max-w-xl text-center lg:text-left">
+              {/* Badge */}
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-xs font-medium text-blue-300 mb-6 backdrop-blur-sm">
+                <Sparkles className="w-3 h-3" />
+                Public Beta v0.9
+              </div>
 
-          <p className="text-lg md:text-xl text-gray-400 mb-8 max-w-3xl mx-auto font-light leading-relaxed">
-            I designed HuntIQ for myself after feeling the pain of being disorganized. The first purpose? Track the interview process in every single step perfectly. The bonus? AI support using the models you choose to get a real edge.
-          </p>
+              {/* Headline */}
+              <h1 className="text-4xl md:text-5xl lg:text-[3.4rem] font-black text-white tracking-tight mb-5 leading-[1.1]">
+                I built this because the job hunt is chaos.
+              </h1>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
-            <ExtensionDownloadButton buttonType="primary" />
-            <ExtensionDownloadButton />
-          </div>
+              {/* Subtitle */}
+              <p className="text-base md:text-lg text-gray-400 mb-8 font-light leading-relaxed">
+                Track the interview process in every single step. Get AI support using the models you choose to get a real edge.
+              </p>
 
-          <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-white/5 border border-white/5 text-sm font-medium text-gray-400 backdrop-blur-sm shadow-inner">
-            <span>1. Create a quick account</span>
-            <span className="text-purple-500/50">→</span>
-            <span>2. Setup the plugin</span>
-            <span className="text-purple-500/50">→</span>
-            <span className="text-white">3. You're ready to hunt.</span>
+              {/* CTA Button */}
+              <div className="mb-10">
+                <ExtensionDownloadButton buttonType="primary" />
+              </div>
+
+              {/* Numbered Step List */}
+              <div className="space-y-5 text-left">
+                {[
+                  { num: '1', icon: MousePointerClick, title: 'Capture', desc: 'Click the extension on any job board.' },
+                  { num: '2', icon: Kanban, title: 'Track', desc: 'Visual pipeline. No spreadsheets.' },
+                  { num: '3', icon: Brain, title: 'AI Prep', desc: 'Battle cards, SWOT, interview coaching.' },
+                  { num: '4', icon: Rocket, title: 'Dominate', desc: "You're ready to hunt." },
+                ].map((step) => {
+                  const Icon = step.icon;
+                  return (
+                    <div key={step.num} className="flex items-start gap-4 group">
+                      <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-sm font-bold text-purple-400 shrink-0 mt-0.5 group-hover:bg-purple-500/10 group-hover:border-purple-500/30 transition-colors duration-300">
+                        {step.num}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <Icon className="w-4 h-4 text-gray-500 group-hover:text-purple-400 transition-colors duration-300" />
+                          <span className="text-sm font-semibold text-white">{step.title}</span>
+                        </div>
+                        <p className="text-sm text-gray-500 leading-snug">{step.desc}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* —— Right Column: Interactive Preview —— */}
+            <div className="flex-1 w-full max-w-2xl lg:max-w-none">
+              <HeroPreview />
+            </div>
+
           </div>
         </div>
       </section>
