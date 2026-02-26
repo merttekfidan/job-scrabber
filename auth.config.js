@@ -11,6 +11,42 @@ export default {
         signIn: '/login', // Correct signin page
         error: '/auth/error'
     },
+    cookies: {
+        sessionToken: {
+            name: process.env.NODE_ENV === 'production'
+                ? '__Secure-authjs.session-token'
+                : 'authjs.session-token',
+            options: {
+                httpOnly: true,
+                sameSite: 'none',
+                path: '/',
+                secure: true,
+                domain: process.env.NODE_ENV === 'production' ? '.huntiq.work' : undefined,
+            },
+        },
+        callbackUrl: {
+            name: process.env.NODE_ENV === 'production'
+                ? '__Secure-authjs.callback-url'
+                : 'authjs.callback-url',
+            options: {
+                sameSite: 'none',
+                path: '/',
+                secure: true,
+                domain: process.env.NODE_ENV === 'production' ? '.huntiq.work' : undefined,
+            },
+        },
+        csrfToken: {
+            name: process.env.NODE_ENV === 'production'
+                ? '__Host-authjs.csrf-token'
+                : 'authjs.csrf-token',
+            options: {
+                httpOnly: true,
+                sameSite: 'none',
+                path: '/',
+                secure: true,
+            },
+        },
+    },
     debug: true,
     trustHost: true,
     callbacks: {

@@ -5,7 +5,7 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-PROD_URL="https://www.huntiq.work"
+PROD_URL="https://huntiq.work"
 DEV_URL="http://localhost:3000"
 
 # Files to include in the extension package
