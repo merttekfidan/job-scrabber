@@ -24,6 +24,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 sameSite: 'none',
                 path: '/',
                 secure: true,
+                domain: process.env.NODE_ENV === 'production' ? '.huntiq.work' : undefined,
             },
         },
     },
