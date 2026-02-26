@@ -19,7 +19,3 @@ export async function authenticate(prevState, formData) {
     }
 }
 
-export async function signOut() {
-    const { signOut: authSignOut } = await import("@/auth");
-    await authSignOut({ redirectTo: "/login" });
-}

@@ -5,7 +5,7 @@ import {
     RefreshCw, Download, Briefcase,
     CheckCircle, LogOut, User, Sparkles, LayoutDashboard, LayoutList, Settings
 } from 'lucide-react';
-import { signOut } from '@/app/actions';
+import { signOut } from 'next-auth/react';
 import CvUpload from './CvUpload';
 import ErrorBoundary from './ErrorBoundary';
 import StatsGrid from './dashboard/StatsGrid';
@@ -335,7 +335,7 @@ export default function Dashboard({ session }) {
                                 </div>
                             )}
                             <button
-                                onClick={() => signOut()}
+                                onClick={() => signOut({ callbackUrl: '/login' })}
                                 className="p-2 rounded-lg text-red-400/70 hover:text-red-400 hover:bg-red-500/10 transition-colors"
                                 title="Logout"
                             >
