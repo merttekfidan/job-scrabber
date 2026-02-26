@@ -10,7 +10,9 @@
   ],
   "host_permissions": [
     "http://localhost:3000/*",
-    "https://aware-endurance-production-13b8.up.railway.app/*"
+    "https://aware-endurance-production-13b8.up.railway.app/*",
+    "https://huntiq.work/*",
+    "https://www.huntiq.work/*"
   ],
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'"

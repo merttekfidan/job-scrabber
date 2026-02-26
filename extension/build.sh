@@ -51,7 +51,7 @@ build() {
     fi
   fi
 
-  # For production, restrict host_permissions to only the prod URL
+  # For production, keep only production domains in host_permissions
   if [ "$env" = "prod" ]; then
     if [[ "$OSTYPE" == "darwin"* ]]; then
       sed -i '' 's|"http://localhost:3000/\*",||' "${out_dir}/manifest.json"
@@ -63,11 +63,13 @@ build() {
   # For dev, restrict host_permissions to only localhost
   if [ "$env" = "dev" ]; then
     if [[ "$OSTYPE" == "darwin"* ]]; then
-      sed -i '' 's|"https://aware-endurance-production-13b8.up.railway.app/\*"||' "${out_dir}/manifest.json"
-      # Clean up trailing comma
+      sed -i '' '/aware-endurance-production-13b8.up.railway.app/d' "${out_dir}/manifest.json"
+      sed -i '' '/huntiq.work/d' "${out_dir}/manifest.json"
+      # Clean up trailing comma on the remaining localhost entry
       sed -i '' 's|"http://localhost:3000/\*",|"http://localhost:3000/*"|' "${out_dir}/manifest.json"
     else
-      sed -i 's|"https://aware-endurance-production-13b8.up.railway.app/\*"||' "${out_dir}/manifest.json"
+      sed -i '/aware-endurance-production-13b8.up.railway.app/d' "${out_dir}/manifest.json"
+      sed -i '/huntiq.work/d' "${out_dir}/manifest.json"
       sed -i 's|"http://localhost:3000/\*",|"http://localhost:3000/*"|' "${out_dir}/manifest.json"
     fi
   fi
