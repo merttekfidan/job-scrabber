@@ -5,7 +5,7 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-PROD_URL="https://aware-endurance-production-13b8.up.railway.app"
+PROD_URL="https://www.huntiq.work"
 DEV_URL="http://localhost:3000"
 
 # Files to include in the extension package

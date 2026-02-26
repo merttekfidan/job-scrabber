@@ -335,7 +335,7 @@ export default function Dashboard({ session }) {
                                 </div>
                             )}
                             <button
-                                onClick={() => signOut({ callbackUrl: '/login' })}
+                                onClick={() => signOut({ callbackUrl: `${window.location.origin}/login` })}
                                 className="p-2 rounded-lg text-red-400/70 hover:text-red-400 hover:bg-red-500/10 transition-colors"
                                 title="Logout"
                             >
