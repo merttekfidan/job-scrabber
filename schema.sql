@@ -56,7 +56,8 @@ CREATE TABLE IF NOT EXISTS users (
   email VARCHAR(255) UNIQUE,
   email_verified TIMESTAMP,
   last_login TIMESTAMP,
-  image TEXT
+  image TEXT,
+  password_hash TEXT
 );
 
 CREATE TABLE IF NOT EXISTS accounts (
@@ -95,18 +96,8 @@ ALTER TABLE applications ADD COLUMN IF NOT EXISTS hiring_manager JSONB DEFAULT '
 ALTER TABLE applications ADD COLUMN IF NOT EXISTS company_info JSONB DEFAULT '{}';
 ALTER TABLE cv_data ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES users(id) ON DELETE CASCADE;
 
--- OTP Verification Codes
-CREATE TABLE IF NOT EXISTS verification_codes (
-    id SERIAL PRIMARY KEY,
-    email VARCHAR(255) NOT NULL,
-    code VARCHAR(64) NOT NULL,
-    expires_at TIMESTAMP NOT NULL,
-    used BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE INDEX IF NOT EXISTS idx_verification_codes_email 
-    ON verification_codes(email, used, expires_at);
+-- Add password_hash column to existing users table
+ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash TEXT;
 
 -- User Profiles (AI keys, settings)
 CREATE TABLE IF NOT EXISTS user_profiles (

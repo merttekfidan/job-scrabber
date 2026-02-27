@@ -39,7 +39,7 @@ export default function PrivacyPolicy() {
                         <h2 className="text-lg font-semibold text-white mb-2">Third-Party Services</h2>
                         <ul className="list-disc ml-6 space-y-1">
                             <li><strong className="text-white">Groq API</strong> — processes AI prompts (job descriptions + CV text are sent for analysis)</li>
-                            <li><strong className="text-white">Resend</strong> — sends OTP login emails</li>
+                            <li><strong className="text-white">bcrypt</strong> — securely hashes user passwords</li>
                             <li><strong className="text-white">Railway</strong> — hosts the application and database</li>
                         </ul>
                     </section>

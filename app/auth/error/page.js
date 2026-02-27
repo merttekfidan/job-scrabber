@@ -11,11 +11,11 @@ function ErrorContent() {
 
     let errorMessage = "An unknown error occurred.";
     if (error === 'Configuration') {
-        errorMessage = "There is a problem with the server configuration. Check if your .env.local file has the correct AUTH_SECRET and Google credentials.";
+        errorMessage = "There is a problem with the server configuration. Check if your .env.local file has the correct AUTH_SECRET.";
     } else if (error === 'AccessDenied') {
         errorMessage = "Access denied. You do not have permission to sign in.";
-    } else if (error === 'Verification') {
-        errorMessage = "The sign in link is no longer valid. It may have been used already or it may have expired.";
+    } else if (error === 'CredentialsSignin') {
+        errorMessage = "Invalid email or password. Please try again.";
     }
 
     return (

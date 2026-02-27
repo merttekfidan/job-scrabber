@@ -2,6 +2,7 @@ import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import authConfig from './auth.config';
 import { query } from '@/lib/db';
+import bcrypt from 'bcryptjs';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
@@ -25,71 +26,66 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   providers: [
     Credentials({
-      name: 'Email',
+      name: 'Credentials',
       credentials: {
         email: { label: 'Email', type: 'email' },
-        code: { label: 'Code', type: 'text' },
+        password: { label: 'Password', type: 'password' },
+        action: { label: 'Action', type: 'text' },
       },
       async authorize(credentials) {
         try {
           const email = credentials?.email as string | undefined;
-          const code = credentials?.code as string | undefined;
+          const password = credentials?.password as string | undefined;
+          const action = credentials?.action as string | undefined;
 
-          if (!email || !code) {
-            throw new Error('Please provide both email and code.');
+          if (!email || !password) {
+            throw new Error('Email and password are required.');
           }
 
-          const allCodes = await query(
-          `SELECT * FROM verification_codes WHERE email = $1 ORDER BY created_at DESC LIMIT 1`,
-          [email]
-        );
+          const result = await query('SELECT * FROM users WHERE email = $1', [email]);
+          const existingUser = result.rows[0] as { id: string; name: string; email: string; image: string | null; password_hash: string | null } | undefined;
 
-        if (allCodes.rows.length === 0) {
-          throw new Error("No code requested for this email. Please click 'Send Login Code'.");
-        }
+          if (action === 'signup') {
+            if (existingUser && existingUser.password_hash) {
+              throw new Error('An account with this email already exists. Please sign in.');
+            }
 
-        const latestCode = allCodes.rows[0] as {
-          id: string;
-          code: string;
-          used: boolean;
-          expires_at: Date;
-        };
+            const hashedPassword = await bcrypt.hash(password, 12);
 
-        if (code !== latestCode.code) {
-          throw new Error('Invalid 6-digit code. Please check your email and try again.');
-        }
+            if (existingUser && !existingUser.password_hash) {
+              await query(
+                'UPDATE users SET password_hash = $1, last_login = NOW() WHERE id = $2',
+                [hashedPassword, existingUser.id]
+              );
+              return { id: existingUser.id, name: existingUser.name, email: existingUser.email, image: existingUser.image };
+            }
 
-        if (latestCode.used) {
-          throw new Error('This code has already been used. Please request a new one.');
-        }
+            const insertResult = await query(
+              'INSERT INTO users (name, email, password_hash, email_verified, last_login) VALUES ($1, $2, $3, NOW(), NOW()) RETURNING *',
+              [email.split('@')[0], email, hashedPassword]
+            );
+            const newUser = insertResult.rows[0] as { id: string; name: string; email: string; image: string | null };
+            return newUser
+              ? { id: newUser.id, name: newUser.name, email: newUser.email, image: newUser.image }
+              : null;
+          }
 
-        if (new Date() > new Date(latestCode.expires_at)) {
-          throw new Error('This code has expired. Please request a new one.');
-        }
+          if (!existingUser) {
+            throw new Error('No account found with this email. Please sign up first.');
+          }
 
-        await query('UPDATE verification_codes SET used = TRUE WHERE id = $1', [latestCode.id]);
+          if (!existingUser.password_hash) {
+            throw new Error('Your account needs a password. Please use "Sign up" to set one.');
+          }
 
-        const result = await query('SELECT * FROM users WHERE email = $1', [email]);
-        let user = result.rows[0] as { id: string; name: string; email: string; image: string | null } | undefined;
+          const isValid = await bcrypt.compare(password, existingUser.password_hash);
+          if (!isValid) {
+            throw new Error('Invalid password. Please try again.');
+          }
 
-        if (!user) {
-          const insertResult = await query(
-            'INSERT INTO users (name, email, email_verified, image, last_login) VALUES ($1, $2, $3, $4, NOW()) RETURNING *',
-            [email.split('@')[0], email, new Date(), null]
-          );
-          user = insertResult.rows[0] as typeof user;
-        } else {
-          await query('UPDATE users SET last_login = NOW() WHERE id = $1', [user.id]);
-        }
+          await query('UPDATE users SET last_login = NOW() WHERE id = $1', [existingUser.id]);
 
-          return user
-            ? {
-                id: user.id,
-                name: user.name,
-                email: user.email,
-                image: user.image,
-              }
-            : null;
+          return { id: existingUser.id, name: existingUser.name, email: existingUser.email, image: existingUser.image };
         } catch (err) {
           const message = err instanceof Error ? err.message : 'Authentication failed';
           console.error('[Auth] authorize error:', err);

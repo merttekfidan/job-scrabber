@@ -13,16 +13,15 @@ export default {
       name: isProduction ? '__Secure-authjs.session-token' : 'authjs.session-token',
       options: {
         httpOnly: true,
-        sameSite: 'none' as const,
+        sameSite: isProduction ? 'none' as const : 'lax' as const,
         path: '/',
         secure: isProduction,
-        // No domain — host-only cookie so extension credentialed requests receive it
       },
     },
     callbackUrl: {
       name: isProduction ? '__Secure-authjs.callback-url' : 'authjs.callback-url',
       options: {
-        sameSite: 'none' as const,
+        sameSite: isProduction ? 'none' as const : 'lax' as const,
         path: '/',
         secure: isProduction,
       },
@@ -31,7 +30,7 @@ export default {
       name: isProduction ? '__Host-authjs.csrf-token' : 'authjs.csrf-token',
       options: {
         httpOnly: true,
-        sameSite: 'none' as const,
+        sameSite: isProduction ? 'none' as const : 'lax' as const,
         path: '/',
         secure: isProduction,
       },
