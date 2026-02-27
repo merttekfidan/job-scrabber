@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { query } from '@/lib/db';
-import { callGroqAPI, parseAIResponse } from '@/lib/ai';
+import { callAIWithPool } from '@/lib/ai-router';
+import { parseAIResponse } from '@/lib/ai';
 import { JOB_EXTRACTION_PROMPT } from '@/lib/prompts';
 import { ExtensionProcessSchema, validateBody } from '@/lib/validations';
 import { aiLimiter, getRateLimitKey } from '@/lib/rate-limit';
@@ -57,7 +58,7 @@ export async function POST(req) {
 
         // Call AI via server-side Groq API key (or user's custom key)
         const prompt = JOB_EXTRACTION_PROMPT(url, jobBoard, pageContent);
-        const aiResponse = await callGroqAPI(prompt, 0.2, session.user.id);
+        const aiResponse = await callAIWithPool(prompt, 0.2, session.user.id);
         const structuredData = parseAIResponse(aiResponse);
 
         // Map to the schema expected by /api/save

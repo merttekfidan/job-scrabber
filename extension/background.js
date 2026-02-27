@@ -33,9 +33,9 @@ async function processJobServerSide(extractedData) {
         // Step 1: Send raw content to server for AI processing
         const processUrl = baseUrl + '/api/extension/process';
 
-        // Add a 25-second timeout so it doesn't hang forever
+        // 60-second timeout for AI processing (large job pages can take a while)
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 25000);
+        const timeoutId = setTimeout(() => controller.abort(), 60000);
 
         const headers = { 'Content-Type': 'application/json' };
         if (CONFIG.IS_DEV) headers['x-dev-extension'] = 'true';
@@ -56,7 +56,7 @@ async function processJobServerSide(extractedData) {
             });
         } catch (error) {
             if (error.name === 'AbortError') {
-                throw new Error('AI processing timed out after 25 seconds. The page content might be too large or the server is busy.');
+                throw new Error('AI processing timed out after 60 seconds. Try a simpler job page or try again.');
             }
             throw error;
         } finally {
@@ -66,6 +66,7 @@ async function processJobServerSide(extractedData) {
         if (!processResponse.ok) {
             const errorData = await processResponse.json().catch(() => ({}));
             if (processResponse.status === 401) {
+                await chrome.storage.local.remove(['userEmail']);
                 throw new Error('Not logged in. Please log in to the dashboard first.');
             }
             if (processResponse.status === 429) {
@@ -139,6 +140,9 @@ async function syncToRemoteStorage(applicationData) {
         });
 
         if (!response.ok) {
+            if (response.status === 401) {
+                await chrome.storage.local.remove(['userEmail']);
+            }
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
