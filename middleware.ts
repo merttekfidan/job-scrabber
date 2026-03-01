@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import type { Session } from 'next-auth';
+import { auth } from '@/auth-edge';
+import logger from '@/lib/logger';
 
 const ALLOWED_ORIGINS = [
   process.env.NEXT_PUBLIC_APP_URL,
@@ -26,9 +29,24 @@ function isAllowedOrigin(origin: string | null): boolean {
   return false;
 }
 
-export default function middleware(req: NextRequest) {
+const PROTECTED_PREFIXES = [
+  '/dashboard',
+  '/kanban',
+  '/coach',
+  '/application/',
+  '/dev/data-layer-test',
+];
+
+function isProtectedPath(pathname: string): boolean {
+  return PROTECTED_PREFIXES.some((prefix) =>
+    pathname === prefix || pathname.startsWith(prefix + '/')
+  );
+}
+
+export default auth((req: NextRequest & { auth: Session | null }) => {
   try {
     const origin = req.headers.get('origin');
+    const pathname = req.nextUrl.pathname;
 
     if (origin && !isAllowedOrigin(origin)) {
       return new NextResponse(null, {
@@ -51,6 +69,18 @@ export default function middleware(req: NextRequest) {
       });
     }
 
+    const isLoggedIn = !!req.auth?.user;
+
+    if (isProtectedPath(pathname) && !isLoggedIn) {
+      const loginUrl = new URL('/login', req.url);
+      loginUrl.searchParams.set('callbackUrl', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+
+    if (pathname === '/login' && isLoggedIn) {
+      return NextResponse.redirect(new URL('/dashboard', req.url));
+    }
+
     const response = NextResponse.next();
     const corsOrigin = origin && isAllowedOrigin(origin) ? origin : '';
     if (corsOrigin) {
@@ -61,13 +91,16 @@ export default function middleware(req: NextRequest) {
     }
     return response;
   } catch (err) {
-    console.error('[Middleware] Error:', err);
+    logger.error('Middleware error', { message: err instanceof Error ? err.message : String(err) });
     return new NextResponse(
-      JSON.stringify({ error: 'Internal server error', message: (err as Error).message }),
+      JSON.stringify({
+        error: 'Internal server error',
+        message: (err as Error).message,
+      }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
-}
+});
 
 export const config = {
   matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],

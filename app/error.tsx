@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect } from 'react';
 import { AlertCircle } from 'lucide-react';
 
 export default function Error({
@@ -10,10 +9,6 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  useEffect(() => {
-    console.error('[App Error Boundary]', error);
-  }, [error]);
-
   return (
     <div className="min-h-[50vh] flex items-center justify-center bg-[#0a0a0a] text-white p-6">
       <div className="bg-gray-900/40 p-8 rounded-2xl border border-white/5 max-w-md text-center">

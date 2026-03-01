@@ -2,12 +2,14 @@
 
 import React from 'react';
 import { Calendar as CalendarIcon, Clock } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 
 export default function UpcomingInterviews({ interviews, onViewPrep }) {
     if (!interviews || interviews.length === 0) return null;
 
     return (
-        <div className="glass-card p-5 space-y-4">
+        <Card className="border-white/10 bg-[var(--bg-card)] backdrop-blur-xl">
+        <CardContent className="p-5 space-y-4">
             <div className="flex items-center gap-2">
                 <CalendarIcon size={16} className="text-indigo-400" />
                 <h3 className="label-uppercase">Upcoming Interviews</h3>
@@ -54,6 +56,7 @@ export default function UpcomingInterviews({ interviews, onViewPrep }) {
                     );
                 })}
             </div>
-        </div>
+        </CardContent>
+        </Card>
     );
 }

@@ -1,0 +1,12 @@
+---
+description: HuntIQ roadmap — apply phases one by one, test after each, guide user on how to test
+alwaysApply: true
+---
+
+# HuntIQ implementation — phased workflow
+
+- **Source of truth:** `docs/IMPLEMENTATION_ROADMAP.md`. **Session context:** `docs/CURSOR_SESSION_GUIDANCE.md` (read in new chats for phase status and how to proceed).
+- **Workflow:** Implement the **next** phase only → then provide **how to test** (commands, URLs, what to verify) → user tests → then continue. Do not skip ahead; test after each phase.
+- **Current status:** Phase 0, 1, and 2 are done. Phase 3 (component decomposition: migrate Dashboard to hooks, break into smaller components) is next. Dashboard still uses old `fetch`; Phase 1 hooks are exercised on `app/dev/data-layer-test/page.tsx`. Routes: `/dashboard`, `/kanban`, `/coach`; `/` redirects to `/dashboard` when logged in.
+- **Testing:** After implementing a phase, tell the user how to test it (e.g. run `npm run dev`, open which URL, what to check). Phase 1 testing: `docs/MANUAL_TESTING_PHASE1.md` and `docs/RECENT_CHANGES_CHECKLIST.md` (update “TESTED up to” as they verify).
+- **Dev server:** Always port 3000; use `npm run dev` (kills 3000 then starts). See `.cursor/rules/local-dev-server.mdc`.

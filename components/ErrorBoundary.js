@@ -2,6 +2,8 @@
 
 import React from 'react';
 import { AlertCircle, RefreshCw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import logger from '@/lib/logger';
 
 /**
  * React Error Boundary for graceful failure handling.
@@ -19,7 +21,7 @@ export default class ErrorBoundary extends React.Component {
     }
 
     componentDidCatch(error, errorInfo) {
-        console.error('ErrorBoundary caught:', error, errorInfo);
+        logger.error('ErrorBoundary caught', { message: error?.message, componentStack: errorInfo?.componentStack });
     }
 
     render() {
@@ -34,12 +36,12 @@ export default class ErrorBoundary extends React.Component {
                         <p className="text-gray-400 text-base mb-4">
                             {this.state.error?.message || 'An unexpected error occurred.'}
                         </p>
-                        <button
+                        <Button
                             onClick={() => this.setState({ hasError: false, error: null })}
-                            className="btn btn-primary flex items-center gap-2 mx-auto"
+                            className="flex items-center gap-2 mx-auto"
                         >
                             <RefreshCw size={16} /> Try Again
-                        </button>
+                        </Button>
                     </div>
                 </div>
             );

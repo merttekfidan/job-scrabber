@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Briefcase, Clock, CheckCircle, XCircle, TrendingUp, TrendingDown } from 'lucide-react';
+import { Card } from '@/components/ui/card';
 
 function Sparkline({ data = [], color = '#667eea' }) {
     if (!data || data.length < 2) return null;
@@ -31,7 +32,7 @@ function MetricCard({ icon: Icon, value, label, trend, sparkline, color, iconBg 
     const isPositive = trend >= 0;
 
     return (
-        <div className="glass-card-hover p-5 flex flex-col gap-3">
+        <Card className="border-white/10 bg-[var(--bg-card)] backdrop-blur-xl p-5 flex flex-col gap-3 transition-all hover:border-purple-500/40 hover:shadow-[0_0_30px_-5px_rgba(139,92,246,0.3)]">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <div className={`p-2 rounded-xl ${iconBg}`}>
@@ -50,7 +51,7 @@ function MetricCard({ icon: Icon, value, label, trend, sparkline, color, iconBg 
                 <span className="stat-value text-white">{value}</span>
                 <Sparkline data={sparkline} color={color.replace('text-', '')} />
             </div>
-        </div>
+        </Card>
     );
 }
 

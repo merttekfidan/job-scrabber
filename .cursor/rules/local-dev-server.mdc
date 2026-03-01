@@ -1,0 +1,19 @@
+---
+description: Local dev server must run on port 3000; kill process on 3000 if busy, never use 3001 or another port
+alwaysApply: true
+---
+
+# Local dev server — port 3000 only
+
+When running the local development server:
+
+1. **Always use port 3000.** The app must be available at `http://localhost:3000`.
+2. **Do not fall back to 3001 or any other port** if 3000 is in use.
+3. **If port 3000 is in use:** kill the process using port 3000, then start the server on 3000.
+
+## Commands to use
+
+- **Start dev server:** Run `npm run dev`. It kills any process on port 3000, then starts Next.js on 3000.
+- **Start without killing (port 3000 must be free):** `npm run dev:raw`.
+
+When suggesting or running the dev server, never use `-p 3001` or any other port. Always run on 3000; if 3000 is busy, kill the process on 3000 first, then start the server.

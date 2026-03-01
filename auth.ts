@@ -3,11 +3,10 @@ import Credentials from 'next-auth/providers/credentials';
 import authConfig from './auth.config';
 import { query } from '@/lib/db';
 import bcrypt from 'bcryptjs';
+import logger from '@/lib/logger';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
-  session: { strategy: 'jwt' },
-  trustHost: true,
   callbacks: {
     ...authConfig.callbacks,
     async jwt({ token, user }) {
@@ -88,7 +87,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return { id: existingUser.id, name: existingUser.name, email: existingUser.email, image: existingUser.image };
         } catch (err) {
           const message = err instanceof Error ? err.message : 'Authentication failed';
-          console.error('[Auth] authorize error:', err);
+          logger.error('Auth authorize failed', { message: err instanceof Error ? err.message : String(err) });
           throw new Error(message);
         }
       },

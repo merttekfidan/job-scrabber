@@ -2,6 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { RefreshCw, TrendingUp, TrendingDown, Minus, Flame, Zap, Star } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import logger from '@/lib/logger';
 
 function RadialGauge({ value = 0, label, color = '#8b5cf6' }) {
     const radius = 45;
@@ -46,7 +49,7 @@ export default function SmartAnalytics() {
             const json = await res.json();
             if (json.success) setData(json.smartAnalytics);
         } catch (e) {
-            console.error('Failed to load smart analytics', e);
+            logger.error('Smart analytics load failed', { message: e instanceof Error ? e.message : String(e) });
         } finally {
             setLoading(false);
         }
@@ -55,8 +58,8 @@ export default function SmartAnalytics() {
     if (loading) {
         return (
             <section className="mb-6 space-y-4">
-                <div className="glass-card p-6 shimmer h-36" />
-                <div className="glass-card p-6 shimmer h-48" />
+                <Skeleton className="h-36 w-full rounded-xl" />
+                <Skeleton className="h-48 w-full rounded-xl" />
             </section>
         );
     }
@@ -71,13 +74,13 @@ export default function SmartAnalytics() {
             {/* Hero Row: Gauges + Streak + Weekly Digest */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Radial Gauges */}
-                <div className="glass-card p-6 flex items-center justify-around gradient-bg">
+                <Card className="border-white/10 bg-[var(--bg-card)] backdrop-blur-xl p-6 flex items-center justify-around gradient-bg">
                     <RadialGauge value={velocity?.score || 0} label="Velocity Score" color="#8b5cf6" />
                     <RadialGauge value={responseRate?.percentage || 0} label="Response Rate" color="#06b6d4" />
-                </div>
+                </Card>
 
                 {/* Streak */}
-                <div className="glass-card p-6 flex flex-col items-center justify-center gap-3">
+                <Card className="border-white/10 bg-[var(--bg-card)] backdrop-blur-xl p-6 flex flex-col items-center justify-center gap-3">
                     <div className="flex items-center gap-2">
                         <Flame size={28} className="text-amber-400" />
                         <span className="text-4xl font-black text-white">{streak || 0}</span>
@@ -95,10 +98,10 @@ export default function SmartAnalytics() {
                         ))}
                     </div>
                     <span className="text-base text-gray-500">Last 7 days</span>
-                </div>
+                </Card>
 
                 {/* Weekly Digest */}
-                <div className="glass-card p-6 flex flex-col gap-3">
+                <Card className="border-white/10 bg-[var(--bg-card)] backdrop-blur-xl p-6 flex flex-col gap-3">
                     <div className="flex items-center gap-2">
                         <Zap size={18} className="text-blue-400" />
                         <span className="label-uppercase">Weekly Digest</span>
@@ -122,12 +125,12 @@ export default function SmartAnalytics() {
                     >
                         <RefreshCw size={12} /> Refresh
                     </button>
-                </div>
+                </Card>
             </div>
 
             {/* Skill Demand Heatmap */}
             {skillHeatmap && skillHeatmap.length > 0 && (
-                <div className="glass-card p-6">
+                <Card className="border-white/10 bg-[var(--bg-card)] backdrop-blur-xl p-6">
                     <div className="flex items-center gap-2 mb-4">
                         <Star size={18} className="text-amber-400 fill-amber-400" />
                         <span className="label-uppercase">Skill Demand</span>
@@ -153,7 +156,7 @@ export default function SmartAnalytics() {
                             );
                         })}
                     </div>
-                </div>
+                </Card>
             )}
         </section>
     );

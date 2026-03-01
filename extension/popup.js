@@ -100,8 +100,10 @@ async function handleLogout() {
     console.error('Logout API failed:', e);
   }
 
-  await chrome.storage.local.remove(['userEmail']);
+  await chrome.storage.local.remove(['userEmail', 'applications', 'lastCapture']);
   updateUIToLoggedOut();
+  await updateStats();
+  if (lastCaptureDiv) lastCaptureDiv.classList.add('hidden');
 }
 
 document.addEventListener('DOMContentLoaded', async () => {

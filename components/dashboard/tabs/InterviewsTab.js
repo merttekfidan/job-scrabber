@@ -1,5 +1,6 @@
 import React from 'react';
 import { X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { InterviewProgress } from '../VisualFrameworks';
 import { StageNoteEditor } from '../shared/NoteEditors';
 import { parseJson } from '../utils';
@@ -13,8 +14,10 @@ export function InterviewsTab({ app, onUpdateDetails }) {
             <div className="space-y-4">
                 <div className="flex justify-between items-center mb-4">
                     <h3 className="text-lg font-bold text-white">Interview Rounds</h3>
-                    <button
-                        className="btn btn-secondary btn-sm flex items-center gap-2"
+                    <Button
+                        variant="secondary"
+                        size="sm"
+                        className="flex items-center gap-2"
                         onClick={(e) => {
                             e.stopPropagation();
                             const currentStages = Array.isArray(stages) ? stages : [];
@@ -30,7 +33,7 @@ export function InterviewsTab({ app, onUpdateDetails }) {
                     >
                         <div className="w-4 h-4 bg-green-500/20 text-green-400 rounded-full flex items-center justify-center">+</div>
                         Add Round
-                    </button>
+                    </Button>
                 </div>
 
                 {stages.length === 0 ? (

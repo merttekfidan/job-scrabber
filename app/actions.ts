@@ -2,6 +2,7 @@
 
 import { signIn, signOut } from '@/auth';
 import { AuthError } from 'next-auth';
+import logger from '@/lib/logger';
 
 export async function authenticate(
   _prevState: string | undefined,
@@ -27,7 +28,7 @@ export async function authenticate(
     if (error instanceof AuthError) {
       return (error.cause as { err?: { message?: string } })?.err?.message ?? 'Authentication failed.';
     }
-    console.error('[authenticate] Error:', error);
+    logger.error('authenticate failed', { error: error instanceof Error ? error.message : String(error) });
     return 'An unexpected error occurred. Please try again.';
   }
 }
@@ -36,7 +37,7 @@ export async function handleSignOut(): Promise<void> {
   try {
     await signOut({ redirectTo: '/login' });
   } catch (error) {
-    console.error('[handleSignOut] Error:', error);
+    logger.error('handleSignOut failed', { error: error instanceof Error ? error.message : String(error) });
     throw error;
   }
 }

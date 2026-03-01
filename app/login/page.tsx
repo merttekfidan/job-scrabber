@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { authenticate } from '@/app/actions';
+import logger from '@/lib/logger';
 import { AlertCircle, Mail, ArrowRight, RefreshCw, Lock, UserPlus, LogIn } from 'lucide-react';
 
 export default function LoginPage() {
@@ -40,7 +41,7 @@ export default function LoginPage() {
     } catch (err) {
       const message = err instanceof Error ? err.message : '';
       if (message !== 'NEXT_REDIRECT') {
-        console.error('[Login] handleSubmit error:', err);
+        logger.error('Login handleSubmit failed', { message: err instanceof Error ? err.message : String(err) });
         setError('Something went wrong. Please try again.');
       }
     } finally {

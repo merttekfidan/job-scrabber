@@ -1,5 +1,6 @@
 import React from 'react';
 import { Briefcase, ExternalLink } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -10,9 +11,11 @@ export function ContentTab({ app }) {
                 <div className="text-base text-gray-400">
                     Archived from <a href={app.job_url} target="_blank" rel="noreferrer" className="text-blue-400 hover:underline">{new URL(app.job_url).hostname}</a>
                 </div>
-                <a href={app.job_url} target="_blank" rel="noreferrer" className="btn btn-sm btn-secondary flex items-center gap-2">
-                    <ExternalLink size={14} /> View Live
-                </a>
+                <Button variant="secondary" size="sm" asChild>
+                    <a href={app.job_url} target="_blank" rel="noreferrer" className="flex items-center gap-2">
+                        <ExternalLink size={14} /> View Live
+                    </a>
+                </Button>
             </div>
             <div className="bg-gray-950/50 rounded-xl border border-gray-700/50 p-8 max-h-[600px] overflow-y-auto">
                 {app.formatted_content ? (

@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { parseJson, formatDate, getStatusClass } from './utils';
 import { formatSalary } from '@/lib/currencyUtils';
+import { Card } from '@/components/ui/card';
 import OverviewPanel from './OverviewPanel';
 import PrepPanel from './PrepPanel';
 import NotesPanel from './NotesPanel';
@@ -74,7 +75,7 @@ export default function JobDetailView({
                     <div className="col-span-12 lg:col-span-3">
                         <div className="sticky top-20 space-y-4">
                             {/* Company Card */}
-                            <div className="glass-card p-5">
+                            <Card className="border-white/10 bg-[var(--bg-card)] backdrop-blur-xl p-5">
                                 <div className="flex items-center gap-3 mb-4">
                                     <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400 font-bold text-xl">
                                         {app.company?.charAt(0) || '?'}
@@ -113,10 +114,10 @@ export default function JobDetailView({
                                         <span className="text-gray-500 text-base">{formatDate(app.application_date || app.created_at)}</span>
                                     </div>
                                 </div>
-                            </div>
+                            </Card>
 
                             {/* Status Selector */}
-                            <div className="glass-card p-4">
+                            <Card className="border-white/10 bg-[var(--bg-card)] backdrop-blur-xl p-4">
                                 <label className="label-uppercase mb-2 block">Status</label>
                                 <select
                                     className="w-full bg-gray-900/50 border border-white/10 rounded-lg px-3 py-2 text-white text-base focus:ring-1 focus:ring-indigo-500/50 outline-none"
@@ -130,11 +131,11 @@ export default function JobDetailView({
                                     <option value="Withdrawn">Withdrawn</option>
                                     <option value="Accepted">Accepted</option>
                                 </select>
-                            </div>
+                            </Card>
 
                             {/* Skills Preview */}
                             {parseJson(app.required_skills).length > 0 && (
-                                <div className="glass-card p-4">
+                                <Card className="border-white/10 bg-[var(--bg-card)] backdrop-blur-xl p-4">
                                     <label className="label-uppercase mb-2 block">Top Skills</label>
                                     <div className="flex flex-wrap gap-1">
                                         {parseJson(app.required_skills).slice(0, 6).map((skill, i) => (
@@ -144,7 +145,7 @@ export default function JobDetailView({
                                             <span className="text-[10px] text-gray-600">+{parseJson(app.required_skills).length - 6}</span>
                                         )}
                                     </div>
-                                </div>
+                                </Card>
                             )}
 
                             {/* Delete */}
@@ -177,11 +178,12 @@ export default function JobDetailView({
                         </div>
 
                         {/* Tab Content */}
-                        <div className="glass-card p-6">
+                        <Card className="border-white/10 bg-[var(--bg-card)] backdrop-blur-xl p-6">
                             {activeTab === 'overview' && (
                                 <OverviewPanel
                                     app={app}
                                     isAnalyzing={isAnalyzing}
+                                    onAnalyzeJob={onAnalyzeJob}
                                     onGenerateInsights={onGenerateInsights}
                                     onShare={onShare}
                                 />
@@ -194,15 +196,15 @@ export default function JobDetailView({
                                     onUpdateDetails={onUpdateDetails}
                                 />
                             )}
-                        </div>
+                        </Card>
                     </div>
 
                     {/* ── Right Sidebar: Notes ── */}
                     <div className="col-span-12 lg:col-span-3">
                         <div className="sticky top-20">
-                            <div className="glass-card p-5">
+                            <Card className="border-white/10 bg-[var(--bg-card)] backdrop-blur-xl p-5">
                                 <NotesPanel app={app} onUpdateDetails={onUpdateDetails} />
-                            </div>
+                            </Card>
                         </div>
                     </div>
 

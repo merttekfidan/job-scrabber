@@ -1,5 +1,6 @@
 import React from 'react';
 import { Briefcase, User, ExternalLink, Share2, Sparkles, RefreshCw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export function CompanyTab({ app, isAnalyzing, onGenerateInsights, onShare }) {
     const insights = app.personalized_analysis?.companyInsights;
@@ -9,21 +10,24 @@ export function CompanyTab({ app, isAnalyzing, onGenerateInsights, onShare }) {
             <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-bold text-white">Company Intelligence</h3>
                 <div className="flex gap-2">
-                    <button
+                    <Button
+                        variant="secondary"
+                        size="sm"
+                        className="bg-gray-700 hover:bg-gray-600 border-none text-gray-300"
                         onClick={(e) => { e.stopPropagation(); onShare(app.id); }}
-                        className="btn btn-sm bg-gray-700 hover:bg-gray-600 border-none text-gray-300 transition-colors"
                         title="Copy Public Share Link"
                     >
                         <Share2 size={14} className="mr-2" /> Share
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                        size="sm"
+                        className="bg-indigo-600 hover:bg-indigo-500 border-none shadow-lg shadow-indigo-900/20 disabled:opacity-50 disabled:cursor-not-allowed"
                         onClick={(e) => { e.stopPropagation(); onGenerateInsights(app.id); }}
                         disabled={isAnalyzing}
-                        className="btn btn-primary btn-sm bg-indigo-600 hover:bg-indigo-500 border-none shadow-lg shadow-indigo-900/20 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {isAnalyzing ? <RefreshCw size={14} className="animate-spin mr-2" /> : <Sparkles size={14} className="mr-2" />}
                         {isAnalyzing ? 'Generating...' : 'Generate Deep Insights'}
-                    </button>
+                    </Button>
                 </div>
             </div>
 
@@ -50,14 +54,15 @@ export function CompanyTab({ app, isAnalyzing, onGenerateInsights, onShare }) {
                 ) : (
                     <div className="text-center py-10">
                         <p className="text-gray-400 mb-6 italic">No company description available.</p>
-                        <button
+                        <Button
+                            size="sm"
+                            className="mx-auto"
                             onClick={(e) => { e.stopPropagation(); onGenerateInsights(app.id); }}
                             disabled={isAnalyzing}
-                            className="btn btn-primary btn-sm mx-auto"
                         >
                             {isAnalyzing ? <RefreshCw size={16} className="animate-spin mr-2" /> : <Sparkles size={16} className="mr-2" />}
                             Generate Company Insights
-                        </button>
+                        </Button>
                     </div>
                 )}
             </div>

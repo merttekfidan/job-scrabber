@@ -2,12 +2,14 @@
 
 import React from 'react';
 import { Search, SlidersHorizontal, ChevronDown } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 
 const selectClass = "appearance-none bg-gray-900/50 border border-white/10 rounded-lg py-2 pl-3 pr-8 text-base text-gray-400 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all cursor-pointer";
 
 export default function ApplicationFilters({ filters, setFilters, companies = [], totalCount }) {
     return (
-        <div className="glass-card p-4 flex flex-col sm:flex-row gap-3 items-center">
+        <Card className="border-white/10 bg-[var(--bg-card)] backdrop-blur-xl p-4">
+        <CardContent className="p-0 flex flex-col sm:flex-row gap-3 items-center">
             {/* Search */}
             <div className="relative flex-1 w-full">
                 <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
@@ -79,6 +81,7 @@ export default function ApplicationFilters({ filters, setFilters, companies = []
                     <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" size={12} />
                 </div>
             </div>
-        </div>
+        </CardContent>
+        </Card>
     );
 }

@@ -1,6 +1,6 @@
-# Chrome Extension - Job Application Tracker
+# HuntIQ Chrome Extension
 
-AI-powered Chrome extension for tracking job applications with automated interview preparation notes.
+AI-powered extension for capturing job postings and syncing with the HuntIQ web app. Part of the [HuntIQ](https://github.com/your-org/job-scrabber) project — see the root **README.md** for app setup, auth, and deployment.
 
 ## 🚀 Installation
 
@@ -30,15 +30,14 @@ AI-powered Chrome extension for tracking job applications with automated intervi
 
 ### 3. Configure Remote Storage (Optional)
 
-To sync your applications to the backend API:
+To sync with the HuntIQ web app:
 
-1. Deploy the server (see `../README.md`)
-2. Get your deployed URL (e.g., `https://your-app.up.railway.app`)
-3. In extension settings, set **API Endpoint URL** to:
-   ```
-   https://your-app.up.railway.app/api/save
-   ```
-   (Or `http://localhost:3000/api/save` for local development)
+1. Run or deploy the app (see root `README.md`). Dev: `npm run dev` → http://localhost:3000
+2. Log in at the app in the same browser (cookies used for auth).
+3. In extension settings, set **API Endpoint URL** to your app origin, e.g.:
+   - Local: `http://localhost:3000`
+   - Production: `https://your-app.up.railway.app`
+   The extension uses the app’s `/api/extension/process` and related APIs with your session.
 
 ## 📖 Usage
 
@@ -55,8 +54,8 @@ To sync your applications to the backend API:
 
 ### Viewing Applications
 
-- **In Extension**: Click the extension icon to see recent captures
-- **In Dashboard**: Open the dashboard (see root `../README.md` or access your deployed URL) for full management
+- **In Extension**: Click the extension icon to see recent captures.
+- **In App**: Open the web app (same origin as API URL); use Dashboard, Kanban, and Coach after logging in.
 
 ## 🎯 Features
 

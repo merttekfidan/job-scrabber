@@ -1,5 +1,6 @@
 import React from 'react';
 import { Sparkles, RefreshCw, CheckCircle, AlertCircle, XCircle, User } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { MatchScoreGauge, SkillGapBars } from '../VisualFrameworks';
 import HiringFrameworks from '../HiringFrameworks';
 import { SwotQuadrant } from '../shared/SwotQuadrant';
@@ -14,8 +15,8 @@ export function CoachTab({ app, isAnalyzing, onAnalyzeJob, onUpdateDetails }) {
                 <p className="text-gray-400 mb-6 max-w-md mx-auto">
                     Cross-reference this job with your active CV to get a SWOT analysis and tailored interview talking points.
                 </p>
-                <button
-                    className="btn btn-primary bg-purple-600 hover:bg-purple-700 border-none shadow-lg shadow-purple-900/20"
+                <Button
+                    className="bg-purple-600 hover:bg-purple-700 border-none shadow-lg shadow-purple-900/20"
                     onClick={(e) => { e.stopPropagation(); onAnalyzeJob(app.id); }}
                     disabled={isAnalyzing}
                 >
@@ -24,7 +25,7 @@ export function CoachTab({ app, isAnalyzing, onAnalyzeJob, onUpdateDetails }) {
                     ) : (
                         'Generate Personalized Insights'
                     )}
-                </button>
+                </Button>
             </div>
         );
     }
@@ -52,14 +53,16 @@ export function CoachTab({ app, isAnalyzing, onAnalyzeJob, onUpdateDetails }) {
                     <h4 className="text-white font-bold text-lg flex items-center gap-2">
                         <Sparkles size={20} className="text-blue-400" /> Executive SWOT Analysis
                     </h4>
-                    <button
-                        className="btn btn-sm btn-secondary flex items-center gap-2"
+                    <Button
+                        variant="secondary"
+                        size="sm"
+                        className="flex items-center gap-2"
                         onClick={(e) => { e.stopPropagation(); onAnalyzeJob(app.id); }}
                         disabled={isAnalyzing}
                     >
                         {isAnalyzing ? <RefreshCw size={14} className="animate-spin" /> : <RefreshCw size={14} />}
                         {isAnalyzing ? 'Analyzing...' : 'Re-Generate SWOT'}
-                    </button>
+                    </Button>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <SwotQuadrant color="green" icon={<CheckCircle size={18} />} title="Strengths" items={parseJson(app.personalized_analysis.swot?.strengths)} />

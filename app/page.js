@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 import Link from "next/link";
-import Dashboard from '@/components/Dashboard';
 import Image from 'next/image';
 import { Sparkles, MousePointerClick, Kanban, Brain, Rocket } from 'lucide-react';
 import HeroPreview from '@/components/HeroPreview';
@@ -14,10 +14,8 @@ export const metadata = {
 export default async function Home() {
   const session = await auth();
 
-  if (session) {
-    // If user is logged in, show the Dashboard rather than a redirect
-    // to keep URL as root and keep it smooth
-    return <Dashboard session={session} />;
+  if (session?.user?.id) {
+    redirect('/dashboard');
   }
 
   // If user is not logged in, show the Intro Landing Page

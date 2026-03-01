@@ -1,76 +1,77 @@
-# Job Application Tracker (Next.js Edition)
+# HuntIQ — AI-Powered Job Application Tracker
 
-A comprehensive job application tracking dashboard, now built with **Next.js 14+ (App Router)** and **PostgreSQL**.
+Job application tracking dashboard with **Next.js (App Router)**, **PostgreSQL**, and optional AI coaching. Supports a Chrome extension for saving jobs.
 
 ## Features
 
-- **Responsive Dashboard**: Track applications, interviews, and offers in a clean, dark-mode UI.
-- **Analytics**: Visual charts for application trends, status distribution, and top companies.
-- **Filtering & Search**: Advanced filtering by status, company, work mode, and full-text search.
-- **Chrome Extension Support**: API ready to accept data from the HuntIQ extension.
-- **Export Data**: Export your applications to CSV.
+- **Dashboard**: Stats, filters, application list, and load-more.
+- **Kanban**: Pipeline view (Applied → Interviewing → Offer) with drag-and-drop.
+- **Coach**: CV upload and AI-powered prep (STAR, salary, 30-60-90, etc.).
+- **Application detail**: Timeline, notes, company insights, SWOT, job description, tech stack.
+- **Chrome extension**: Save jobs from the browser; sync with the app.
+- **Auth**: NextAuth v5 (Credentials, JWT). Middleware protects routes; Edge-safe auth for `/dashboard`, `/kanban`, `/coach`, `/application/*`.
 
-## Tech Stack
+## Tech stack
 
-- **Framework**: Next.js 14+ (App Router)
-- **Database**: PostgreSQL (via `pg`)
-- **Styling**: Tailwind CSS + Custom CSS (for legacy design fidelity)
-- **Icons**: Lucide React
-- **Charts**: Chart.js / React-Chartjs-2
+- **Framework**: Next.js 14+ (App Router), TypeScript
+- **Database**: PostgreSQL (`pg`)
+- **Auth**: NextAuth v5, JWT; middleware uses `auth-edge.ts` (Edge-safe)
+- **Data**: React Query, typed `lib/api-client`, hooks in `hooks/`
+- **UI**: Tailwind CSS, Shadcn/UI, Lucide React, Sonner toasts
+- **State**: Zustand (UI store)
 
-## Getting Started
+## Getting started
 
 ### Prerequisites
 
 - Node.js 18+
-- PostgreSQL database
+- PostgreSQL
 
-### Installation
+### Setup
 
-1. **Clone & Install**
+1. **Install**
    ```bash
    npm install
    ```
 
-2. **Environment Setup**
-   Create a `.env.local` file in the root:
+2. **Environment**  
+   Create `.env.local`:
    ```bash
    DATABASE_URL=postgresql://user:password@host:port/dbname
+   AUTH_SECRET=<generate-with-openssl-rand-base64-32>
    ```
+   Optional: `GROQ_API_KEY` for AI features.
 
-3. **Run Migrations**
-   Initialize the database schema:
-   ```bash
-   npm run migrate
-   ```
+3. **Database**  
+   Apply schema (e.g. run migrations or `schema.sql`).
 
-4. **Run Development Server**
+4. **Run**
    ```bash
    npm run dev
    ```
-   Open [http://localhost:3000](http://localhost:3000).
+   App: [http://localhost:3000](http://localhost:3000) (port 3000 only).
 
-## Deployment (Railway)
+## Scripts
 
-The project is configured for Railway deployment.
+- `npm run dev` — Start dev server (kills process on 3000, then starts).
+- `npm run build` — Production build.
+- `npm run migrate` — Run DB migrations (if configured).
 
-1. **Connect Repository**: Connect your GitHub repo to Railway.
-2. **Environment Variables**: Add `DATABASE_URL` in Railway variables.
-3. **Build Command**: Railway automatically detects Next.js (`npm run build`).
-4. **Start Command**: Railway automatically runs `npm start`.
+## Docs
 
-### Migrations in Production
+- **Product vision**: `PROJECT_OVERVIEW.md` — value proposition, user journey, and future ideas.
+- **Testing**: `docs/TESTING.md` — manual test flows and checklist.
+- **Roadmap**: `docs/IMPLEMENTATION_ROADMAP.md` — phase history and current status.
+- **Checklist**: `docs/RECENT_CHANGES_CHECKLIST.md` — quick verification reference.
 
-You can run migrations manually via the Railway CLI or add it to the start command if desired (though manual is safer for production).
+## API (overview)
 
-## API Documentation
+- `GET /api/list` — List applications.
+- `POST /api/save` — Save application (extension).
+- `GET /api/stats` — Dashboard stats.
+- `GET /api/filter` — Filtered list.
+- Plus profile, companies, CV upload/analyze, AI insights/frameworks, etc. All require auth except health/login.
 
-The API is available at `/api/...`.
-- `GET /api/list`: List all applications.
-- `POST /api/save`: Save a new application (used by extension).
-- `GET /api/stats`: Get dashboard statistics.
-- `GET /api/analytics`: Get detailed chart data.
+## Deployment (e.g. Railway)
 
-## Legacy Code
-
-The old Express.js/PHP codebase is archived in `_legacy/` for reference.
+Set `DATABASE_URL` and `AUTH_SECRET`. Build: `npm run build`. Start: `npm start`. Run migrations separately if needed.

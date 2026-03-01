@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { parseJson, formatDate, getStatusClass } from './utils';
 import { formatSalary } from '@/lib/currencyUtils';
+import { Card } from '@/components/ui/card';
 
 // ─── Sub-components ────────────────────────────────────────────
 import { CompanyTab } from './tabs/CompanyTab';
@@ -36,7 +37,7 @@ function ApplicationCardComponent({
     isAnalyzing,
 }) {
     return (
-        <div className={`glass-card-hover overflow-hidden ${isExpanded ? 'glow-border' : ''}`}>
+        <Card className={`border-white/10 bg-[var(--bg-card)] backdrop-blur-xl overflow-hidden transition-all hover:border-purple-500/40 hover:shadow-[0_0_30px_-5px_rgba(139,92,246,0.3)] ${isExpanded ? 'border-purple-500/30 shadow-[0_0_15px_-3px_rgba(139,92,246,0.4)]' : ''}`}>
             {/* Collapsed Header */}
             <button
                 className="w-full p-5 text-left"
@@ -132,7 +133,7 @@ function ApplicationCardComponent({
                     </div>
                 </div>
             )}
-        </div>
+        </Card>
     );
 }
 

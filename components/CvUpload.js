@@ -25,8 +25,8 @@ export default function CvUpload() {
             if (data.success && data.cv) {
                 setCvData(data.cv);
             }
-        } catch (err) {
-            console.error('Failed to fetch CV:', err);
+        } catch {
+            setError('Failed to load CV data');
         }
     };
 

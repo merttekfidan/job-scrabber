@@ -4,6 +4,7 @@ import React from 'react';
 import {
     RefreshCw, Sparkles, ExternalLink, GraduationCap, Users
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { parseJson } from './utils';
 import { InterviewProgress } from './VisualFrameworks';
 import { InterviewQuestionsList, QuestionsToAskList, RedFlagsList, QuickReferenceCard } from './InterviewPrepTools';
@@ -36,8 +37,8 @@ export default function PrepPanel({ app, isAnalyzing, onAnalyzeJob, onUpdateDeta
                     <p className="text-gray-400 mb-6 max-w-md mx-auto text-base">
                         Cross-reference this job with your CV — get tailored talking points, SWOT analysis, and interview prep.
                     </p>
-                    <button
-                        className="btn btn-primary bg-purple-600 hover:bg-purple-700 border-none shadow-lg shadow-purple-900/20"
+                    <Button
+                        className="bg-purple-600 hover:bg-purple-700 border-none shadow-lg shadow-purple-900/20"
                         onClick={() => onAnalyzeJob(app.id)}
                         disabled={isAnalyzing}
                     >
@@ -46,7 +47,7 @@ export default function PrepPanel({ app, isAnalyzing, onAnalyzeJob, onUpdateDeta
                         ) : (
                             'Generate Personalized Insights'
                         )}
-                    </button>
+                    </Button>
                 </div>
             )}
 
@@ -152,8 +153,10 @@ export default function PrepPanel({ app, isAnalyzing, onAnalyzeJob, onUpdateDeta
                     <h3 className="text-lg font-bold text-white flex items-center gap-2">
                         <Users size={18} className="text-blue-400" /> Interview Rounds
                     </h3>
-                    <button
-                        className="btn btn-secondary btn-sm flex items-center gap-2 text-base"
+                    <Button
+                        variant="secondary"
+                        size="sm"
+                        className="flex items-center gap-2 text-base"
                         onClick={() => {
                             const currentStages = Array.isArray(stages) ? stages : [];
                             const newStage = {
@@ -168,7 +171,7 @@ export default function PrepPanel({ app, isAnalyzing, onAnalyzeJob, onUpdateDeta
                     >
                         <div className="w-4 h-4 bg-green-500/20 text-green-400 rounded-full flex items-center justify-center text-base">+</div>
                         Add Round
-                    </button>
+                    </Button>
                 </div>
 
                 {stages.length > 0 && (

@@ -1,9 +1,12 @@
 import type { NextAuthConfig } from 'next-auth';
+import logger from '@/lib/logger';
 
 const isProduction = process.env.NODE_ENV === 'production';
 
 export default {
   providers: [],
+  session: { strategy: 'jwt' },
+  trustHost: true,
   pages: {
     signIn: '/login',
     error: '/auth/error',
@@ -37,7 +40,6 @@ export default {
     },
   },
   debug: true,
-  trustHost: true,
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       try {
@@ -57,7 +59,7 @@ export default {
         }
         return true;
       } catch (err) {
-        console.error('[Auth] authorized callback error:', err);
+        logger.error('Auth authorized callback failed', { message: err instanceof Error ? err.message : String(err) });
         return false;
       }
     },

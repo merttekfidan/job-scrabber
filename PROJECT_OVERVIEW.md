@@ -1,12 +1,16 @@
-# Job Scrabber: Product Overview & Strategy
+# HuntIQ: Product Overview & Strategy
+
+**Current implementation:** Next.js app + Chrome extension. See root `README.md` and `docs/` for setup and testing.
+
+---
 
 ## 🚀 The Vision
-**Job Scrabber** is your personal career co-pilot. It transforms the chaotic manual process of job hunting into a streamlined, AI-driven experience that gives candidates an unfair advantage in a competitive market.
+**HuntIQ** is your personal career co-pilot. It transforms the chaotic manual process of job hunting into a streamlined, AI-driven experience that gives candidates an unfair advantage in a competitive market.
 
-## � The Core Value Proposition
+## The Core Value Proposition
 "From 'Just another application' to 'The most prepared candidate' in 15 seconds."
 
-Job Scrabber solves the **Cognitive Load** problem of job hunting. Instead of worrying about data entry and tracking, users spend their energy on what actually matters: **Interview Performance**.
+HuntIQ solves the **Cognitive Load** problem of job hunting. Instead of worrying about data entry and tracking, users spend their energy on what actually matters: **Interview Performance**.
 
 ---
 
@@ -32,7 +36,7 @@ All applications land in a central dashboard.
 
 ## 🎯 Brainstorming Hooks: Where can we go next?
 
-This section is for thinking about the future of Job Scrabber.
+This section is for thinking about the future of HuntIQ.
 
 | Opportunity Area | Potential Feature |
 | :--- | :--- |
@@ -53,7 +57,7 @@ This section is for thinking about the future of Job Scrabber.
 
 ## 🧠 The AI Brain (The Prompts)
 
-To help with brainstorming, here is the core "instruction set" that Job Scrabber uses to process every job. This is the logic that lives inside the Chrome extension:
+To help with brainstorming, here is the core "instruction set" that HuntIQ uses to process every job. This is the logic that lives inside the Chrome extension:
 
 ### The Extraction & Coach Prompt
 ```text

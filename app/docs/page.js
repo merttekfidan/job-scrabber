@@ -10,7 +10,7 @@ export const metadata = {
 export default function DocsPage() {
     return (
         <div className="min-h-screen bg-black text-gray-200">
-            <header className="glass-card sticky top-0 z-50 rounded-none border-t-0 border-x-0">
+            <header className="sticky top-0 z-50 rounded-none border-t-0 border-x-0 border-b border-white/10 bg-[var(--bg-card)] backdrop-blur-xl">
                 <div className="container py-4 flex items-center justify-between">
                     <Link href="/" className="flex items-center gap-2 group">
                         <ArrowLeft size={20} className="text-gray-400 group-hover:text-white transition-colors" />
@@ -47,7 +47,7 @@ export default function DocsPage() {
                         <p className="text-gray-400 text-lg">
                             HuntIQ is your central hub for job hunting. To get the most out of the platform, you'll want to use both the web dashboard and the Chrome Extension.
                         </p>
-                        <div className="glass-card p-6 border-l-4 border-l-purple-500 rounded-r-xl bg-purple-900/10">
+                        <div className="p-6 border border-white/10 border-l-4 border-l-purple-500 rounded-r-xl bg-[var(--bg-card)] backdrop-blur-xl bg-purple-900/10">
                             <strong>Quick Tip:</strong> Upload your latest CV in the "Coach" tab first. Our AI uses your CV to generate personalized insights for every job you save.
                         </div>
                     </section>

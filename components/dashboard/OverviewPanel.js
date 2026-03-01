@@ -3,14 +3,15 @@
 import React, { useState } from 'react';
 import {
     Search, Briefcase, Building2, ExternalLink, AlertTriangle,
-    User, Sparkles, RefreshCw, Share2, ChevronDown
+    User, Sparkles, RefreshCw, Share2, ChevronDown, FileText
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { Button } from '@/components/ui/button';
 import { parseJson } from './utils';
 import { MatchScoreGauge, SkillGapBars } from './VisualFrameworks';
 
-export default function OverviewPanel({ app, isAnalyzing, onGenerateInsights, onShare }) {
+export default function OverviewPanel({ app, isAnalyzing, onAnalyzeJob, onGenerateInsights, onShare }) {
     const insights = app.personalized_analysis?.companyInsights;
     const personalAnalysis = app.personalized_analysis;
     const [showOriginal, setShowOriginal] = useState(false);
@@ -97,20 +98,23 @@ export default function OverviewPanel({ app, isAnalyzing, onGenerateInsights, on
                         <Building2 size={18} className="text-blue-400" /> Company Intel
                     </h3>
                     <div className="flex gap-2">
-                        <button
+                        <Button
+                            variant="secondary"
+                            size="sm"
+                            className="bg-gray-700 hover:bg-gray-600 border-none text-gray-300 text-base"
                             onClick={() => onShare(app.id)}
-                            className="btn btn-sm bg-gray-700 hover:bg-gray-600 border-none text-gray-300 text-base"
                         >
                             <Share2 size={12} className="mr-1.5" /> Share
-                        </button>
-                        <button
+                        </Button>
+                        <Button
+                            size="sm"
+                            className="bg-indigo-600 hover:bg-indigo-500 border-none text-base disabled:opacity-50"
                             onClick={() => onGenerateInsights(app.id)}
                             disabled={isAnalyzing}
-                            className="btn btn-primary btn-sm bg-indigo-600 hover:bg-indigo-500 border-none text-base disabled:opacity-50"
                         >
                             {isAnalyzing ? <RefreshCw size={12} className="animate-spin mr-1.5" /> : <Sparkles size={12} className="mr-1.5" />}
                             {isAnalyzing ? 'Generating...' : 'Generate Insights'}
-                        </button>
+                        </Button>
                     </div>
                 </div>
 
@@ -191,19 +195,18 @@ export default function OverviewPanel({ app, isAnalyzing, onGenerateInsights, on
             </div>
 
             {/* ── SWOT Analysis ── */}
-            {personalAnalysis && (
-                <div className="border-t border-white/5 pt-8">
-                    <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-                        <Sparkles size={18} className="text-purple-400" /> SWOT Analysis
-                    </h3>
+            <div className="border-t border-white/5 pt-8">
+                <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+                    <Sparkles size={18} className="text-purple-400" /> SWOT Analysis
+                </h3>
 
-                    {personalAnalysis.matchScore != null && (
-                        <div className="mb-6">
-                            <MatchScoreGauge score={personalAnalysis.matchScore} />
-                        </div>
-                    )}
-
-                    {personalAnalysis.swot && (
+                {personalAnalysis?.swot ? (
+                    <>
+                        {personalAnalysis.matchScore != null && (
+                            <div className="mb-6">
+                                <MatchScoreGauge score={personalAnalysis.matchScore} />
+                            </div>
+                        )}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {[
                                 { key: 'strengths', bg: 'bg-emerald-500/5', border: 'border-emerald-500/15', text: 'text-emerald-400', icon: '💪', title: 'Strengths' },
@@ -227,15 +230,31 @@ export default function OverviewPanel({ app, isAnalyzing, onGenerateInsights, on
                                 );
                             })}
                         </div>
-                    )}
-
-                    {personalAnalysis.skillGaps && personalAnalysis.skillGaps.length > 0 && (
-                        <div className="mt-6">
-                            <SkillGapBars gaps={personalAnalysis.skillGaps} />
-                        </div>
-                    )}
-                </div>
-            )}
+                        {personalAnalysis.skillGaps && personalAnalysis.skillGaps.length > 0 && (
+                            <div className="mt-6">
+                                <SkillGapBars gaps={personalAnalysis.skillGaps} />
+                            </div>
+                        )}
+                    </>
+                ) : onAnalyzeJob ? (
+                    <div className="bg-gray-800/30 p-8 rounded-xl border border-dashed border-gray-600 text-center">
+                        <FileText className="mx-auto mb-3 text-purple-400" size={32} />
+                        <p className="text-gray-400 mb-4 max-w-md mx-auto text-base">
+                            Compare this job with your CV to get a strengths/weaknesses analysis and match score.
+                        </p>
+                        <Button
+                            type="button"
+                            className="bg-purple-600 hover:bg-purple-700 border-none text-base inline-flex items-center gap-2"
+                            onClick={() => onAnalyzeJob(app.id)}
+                            disabled={isAnalyzing}
+                        >
+                            {isAnalyzing ? <RefreshCw size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                            {isAnalyzing ? 'Analyzing...' : 'Generate SWOT analysis'}
+                        </Button>
+                        <p className="text-gray-500 text-sm mt-3">Requires an uploaded CV in your profile.</p>
+                    </div>
+                ) : null}
+            </div>
 
             {/* ── Original Job Post (collapsible) ── */}
             <div className="border-t border-white/5 pt-6">

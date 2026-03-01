@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { RefreshCw, Sparkles, ChevronDown } from 'lucide-react';
+import logger from '@/lib/logger';
 
 const FRAMEWORKS = {
     star: { label: '⭐ STAR Stories', desc: 'Behavioral interview answers from your CV' },
@@ -32,7 +33,7 @@ export default function HiringFrameworks({ appId, existingData, onDataUpdate }) 
                 alert(err.error || 'Failed to generate');
             }
         } catch (e) {
-            console.error(e);
+            logger.error('Hiring framework generate failed', { message: e instanceof Error ? e.message : String(e) });
             alert('Failed to generate framework');
         } finally {
             setLoading(null);
