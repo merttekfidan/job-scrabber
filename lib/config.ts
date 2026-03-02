@@ -9,7 +9,7 @@ const config = {
   env: process.env.NODE_ENV || 'development',
   isProduction,
 
-  appUrl: process.env.NEXT_PUBLIC_APP_URL || (isProduction ? 'https://huntiq.work' : 'http://localhost:3000'),
+  appUrl: process.env.NEXT_PUBLIC_APP_URL || (isProduction ? 'https://www.huntiq.work' : 'http://localhost:3000'),
   databaseUrl: process.env.DATABASE_URL || process.env.DATABASE_PUBLIC_URL,
   authSecret: process.env.AUTH_SECRET,
   groqApiKey: process.env.GROQ_API_KEY,

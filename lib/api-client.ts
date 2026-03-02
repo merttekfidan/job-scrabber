@@ -3,15 +3,24 @@
  * Base URL is relative so it works in browser and with extension.
  */
 
+/** Canonical production host (GoDaddy/Railway often only serve www). */
+const PROD_CANONICAL = 'https://www.huntiq.work';
+
 function getBaseUrl(): string {
   if (typeof window !== 'undefined') return '';
-  return process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
+  const raw = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
+  if (raw.startsWith('https://huntiq.work') && raw !== PROD_CANONICAL) return PROD_CANONICAL;
+  return raw;
 }
 
 function buildUrl(path: string, params?: Record<string, string | number | undefined>): string {
   const base = getBaseUrl();
   const pathOnly = path.startsWith('http') ? path : `${base}${path.startsWith('/') ? path : `/${path}`}`;
-  const baseForUrl = typeof window !== 'undefined' ? window.location.origin : undefined;
+  let baseForUrl: string | undefined;
+  if (typeof window !== 'undefined') {
+    baseForUrl = window.location.origin;
+    if (baseForUrl === 'https://huntiq.work') baseForUrl = PROD_CANONICAL;
+  }
   const url = baseForUrl ? new URL(pathOnly, baseForUrl) : new URL(pathOnly);
   if (params) {
     Object.entries(params).forEach(([key, value]) => {

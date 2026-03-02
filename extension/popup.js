@@ -2,11 +2,17 @@ import { DEFAULT_CONFIG } from './config.js';
 
 let CONFIG = DEFAULT_CONFIG;
 
+const PROD_CANONICAL = 'https://www.huntiq.work';
+
 async function getEnvironmentConfig() {
   const result = await chrome.storage.local.get(['environment']);
   const isDev = result.environment === 'development';
+  let backendUrl = isDev ? DEFAULT_CONFIG.DEV_URL : DEFAULT_CONFIG.PROD_URL;
+  if (!isDev && backendUrl.startsWith('https://huntiq.work') && backendUrl !== PROD_CANONICAL) {
+    backendUrl = PROD_CANONICAL;
+  }
   return {
-    BACKEND_URL: isDev ? DEFAULT_CONFIG.DEV_URL : DEFAULT_CONFIG.PROD_URL,
+    BACKEND_URL: backendUrl,
     IS_DEV: isDev,
     VERSION: DEFAULT_CONFIG.VERSION,
   };
