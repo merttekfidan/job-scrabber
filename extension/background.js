@@ -22,7 +22,38 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             .catch(error => sendResponse({ success: false, error: error.message }));
         return true; // Keep message channel open for async response
     }
+    if (request.action === 'getSessionViaTab') {
+        getSessionViaDashboardTab().then(sendResponse).catch((err) => sendResponse({ error: err.message || 'no_tab' }));
+        return true;
+    }
 });
+
+/** Get session from a HuntIQ dashboard tab (same-origin fetch, no CORS). */
+async function getSessionViaDashboardTab() {
+    const CONFIG = await getEnvironmentConfig();
+    const base = CONFIG.BACKEND_URL.replace(/\/$/, '');
+    const tabs = await chrome.tabs.query({ url: base + '/*' });
+    if (!tabs.length) {
+        throw new Error('no_tab');
+    }
+    const tab = tabs[0];
+    if (!tab.id) {
+        throw new Error('no_tab');
+    }
+    return new Promise((resolve, reject) => {
+        chrome.tabs.sendMessage(tab.id, { action: 'getSession' }, (response) => {
+            if (chrome.runtime.lastError) {
+                reject(new Error('no_tab'));
+                return;
+            }
+            if (response && response.error) {
+                reject(new Error(response.error));
+                return;
+            }
+            resolve(response || {});
+        });
+    });
+}
 
 // Process job data through the server-side API
 async function processJobServerSide(extractedData) {

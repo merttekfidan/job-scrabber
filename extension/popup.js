@@ -61,59 +61,83 @@ function updateUIToOffline() {
   }
 }
 
-async function checkConnection() {
+/** Try to get session via a dashboard tab (same-origin, no CORS). */
+function checkConnectionViaTab() {
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage({ action: 'getSessionViaTab' }, (response) => {
+      if (chrome.runtime.lastError) {
+        resolve(null);
+        return;
+      }
+      resolve(response);
+    });
+  });
+}
+
+/** Direct fetch from extension (can fail due to CORS). */
+async function directFetchSession() {
   const baseUrl = CONFIG.BACKEND_URL;
   const headers = {};
   if (CONFIG.IS_DEV) headers['x-dev-extension'] = 'true';
 
-  console.log('[HuntIQ] checkConnection start', { baseUrl, isDev: CONFIG.IS_DEV });
+  const healthUrl = baseUrl + '/api/health';
+  const healthRes = await fetch(healthUrl, { method: 'GET', headers });
+  if (!healthRes.ok) return null;
 
-  try {
-    const healthUrl = baseUrl + '/api/health';
-    console.log('[HuntIQ] health fetch', healthUrl);
-    const healthRes = await fetch(healthUrl, { method: 'GET', headers });
-    console.log('[HuntIQ] health response', healthRes.status, healthRes.statusText);
-    if (!healthRes.ok) {
-      console.warn('[HuntIQ] health not ok, showing Offline');
-      updateUIToOffline();
-      return;
-    }
-  } catch (err) {
-    console.error('[HuntIQ] Health check failed:', err);
-    updateUIToOffline();
+  const sessionUrl = baseUrl + '/api/auth/session';
+  const response = await fetch(sessionUrl, { credentials: 'include', headers });
+  if (!response.ok) return null;
+  return response.json();
+}
+
+async function checkConnection() {
+  const baseUrl = CONFIG.BACKEND_URL;
+  console.log('[HuntIQ] checkConnection start', { baseUrl });
+
+  const tabSession = await checkConnectionViaTab();
+  if (tabSession && tabSession.user && tabSession.user.email) {
+    updateUIToLoggedIn(tabSession.user.email);
+    await chrome.storage.local.set({ userEmail: tabSession.user.email });
+    return;
+  }
+  if (tabSession && !tabSession.error && !tabSession.user?.email) {
+    await chrome.storage.local.remove(['userEmail']);
+    updateUIToLoggedOut();
+    return;
+  }
+  if (tabSession && tabSession.error && tabSession.error !== 'no_tab') {
+    await chrome.storage.local.remove(['userEmail']);
+    updateUIToLoggedOut();
     return;
   }
 
   try {
-    const sessionUrl = baseUrl + '/api/auth/session';
-    console.log('[HuntIQ] session fetch', sessionUrl);
-    const response = await fetch(sessionUrl, {
-      credentials: 'include',
-      headers,
-    });
-    console.log('[HuntIQ] session response', response.status, response.statusText);
-
-    if (!response.ok) {
-      await chrome.storage.local.remove(['userEmail']);
-      updateUIToLoggedOut();
-      return;
-    }
-
-    const session = await response.json();
-    console.log('[HuntIQ] session body', session?.user ? { email: session.user.email } : 'no user');
-
+    const session = await directFetchSession();
     if (session?.user?.email) {
       updateUIToLoggedIn(session.user.email);
       await chrome.storage.local.set({ userEmail: session.user.email });
-    } else {
-      await chrome.storage.local.remove(['userEmail']);
-      updateUIToLoggedOut();
+      return;
     }
+    await chrome.storage.local.remove(['userEmail']);
+    updateUIToLoggedOut();
   } catch (error) {
     console.error('[HuntIQ] Connection check failed:', error);
     await chrome.storage.local.remove(['userEmail']);
-    updateUIToOffline();
+    if (tabSession && tabSession.error === 'no_tab') {
+      userStatusSetOfflineWithHint();
+    } else {
+      updateUIToOffline();
+    }
   }
+}
+
+function userStatusSetOfflineWithHint() {
+  const userStatusDiv = document.getElementById('userStatus');
+  const statusDot = userStatusDiv.querySelector('.status-dot');
+  const userEmailSpan = userStatusDiv.querySelector('.user-email');
+  statusDot.className = 'status-dot disconnected';
+  userEmailSpan.innerHTML = 'Open <a href="' + CONFIG.BACKEND_URL + '" target="_blank">Dashboard</a> and log in';
+  if (logoutBtn) logoutBtn.classList.add('hidden');
 }
 
 async function handleLogout() {

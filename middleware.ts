@@ -44,10 +44,22 @@ function isProtectedPath(pathname: string): boolean {
   );
 }
 
+const CANONICAL_HOST = 'www.huntiq.work';
+
 export default auth((req: NextRequest & { auth: Session | null }) => {
   try {
-    const origin = req.headers.get('origin');
+    const host = req.headers.get('host') ?? '';
     const pathname = req.nextUrl.pathname;
+
+    // Apex → www redirect (Railway: add both domains; this makes apex point to www)
+    if (process.env.NODE_ENV === 'production' && host === 'huntiq.work') {
+      const url = new URL(req.url);
+      url.host = CANONICAL_HOST;
+      url.protocol = 'https:';
+      return NextResponse.redirect(url.toString(), 308);
+    }
+
+    const origin = req.headers.get('origin');
 
     if (origin && !isAllowedOrigin(origin)) {
       return new NextResponse(null, {

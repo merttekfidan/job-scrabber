@@ -32,6 +32,16 @@
   "content_scripts": [
     {
       "matches": [
+        "*://www.huntiq.work/*",
+        "*://huntiq.work/*",
+        "*://localhost:3000/*",
+        "*://127.0.0.1:3000/*"
+      ],
+      "js": ["dashboard-bridge.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
         "*://*.linkedin.com/*",
         "*://*.indeed.com/*",
         "*://*.glassdoor.com/*",
