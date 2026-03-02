@@ -7,8 +7,8 @@ export {
   useUpdateDetails,
   useDeleteApplication,
 } from './use-applications';
-export { useStats, useSmartAnalytics } from './use-stats';
-export type { StatsResponse, SmartAnalyticsResponse } from './use-stats';
+export { useStats } from './use-stats';
+export type { StatsResponse } from './use-stats';
 export { useCompanies } from './use-companies';
 export type { CompanyRow } from './use-companies';
 export { useProfile, useUpdateProfileSettings } from './use-profile';

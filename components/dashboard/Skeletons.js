@@ -6,19 +6,6 @@ import React from 'react';
  * Skeleton loading components — shimmer placeholders for dashboard sections.
  */
 
-export function StatsSkeleton() {
-    return (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            {[1, 2, 3, 4].map(i => (
-                <div key={i} className="bg-gray-900/40 border border-white/5 rounded-xl p-5 animate-pulse">
-                    <div className="h-3 w-20 bg-gray-700/50 rounded mb-3" />
-                    <div className="h-8 w-16 bg-gray-700/50 rounded" />
-                </div>
-            ))}
-        </div>
-    );
-}
-
 export function CardSkeleton() {
     return (
         <div className="bg-gray-900/40 border border-white/5 rounded-xl p-4 animate-pulse">

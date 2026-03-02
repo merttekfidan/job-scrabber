@@ -15,7 +15,7 @@
     "https://www.huntiq.work/*"
   ],
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'"
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' http://localhost:3000 https://aware-endurance-production-13b8.up.railway.app https://huntiq.work https://www.huntiq.work"
   },
   "action": {
     "default_popup": "popup.html",

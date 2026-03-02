@@ -54,7 +54,6 @@ export default function ProfileModal({ isOpen, onClose, session }) {
                                 {[
                                     { label: 'Dark Mode', desc: 'Use dark theme across the dashboard', on: true },
                                     { label: 'Email Notifications', desc: 'Receive interview reminders via email', on: true },
-                                    { label: 'Weekly Digest', desc: 'Receive a weekly summary', on: false },
                                     { label: 'Auto-Archive Rejections', desc: 'Archive rejections after 30 days', on: false },
                                 ].map(item => (
                                     <div key={item.label} className="flex items-center justify-between py-3 border-b border-gray-700/50 last:border-0">

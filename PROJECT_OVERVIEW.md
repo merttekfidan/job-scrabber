@@ -30,7 +30,6 @@ As soon as a job is captured, the product generates a **Battle Card** for the us
 ### 3. Unified Command Center 📊
 All applications land in a central dashboard.
 *   **Visibility**: See exactly where you are in every pipeline (Applied → Interviewing → Offered).
-*   **Analytics**: Identify which companies or roles are giving you the best response rates.
 
 ---
 

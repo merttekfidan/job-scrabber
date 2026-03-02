@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
-import { usePathname } from 'next/navigation';
+import React, { useState, useCallback, useEffect } from 'react';
+import { usePathname, useSearchParams, useRouter } from 'next/navigation';
 import { Briefcase } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -17,15 +17,13 @@ import { safeParseJson } from '@/lib/utils';
 import { DashboardHeader } from '@/components/layout/DashboardHeader';
 import CvUpload from '@/components/CvUpload';
 import ErrorBoundary from '@/components/ErrorBoundary';
-import StatsGrid from '@/components/dashboard/StatsGrid';
 import UpcomingInterviews from '@/components/dashboard/UpcomingInterviews';
 import ProfileModal from '@/components/dashboard/ProfileModal';
 import ApplicationFilters from '@/components/dashboard/ApplicationFilters';
 import ApplicationCard from '@/components/dashboard/ApplicationCard';
-import SmartAnalytics from '@/components/dashboard/SmartAnalytics';
 import JobDetailView from '@/components/dashboard/JobDetailView';
 import KanbanBoard from '@/components/dashboard/KanbanBoard';
-import { ApplicationListSkeleton, StatsSkeleton } from '@/components/dashboard/Skeletons';
+import { ApplicationListSkeleton } from '@/components/dashboard/Skeletons';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -47,8 +45,12 @@ type DashboardClientProps = {
   forceView?: 'dashboard' | 'applications' | 'coach';
 };
 
+const JOB_QUERY_PARAM = 'job';
+
 export default function DashboardClient({ session, forceView }: DashboardClientProps) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const currentView = forceView
     ? forceView === 'applications'
       ? 'applications'
@@ -68,7 +70,7 @@ export default function DashboardClient({ session, forceView }: DashboardClientP
     company: '',
     sortBy: 'date_desc' as const,
   });
-  const [selectedJobId, setSelectedJobId] = useState<string | number | null>(null);
+  const selectedJobId = searchParams.get(JOB_QUERY_PARAM);
   const [selectedApp, setSelectedApp] = useState<Application | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -92,7 +94,7 @@ export default function DashboardClient({ session, forceView }: DashboardClientP
     LIMIT
   );
 
-  const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useStats();
+  const { data: stats, refetch: refetchStats } = useStats();
   const { data: companies = [] } = useCompanies();
   const updateDetailsMutation = useUpdateDetails();
   const deleteMutation = useDeleteApplication();
@@ -101,10 +103,36 @@ export default function DashboardClient({ session, forceView }: DashboardClientP
 
   const applications = applicationsData?.pages?.flat() ?? [];
 
+  const selectedApplication = selectedJobId
+    ? applications.find((a) => String(a.id) === String(selectedJobId))
+    : undefined;
+
+  const handleOpenJob = useCallback(
+    (id: string | number) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set(JOB_QUERY_PARAM, String(id));
+      router.push(`${pathname}?${params.toString()}`);
+    },
+    [pathname, router, searchParams]
+  );
+
+  const handleBackToList = useCallback(() => {
+    router.push(pathname);
+  }, [pathname, router]);
+
+  useEffect(() => {
+    if (!selectedJobId || applicationsLoading) return;
+    const found = applications.some((a) => String(a.id) === String(selectedJobId));
+    if (!found && applications.length > 0) {
+      router.replace(pathname);
+    }
+  }, [selectedJobId, applications, applicationsLoading, applications.length, pathname, router]);
+
   const handleRefresh = useCallback(() => {
     refetchApplications();
     refetchStats();
   }, [refetchApplications, refetchStats]);
+  const totalCount = stats?.total ?? 0;
 
   const handleExportCsv = useCallback(() => {
     if (!applications.length) {
@@ -185,12 +213,12 @@ export default function DashboardClient({ session, forceView }: DashboardClientP
       await deleteMutation.mutateAsync(selectedApp.id);
       setDeleteModalOpen(false);
       setSelectedApp(null);
-      setSelectedJobId(null);
+      router.push(pathname);
       toast.success('Application deleted');
     } catch {
       toast.error('Failed to delete application');
     }
-  }, [selectedApp, deleteMutation]);
+  }, [selectedApp, deleteMutation, router, pathname]);
 
   const upcomingInterviews = applications
     .flatMap((app) => {
@@ -203,10 +231,6 @@ export default function DashboardClient({ session, forceView }: DashboardClientP
     .filter((i) => i.date && new Date(i.date) >= new Date())
     .sort((a, b) => new Date(a.date!).getTime() - new Date(b.date!).getTime())
     .slice(0, 5);
-
-  const selectedApplication = selectedJobId
-    ? applications.find((a) => String(a.id) === String(selectedJobId))
-    : undefined;
 
   return (
     <div className="min-h-screen">
@@ -222,7 +246,7 @@ export default function DashboardClient({ session, forceView }: DashboardClientP
         {selectedJobId && selectedApplication ? (
           <JobDetailView
             app={selectedApplication}
-            onBack={() => setSelectedJobId(null)}
+            onBack={handleBackToList}
             onUpdateDetails={handleUpdateDetails}
             onAnalyzeJob={handleAnalyzeJob}
             onGenerateInsights={handleGenerateInsights}
@@ -245,26 +269,11 @@ export default function DashboardClient({ session, forceView }: DashboardClientP
                 upcomingInterviews.length > 0 ? 'space-y-6 lg:col-span-3' : 'space-y-6'
               }
             >
-              {currentView === 'dashboard' && (
-                <>
-                  <ErrorBoundary fallbackTitle="Failed to load stats">
-                    {statsLoading && stats == null ? (
-                      <StatsSkeleton />
-                    ) : (
-                      <StatsGrid stats={stats ?? undefined} />
-                    )}
-                  </ErrorBoundary>
-                  <ErrorBoundary fallbackTitle="Failed to load analytics">
-                    <SmartAnalytics />
-                  </ErrorBoundary>
-                </>
-              )}
-
               <ApplicationFilters
                 filters={filters}
                 setFilters={setFilters}
                 companies={companies as any}
-                totalCount={stats?.total ?? 0}
+                totalCount={totalCount}
               />
 
               {currentView === 'applications' ? (
@@ -273,7 +282,7 @@ export default function DashboardClient({ session, forceView }: DashboardClientP
                     <KanbanBoard
                     applications={applications}
                     isLoading={applicationsLoading}
-                    onCardClick={(id: string | number) => setSelectedJobId(id)}
+                    onCardClick={handleOpenJob}
                     onStatusChange={(id: string | number, newStatus: string) => {
                       handleUpdateDetails(id, { status: newStatus });
                       toast.success('Application status updated');
@@ -298,7 +307,7 @@ export default function DashboardClient({ session, forceView }: DashboardClientP
                             app={app}
                             isExpanded={false}
                             activeTab={activeTab}
-                            onToggleExpand={() => setSelectedJobId(app.id)}
+                            onToggleExpand={() => handleOpenJob(app.id)}
                             onSetActiveTab={setActiveTab}
                             onUpdateDetails={handleUpdateDetails}
                             onAnalyzeJob={handleAnalyzeJob}
@@ -332,7 +341,7 @@ export default function DashboardClient({ session, forceView }: DashboardClientP
                   <ErrorBoundary fallbackTitle="Failed to load interviews">
                     <UpcomingInterviews
                       interviews={upcomingInterviews}
-                      onViewPrep={(appId: string | number) => setSelectedJobId(appId)}
+                      onViewPrep={handleOpenJob}
                     />
                   </ErrorBoundary>
                 </div>

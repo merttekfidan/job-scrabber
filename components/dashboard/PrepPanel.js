@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
     RefreshCw, Sparkles, ExternalLink, GraduationCap, Users
 } from 'lucide-react';
@@ -9,6 +9,8 @@ import { parseJson } from './utils';
 import { InterviewProgress } from './VisualFrameworks';
 import { InterviewQuestionsList, QuestionsToAskList, RedFlagsList, QuickReferenceCard } from './InterviewPrepTools';
 import HiringFrameworks from './HiringFrameworks';
+
+const DEBOUNCE_MS = 3000;
 
 export default function PrepPanel({ app, isAnalyzing, onAnalyzeJob, onUpdateDetails }) {
     const prep = typeof app.interview_prep_notes === 'string'
@@ -21,6 +23,53 @@ export default function PrepPanel({ app, isAnalyzing, onAnalyzeJob, onUpdateDeta
     const personalAnalysis = app.personalized_analysis;
     const hasPersonalized = !!personalAnalysis;
     const stages = parseJson(app.interview_stages) || [];
+
+    const [notesDraft, setNotesDraft] = useState({});
+    const saveTimeoutsRef = useRef({});
+    const notesDraftRef = useRef({});
+    const stagesRef = useRef(stages);
+    stagesRef.current = stages;
+
+    const saveRoundNotes = useCallback((idx, value) => {
+        const currentStages = [...stagesRef.current];
+        if (idx < 0 || idx >= currentStages.length) return;
+        currentStages[idx] = { ...currentStages[idx], notes: value };
+        onUpdateDetails(app.id, { interview_stages: currentStages });
+        setNotesDraft((prev) => {
+            const next = { ...prev };
+            delete next[idx];
+            return next;
+        });
+        delete notesDraftRef.current[idx];
+    }, [app.id, onUpdateDetails]);
+
+    const handleRoundNotesChange = useCallback((idx, value) => {
+        notesDraftRef.current[idx] = value;
+        setNotesDraft((prev) => ({ ...prev, [idx]: value }));
+        if (saveTimeoutsRef.current[idx] != null) clearTimeout(saveTimeoutsRef.current[idx]);
+        saveTimeoutsRef.current[idx] = setTimeout(() => {
+            saveRoundNotes(idx, value);
+            delete saveTimeoutsRef.current[idx];
+        }, DEBOUNCE_MS);
+    }, [saveRoundNotes]);
+
+    const handleRoundNotesBlur = useCallback((idx) => {
+        if (saveTimeoutsRef.current[idx] != null) {
+            clearTimeout(saveTimeoutsRef.current[idx]);
+            delete saveTimeoutsRef.current[idx];
+        }
+        const value = notesDraftRef.current[idx] !== undefined
+            ? notesDraftRef.current[idx]
+            : (stagesRef.current[idx]?.notes ?? '');
+        saveRoundNotes(idx, value);
+    }, [saveRoundNotes]);
+
+    useEffect(() => {
+        return () => {
+            Object.values(saveTimeoutsRef.current).forEach((t) => { if (t) clearTimeout(t); });
+            saveTimeoutsRef.current = {};
+        };
+    }, []);
 
     function safeJsonParse(str) {
         try { return typeof str === 'string' ? JSON.parse(str) : str || {}; }
@@ -235,12 +284,10 @@ export default function PrepPanel({ app, isAnalyzing, onAnalyzeJob, onUpdateDeta
                                         className="w-full bg-transparent text-base text-gray-300 outline-none resize-none placeholder:text-gray-700"
                                         placeholder="Round notes..."
                                         rows={2}
-                                        value={stage.notes || ''}
-                                        onChange={(e) => {
-                                            const newStages = [...stages];
-                                            newStages[idx].notes = e.target.value;
-                                            onUpdateDetails(app.id, { interview_stages: newStages });
-                                        }}
+                                        value={notesDraft[idx] !== undefined ? notesDraft[idx] : (stage.notes || '')}
+                                        onChange={(e) => handleRoundNotesChange(idx, e.target.value)}
+                                        onBlur={() => handleRoundNotesBlur(idx)}
+                                        aria-label={`Notes for ${stage.round}`}
                                     />
                                 </div>
                             </div>
