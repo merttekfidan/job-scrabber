@@ -40,9 +40,7 @@ function updateUIToLoggedIn(email) {
   const userEmailSpan = userStatusDiv.querySelector('.user-email');
   statusDot.className = 'status-dot connected';
   userEmailSpan.textContent = email;
-  if (logoutBtn) {
-    logoutBtn.classList.remove('hidden');
-  }
+  if (logoutBtn) logoutBtn.classList.remove('hidden');
 }
 
 function updateUIToLoggedOut() {
@@ -51,115 +49,48 @@ function updateUIToLoggedOut() {
   const userEmailSpan = userStatusDiv.querySelector('.user-email');
   statusDot.className = 'status-dot disconnected';
   userEmailSpan.innerHTML = '<a href="' + CONFIG.BACKEND_URL + '/login" target="_blank">Login Required</a>';
-  if (logoutBtn) {
-    logoutBtn.classList.add('hidden');
-  }
-}
-
-function updateUIToOffline() {
-  const userStatusDiv = document.getElementById('userStatus');
-  const statusDot = userStatusDiv.querySelector('.status-dot');
-  const userEmailSpan = userStatusDiv.querySelector('.user-email');
-  statusDot.className = 'status-dot disconnected';
-  userEmailSpan.textContent = 'Offline';
-  if (logoutBtn) {
-    logoutBtn.classList.add('hidden');
-  }
-}
-
-/** Try to get session via a dashboard tab (same-origin, no CORS). */
-function checkConnectionViaTab() {
-  return new Promise((resolve) => {
-    chrome.runtime.sendMessage({ action: 'getSessionViaTab' }, (response) => {
-      if (chrome.runtime.lastError) {
-        resolve(null);
-        return;
-      }
-      resolve(response);
-    });
-  });
-}
-
-/** Direct fetch from extension (can fail due to CORS). */
-async function directFetchSession() {
-  const baseUrl = CONFIG.BACKEND_URL;
-  const headers = {};
-  if (CONFIG.IS_DEV) headers['x-dev-extension'] = 'true';
-
-  const healthUrl = baseUrl + '/api/health';
-  const healthRes = await fetch(healthUrl, { method: 'GET', headers });
-  if (!healthRes.ok) return null;
-
-  const sessionUrl = baseUrl + '/api/auth/session';
-  const response = await fetch(sessionUrl, { credentials: 'include', headers });
-  if (!response.ok) return null;
-  return response.json();
-}
-
-async function checkConnection() {
-  const baseUrl = CONFIG.BACKEND_URL;
-  console.log('[HuntIQ] checkConnection start', { baseUrl });
-
-  const tabSession = await checkConnectionViaTab();
-  if (tabSession && tabSession.user && tabSession.user.email) {
-    updateUIToLoggedIn(tabSession.user.email);
-    await chrome.storage.local.set({ userEmail: tabSession.user.email });
-    return;
-  }
-  if (tabSession && !tabSession.error && !tabSession.user?.email) {
-    await chrome.storage.local.remove(['userEmail']);
-    updateUIToLoggedOut();
-    return;
-  }
-  if (tabSession && tabSession.error && tabSession.error !== 'no_tab') {
-    await chrome.storage.local.remove(['userEmail']);
-    updateUIToLoggedOut();
-    return;
-  }
-
-  try {
-    const session = await directFetchSession();
-    if (session?.user?.email) {
-      updateUIToLoggedIn(session.user.email);
-      await chrome.storage.local.set({ userEmail: session.user.email });
-      return;
-    }
-    await chrome.storage.local.remove(['userEmail']);
-    updateUIToLoggedOut();
-  } catch (error) {
-    console.error('[HuntIQ] Connection check failed:', error);
-    await chrome.storage.local.remove(['userEmail']);
-    if (tabSession && tabSession.error === 'no_tab') {
-      userStatusSetOfflineWithHint();
-    } else {
-      updateUIToOffline();
-    }
-  }
-}
-
-function userStatusSetOfflineWithHint() {
-  const userStatusDiv = document.getElementById('userStatus');
-  const statusDot = userStatusDiv.querySelector('.status-dot');
-  const userEmailSpan = userStatusDiv.querySelector('.user-email');
-  statusDot.className = 'status-dot disconnected';
-  userEmailSpan.innerHTML = 'Open <a href="' + CONFIG.BACKEND_URL + '" target="_blank">Dashboard</a> and log in';
   if (logoutBtn) logoutBtn.classList.add('hidden');
+}
+
+/**
+ * Check session via background service worker (chrome.cookies API).
+ * No CORS, no cross-origin fetch, no 3rd-party cookie issues.
+ */
+async function checkConnection() {
+  try {
+    const result = await new Promise((resolve) => {
+      chrome.runtime.sendMessage({ action: 'checkSession' }, (response) => {
+        if (chrome.runtime.lastError) {
+          resolve({ status: 'error', error: chrome.runtime.lastError.message });
+          return;
+        }
+        resolve(response || { status: 'error' });
+      });
+    });
+
+    if (result.status === 'logged_in' && result.email) {
+      updateUIToLoggedIn(result.email);
+      await chrome.storage.local.set({ userEmail: result.email });
+    } else {
+      await chrome.storage.local.remove(['userEmail']);
+      updateUIToLoggedOut();
+    }
+  } catch (error) {
+    console.error('[HuntIQ] checkConnection error:', error);
+    await chrome.storage.local.remove(['userEmail']);
+    updateUIToLoggedOut();
+  }
 }
 
 async function handleLogout() {
   try {
     const baseUrl = CONFIG.BACKEND_URL;
-    const csrfRes = await fetch(baseUrl + '/api/auth/csrf', { credentials: 'include' });
-    const { csrfToken } = await csrfRes.json();
-
-    await fetch(baseUrl + '/api/auth/signout', {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: `csrfToken=${encodeURIComponent(csrfToken)}`,
-    });
+    const cookieNames = ['__Secure-authjs.session-token', 'authjs.session-token'];
+    for (const name of cookieNames) {
+      await chrome.cookies.remove({ url: baseUrl, name }).catch(() => {});
+    }
   } catch (e) {
-    console.error('Logout API failed:', e);
+    console.error('Logout cookie removal failed:', e);
   }
 
   await chrome.storage.local.remove(['userEmail', 'applications', 'lastCapture']);
@@ -169,9 +100,7 @@ async function handleLogout() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  console.log('[HuntIQ] popup loaded');
   CONFIG = await getEnvironmentConfig();
-  console.log('[HuntIQ] CONFIG', { BACKEND_URL: CONFIG.BACKEND_URL, IS_DEV: CONFIG.IS_DEV });
 
   await updateStats();
   await loadLastCapture();
@@ -179,9 +108,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await checkAlreadyApplied();
 
   if (logoutBtn) {
-    logoutBtn.addEventListener('click', () => {
-      handleLogout();
-    });
+    logoutBtn.addEventListener('click', () => handleLogout());
   }
 
   const result = await chrome.storage.local.get(['autoExport', 'environment']);
@@ -205,7 +132,7 @@ async function checkAlreadyApplied() {
     const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
     if (!tabs || tabs.length === 0) return;
 
-    let currentUrl = tabs[0].url;
+    const currentUrl = tabs[0].url;
     if (!currentUrl || currentUrl.startsWith('chrome://')) return;
 
     const cleanCurrentUrl = currentUrl.split('?')[0].replace(/\/$/, '');
@@ -283,10 +210,7 @@ async function applyJob() {
         showStatus('Processing with AI…', 'info');
 
         chrome.runtime.sendMessage(
-          {
-            action: 'processJobData',
-            data: response.data,
-          },
+          { action: 'processJobData', data: response.data },
           async (processResponse) => {
             if (processResponse && processResponse.success) {
               showStatus('Saved!', 'success');
@@ -302,7 +226,6 @@ async function applyJob() {
                 updateUIToLoggedOut();
               }
             }
-
             resetApplyBtn();
           }
         );

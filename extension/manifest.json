@@ -6,7 +6,8 @@
   "permissions": [
     "activeTab",
     "storage",
-    "scripting"
+    "scripting",
+    "cookies"
   ],
   "host_permissions": [
     "http://localhost:3000/*",
@@ -15,7 +16,7 @@
     "https://www.huntiq.work/*"
   ],
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' http://localhost:3000 https://aware-endurance-production-13b8.up.railway.app https://huntiq.work https://www.huntiq.work"
+    "extension_pages": "script-src 'self'; object-src 'self'"
   },
   "action": {
     "default_popup": "popup.html",
@@ -30,16 +31,6 @@
     "type": "module"
   },
   "content_scripts": [
-    {
-      "matches": [
-        "*://www.huntiq.work/*",
-        "*://huntiq.work/*",
-        "*://localhost:3000/*",
-        "*://127.0.0.1:3000/*"
-      ],
-      "js": ["dashboard-bridge.js"],
-      "run_at": "document_idle"
-    },
     {
       "matches": [
         "*://*.linkedin.com/*",
