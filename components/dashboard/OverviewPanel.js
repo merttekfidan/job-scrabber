@@ -65,29 +65,16 @@ export default function OverviewPanel({ app, isAnalyzing, onAnalyzeJob, onGenera
                 </div>
             )}
 
-            {/* ── Skills Grid ── */}
-            <div className="grid grid-cols-2 gap-6">
-                <div>
-                    <h4 className="label-uppercase mb-3">Required Skills</h4>
-                    <div className="flex flex-wrap gap-1.5">
-                        {parseJson(app.required_skills).map((skill, i) => (
-                            <span key={i} className="px-2.5 py-1 text-base rounded-lg bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">{skill}</span>
-                        ))}
-                        {parseJson(app.required_skills).length === 0 && (
-                            <span className="text-gray-600 text-base italic">None extracted</span>
-                        )}
-                    </div>
-                </div>
-                <div>
-                    <h4 className="label-uppercase mb-3">Preferred Skills</h4>
-                    <div className="flex flex-wrap gap-1.5">
-                        {parseJson(app.preferred_skills).map((skill, i) => (
-                            <span key={i} className="px-2.5 py-1 text-base rounded-lg bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">{skill}</span>
-                        ))}
-                        {parseJson(app.preferred_skills).length === 0 && (
-                            <span className="text-gray-600 text-base italic">None extracted</span>
-                        )}
-                    </div>
+            {/* ── Skills ── */}
+            <div>
+                <h4 className="label-uppercase mb-3">Required Skills</h4>
+                <div className="flex flex-wrap gap-1.5">
+                    {parseJson(app.required_skills).map((skill, i) => (
+                        <span key={i} className="px-2.5 py-1 text-base rounded-lg bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">{skill}</span>
+                    ))}
+                    {parseJson(app.required_skills).length === 0 && (
+                        <span className="text-gray-600 text-base italic">None extracted</span>
+                    )}
                 </div>
             </div>
 

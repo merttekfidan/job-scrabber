@@ -12,7 +12,6 @@ export const SaveApplicationSchema = z.object({
   status: z.string().max(50).optional().default('Applied'),
   keyResponsibilities: z.array(z.string()).optional().default([]),
   requiredSkills: z.array(z.string()).optional().default([]),
-  preferredSkills: z.array(z.string()).optional().default([]),
   companyDescription: z.string().max(50000).optional().nullable(),
   originalContent: z.string().max(200000).optional().nullable(),
   formattedContent: z.string().max(200000).optional().nullable(),

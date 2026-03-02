@@ -69,22 +69,15 @@ export function DetailsTab({ app, onUpdateDetails, onDelete }) {
                 </ul>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-                <div>
-                    <h4 className="label-uppercase mb-2">Required Skills</h4>
-                    <div className="flex flex-wrap gap-1.5">
-                        {parseJson(app.required_skills).map((skill, index) => (
-                            <span key={index} className="px-2 py-0.5 text-[10px] rounded-md bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">{skill}</span>
-                        ))}
-                    </div>
-                </div>
-                <div>
-                    <h4 className="label-uppercase mb-2">Preferred Skills</h4>
-                    <div className="flex flex-wrap gap-1.5">
-                        {parseJson(app.preferred_skills).map((skill, index) => (
-                            <span key={index} className="px-2 py-0.5 text-[10px] rounded-md bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">{skill}</span>
-                        ))}
-                    </div>
+            <div>
+                <h4 className="label-uppercase mb-2">Required Skills</h4>
+                <div className="flex flex-wrap gap-1.5">
+                    {parseJson(app.required_skills).map((skill, index) => (
+                        <span key={index} className="px-2 py-0.5 text-[10px] rounded-md bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">{skill}</span>
+                    ))}
+                    {parseJson(app.required_skills).length === 0 && (
+                        <span className="text-gray-500 italic text-base">No specific skills listed.</span>
+                    )}
                 </div>
             </div>
         </div>

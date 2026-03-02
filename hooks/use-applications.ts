@@ -123,7 +123,6 @@ export function useCreateApplication() {
         status: input.status ?? 'Applied',
         keyResponsibilities: input.keyResponsibilities,
         requiredSkills: input.requiredSkills,
-        preferredSkills: input.preferredSkills,
         companyDescription: input.companyDescription,
         originalContent: input.originalContent,
         formattedContent: input.formattedContent,

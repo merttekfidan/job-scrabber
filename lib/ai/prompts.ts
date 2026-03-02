@@ -47,8 +47,7 @@ ${INDUSTRY_ROUTING}
   "location": "City, Country or 'Global' if fully remote",
   "workMode": "Remote|Hybrid|Onsite",
   "salary": "Listed range with currency, or 'Estimated: [Currency symbol][Amount] (confidence: high|medium|low)' if unlisted based on local vs global wages",
-  "requiredSkills": ["hard skills only, as listed in the posting"],
-  "preferredSkills": ["nice-to-have/familarity/preferred/additional skills/qualifications/experiences mentioned"],
+  "requiredSkills": ["hard skills only, as listed in the posting, including both must-have and nice-to-have skills"],
   "roleSummary": "Short summary of what this person will actually DO day-to-day, based on responsibilities listed",
   "companyDescription": "Detailed info about the company from the posting",
   "hiringManager": {

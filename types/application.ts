@@ -37,7 +37,6 @@ export type Application = {
   status: string;
   key_responsibilities: string[] | string;
   required_skills: string[] | string;
-  preferred_skills: string[] | string;
   company_description: string | null;
   interview_prep_key_talking_points?: unknown;
   interview_prep_questions_to_ask?: unknown;
@@ -84,7 +83,6 @@ export type CreateApplicationInput = {
   status?: string;
   keyResponsibilities?: string[];
   requiredSkills?: string[];
-  preferredSkills?: string[];
   companyDescription?: string | null;
   originalContent?: string | null;
   formattedContent?: string | null;

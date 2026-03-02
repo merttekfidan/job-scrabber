@@ -57,7 +57,7 @@ async function seed() {
             `INSERT INTO applications (
                 user_id, job_title, company, location, work_mode, salary, status, 
                 job_url, company_url, company_description, application_date, 
-                key_responsibilities, required_skills, preferred_skills, 
+                key_responsibilities, required_skills, 
                 interview_stages, interview_prep_key_talking_points, 
                 interview_prep_questions_to_ask, interview_prep_potential_red_flags,
                 negative_signals
@@ -71,7 +71,7 @@ async function seed() {
             [
                 userId, app.jobTitle, app.company, app.location, app.workMode, app.salary, app.status,
                 app.jobUrl, app.companyUrl, app.companyDescription, app.date,
-                '[]', '["React", "Node.js"]', '["TypeScript"]', '[]', '[]', '[]', '[]', '[]'
+                '[]', '["React", "Node.js"]', '[]', '[]', '[]', '[]', '[]'
             ]
         );
 

@@ -42,7 +42,6 @@ export async function POST(request: Request) {
       'location',
       'key_responsibilities',
       'required_skills',
-      'preferred_skills',
       'original_content',
       'interview_prep_notes',
       'personalized_analysis',
@@ -51,7 +50,6 @@ export async function POST(request: Request) {
       'interview_stages',
       'key_responsibilities',
       'required_skills',
-      'preferred_skills',
       'interview_prep_notes',
       'personalized_analysis',
     ];

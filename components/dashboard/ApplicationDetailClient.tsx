@@ -171,10 +171,7 @@ export default function ApplicationDetailClient({
             <TechStackPanel
               techStack={Array.isArray(prep.techStackToStudy) ? prep.techStackToStudy : []}
             />
-            <SkillsPanel
-              requiredSkills={app.required_skills}
-              preferredSkills={app.preferred_skills}
-            />
+            <SkillsPanel requiredSkills={app.required_skills} />
             <RedFlagsPanel negativeSignals={app.negative_signals} />
           </div>
         </div>
