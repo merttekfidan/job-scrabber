@@ -11,7 +11,6 @@ CREATE TABLE IF NOT EXISTS applications (
     status VARCHAR(50) DEFAULT 'Applied',
     key_responsibilities JSONB DEFAULT '[]',
     required_skills JSONB DEFAULT '[]',
-    preferred_skills JSONB DEFAULT '[]',
     company_description TEXT,
     original_content TEXT,
     interview_stages JSONB DEFAULT '[]',
@@ -94,6 +93,9 @@ CREATE TABLE IF NOT EXISTS verification_tokens (
 ALTER TABLE applications ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES users(id) ON DELETE CASCADE;
 ALTER TABLE applications ADD COLUMN IF NOT EXISTS hiring_manager JSONB DEFAULT '{}';
 ALTER TABLE applications ADD COLUMN IF NOT EXISTS company_info JSONB DEFAULT '{}';
+ALTER TABLE applications ADD COLUMN IF NOT EXISTS role_summary TEXT;
+ALTER TABLE applications ADD COLUMN IF NOT EXISTS source VARCHAR(100) DEFAULT 'Unknown';
+ALTER TABLE applications DROP COLUMN IF EXISTS preferred_skills;
 ALTER TABLE cv_data ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES users(id) ON DELETE CASCADE;
 
 -- Add password_hash column to existing users table

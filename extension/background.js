@@ -72,10 +72,19 @@ async function handleCheckSession() {
   }
 
   const cookieHeader = `${cookie.name}=${cookie.value}`;
-  const session = await fetchSession(baseUrl, cookieHeader);
 
-  if (session?.user?.email) {
-    return { status: 'logged_in', email: session.user.email, name: session.user.name };
+  try {
+    const session = await fetchSession(baseUrl, cookieHeader);
+
+    if (session?.user?.email) {
+      return { status: 'logged_in', email: session.user.email, name: session.user.name };
+    }
+  } catch (e) {
+    console.warn('[HuntIQ] Session fetch failed, clearing stale cookie:', e.message);
+  }
+
+  for (const name of SESSION_COOKIE_NAMES) {
+    await chrome.cookies.remove({ url: baseUrl, name }).catch(() => {});
   }
 
   return { status: 'no_session' };

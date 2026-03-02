@@ -61,7 +61,10 @@ export default auth((req: NextRequest & { auth: Session | null }) => {
 
     const origin = req.headers.get('origin');
 
-    if (origin && !isAllowedOrigin(origin)) {
+    const isExtensionApiPath =
+      pathname.startsWith('/api/extension/') || pathname === '/api/save';
+
+    if (!isExtensionApiPath && origin && !isAllowedOrigin(origin)) {
       return new NextResponse(null, {
         status: 403,
         statusText: 'Forbidden',
@@ -70,13 +73,18 @@ export default auth((req: NextRequest & { auth: Session | null }) => {
     }
 
     if (req.method === 'OPTIONS') {
-      const corsOrigin = origin && isAllowedOrigin(origin) ? origin : '';
+      const prefligthOrigin =
+        isExtensionApiPath && origin
+          ? origin
+          : origin && isAllowedOrigin(origin)
+            ? origin
+            : '';
       return new NextResponse(null, {
         status: 200,
         headers: {
-          'Access-Control-Allow-Origin': corsOrigin,
+          'Access-Control-Allow-Origin': prefligthOrigin,
           'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-dev-extension',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-dev-extension, Cookie',
           'Access-Control-Allow-Credentials': 'true',
         },
       });
@@ -95,7 +103,12 @@ export default auth((req: NextRequest & { auth: Session | null }) => {
     }
 
     const response = NextResponse.next();
-    const corsOrigin = origin && isAllowedOrigin(origin) ? origin : '';
+    const corsOrigin =
+      isExtensionApiPath && origin
+        ? origin
+        : origin && isAllowedOrigin(origin)
+          ? origin
+          : '';
     if (corsOrigin) {
       response.headers.set('Access-Control-Allow-Origin', corsOrigin);
       response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');

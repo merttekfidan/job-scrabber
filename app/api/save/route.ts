@@ -70,7 +70,6 @@ export async function POST(request: Request) {
       status,
       keyResponsibilities,
       requiredSkills,
-      preferredSkills,
       companyDescription,
       interviewPrepNotes,
       metadata,
@@ -91,11 +90,11 @@ export async function POST(request: Request) {
       `INSERT INTO applications (
         job_title, company, location, work_mode, salary, application_date, 
         job_url, company_url, status, key_responsibilities, required_skills, 
-        preferred_skills, company_description, interview_prep_key_talking_points, 
+        company_description, interview_prep_key_talking_points, 
         interview_prep_questions_to_ask, interview_prep_potential_red_flags, source,
         original_content, interview_stages, role_summary, formatted_content, negative_signals, user_id,
         hiring_manager, company_info
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25) 
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24) 
       RETURNING id`,
       [
         jobTitle,
@@ -109,7 +108,6 @@ export async function POST(request: Request) {
         status || 'Applied',
         JSON.stringify(keyResponsibilities || []),
         JSON.stringify(requiredSkills || []),
-        JSON.stringify(preferredSkills || []),
         companyDescription,
         JSON.stringify(interviewPrepNotes?.keyTalkingPoints || []),
         JSON.stringify(interviewPrepNotes?.questionsToAsk || []),
