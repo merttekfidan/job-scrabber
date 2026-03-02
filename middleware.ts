@@ -20,7 +20,8 @@ const ALLOWED_ORIGINS = [
   'http://127.0.0.1:3006',
 ].filter(Boolean) as string[];
 
-const EXTENSION_ORIGIN_PATTERN = /^chrome-extension:\/\/[a-z0-9]{32}$/;
+// Chrome extension IDs are typically 32 lowercase hex; allow any length for compatibility
+const EXTENSION_ORIGIN_PATTERN = /^chrome-extension:\/\/[a-z0-9]+$/;
 
 function isAllowedOrigin(origin: string | null): boolean {
   if (!origin) return true;
@@ -63,7 +64,7 @@ export default auth((req: NextRequest & { auth: Session | null }) => {
         headers: {
           'Access-Control-Allow-Origin': corsOrigin,
           'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-dev-extension',
           'Access-Control-Allow-Credentials': 'true',
         },
       });
@@ -86,7 +87,7 @@ export default auth((req: NextRequest & { auth: Session | null }) => {
     if (corsOrigin) {
       response.headers.set('Access-Control-Allow-Origin', corsOrigin);
       response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-      response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+      response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-dev-extension');
       response.headers.set('Access-Control-Allow-Credentials', 'true');
     }
     return response;

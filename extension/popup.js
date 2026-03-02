@@ -50,17 +50,48 @@ function updateUIToLoggedOut() {
   }
 }
 
-async function checkConnection() {
-  try {
-    const baseUrl = CONFIG.BACKEND_URL;
-    const sessionUrl = baseUrl + '/api/auth/session';
-    const headers = {};
-    if (CONFIG.IS_DEV) headers['x-dev-extension'] = 'true';
+function updateUIToOffline() {
+  const userStatusDiv = document.getElementById('userStatus');
+  const statusDot = userStatusDiv.querySelector('.status-dot');
+  const userEmailSpan = userStatusDiv.querySelector('.user-email');
+  statusDot.className = 'status-dot disconnected';
+  userEmailSpan.textContent = 'Offline';
+  if (logoutBtn) {
+    logoutBtn.classList.add('hidden');
+  }
+}
 
+async function checkConnection() {
+  const baseUrl = CONFIG.BACKEND_URL;
+  const headers = {};
+  if (CONFIG.IS_DEV) headers['x-dev-extension'] = 'true';
+
+  console.log('[HuntIQ] checkConnection start', { baseUrl, isDev: CONFIG.IS_DEV });
+
+  try {
+    const healthUrl = baseUrl + '/api/health';
+    console.log('[HuntIQ] health fetch', healthUrl);
+    const healthRes = await fetch(healthUrl, { method: 'GET', headers });
+    console.log('[HuntIQ] health response', healthRes.status, healthRes.statusText);
+    if (!healthRes.ok) {
+      console.warn('[HuntIQ] health not ok, showing Offline');
+      updateUIToOffline();
+      return;
+    }
+  } catch (err) {
+    console.error('[HuntIQ] Health check failed:', err);
+    updateUIToOffline();
+    return;
+  }
+
+  try {
+    const sessionUrl = baseUrl + '/api/auth/session';
+    console.log('[HuntIQ] session fetch', sessionUrl);
     const response = await fetch(sessionUrl, {
       credentials: 'include',
       headers,
     });
+    console.log('[HuntIQ] session response', response.status, response.statusText);
 
     if (!response.ok) {
       await chrome.storage.local.remove(['userEmail']);
@@ -69,6 +100,7 @@ async function checkConnection() {
     }
 
     const session = await response.json();
+    console.log('[HuntIQ] session body', session?.user ? { email: session.user.email } : 'no user');
 
     if (session?.user?.email) {
       updateUIToLoggedIn(session.user.email);
@@ -78,9 +110,9 @@ async function checkConnection() {
       updateUIToLoggedOut();
     }
   } catch (error) {
-    console.error('Connection check failed:', error);
+    console.error('[HuntIQ] Connection check failed:', error);
     await chrome.storage.local.remove(['userEmail']);
-    updateUIToLoggedOut();
+    updateUIToOffline();
   }
 }
 
@@ -107,7 +139,9 @@ async function handleLogout() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+  console.log('[HuntIQ] popup loaded');
   CONFIG = await getEnvironmentConfig();
+  console.log('[HuntIQ] CONFIG', { BACKEND_URL: CONFIG.BACKEND_URL, IS_DEV: CONFIG.IS_DEV });
 
   await updateStats();
   await loadLastCapture();
