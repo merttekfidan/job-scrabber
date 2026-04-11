@@ -21,7 +21,7 @@ export default function NotFound() {
           you don&apos;t have access to it.
         </p>
         <Button asChild>
-          <Link href="/dashboard">Go to Dashboard</Link>
+          <Link href="/kanban">Go to Kanban</Link>
         </Button>
       </div>
     </div>

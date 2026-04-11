@@ -70,7 +70,6 @@ CREATE TABLE public.applications (
     company_url text,
     key_responsibilities jsonb,
     required_skills jsonb,
-    preferred_skills jsonb,
     company_description text,
     interview_prep_key_talking_points jsonb,
     interview_prep_questions_to_ask jsonb,
@@ -160,7 +159,7 @@ ALTER TABLE ONLY public.cv_data ALTER COLUMN id SET DEFAULT nextval('public.cv_d
 -- Data for Name: applications; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY public.applications (id, application_date, job_title, company, location, work_mode, salary, status, job_url, company_url, key_responsibilities, required_skills, preferred_skills, company_description, interview_prep_key_talking_points, interview_prep_questions_to_ask, interview_prep_potential_red_flags, source, created_at, updated_at, original_content, interview_stages, role_summary, formatted_content, negative_signals, personalized_analysis) FROM stdin;
+COPY public.applications (id, application_date, job_title, company, location, work_mode, salary, status, job_url, company_url, key_responsibilities, required_skills, company_description, interview_prep_key_talking_points, interview_prep_questions_to_ask, interview_prep_potential_red_flags, source, created_at, updated_at, original_content, interview_stages, role_summary, formatted_content, negative_signals, personalized_analysis) FROM stdin;
 2	2026-02-11 21:11:11.251	Full Stack Developer	StartupUI	Remote	Remote	$120k - $150k	Applied	https://example.com/job2	\N	\N	\N	\N	\N	\N	\N	\N	Seed Script	2026-02-16 22:11:11.371709	2026-02-16 22:11:11.371709	\N	[]	\N	\N	[]	\N
 1	2026-02-14 21:11:11.25	Senior Frontend Engineer	TechCorp	San Francisco, CA	Hybrid	$160k - $200k	Offer Received	https://example.com/job1	\N	\N	\N	\N	\N	\N	\N	\N	Seed Script	2026-02-16 22:11:11.273884	2026-02-16 22:11:38.411558	\N	[]	\N	\N	[]	\N
 6	2026-02-06 21:13:26.362	Product Engineer	Innovate Inc	New York, NY	Onsite	$180k	Offer Received	https://example.com/job3	\N	\N	\N	\N	\N	\N	\N	\N	Seed Script	2026-02-16 22:13:26.401376	2026-02-16 22:13:26.401376	\N	[]	\N	\N	[]	\N

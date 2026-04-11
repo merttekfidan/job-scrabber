@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { AlertCircle, LayoutDashboard } from 'lucide-react';
+import { AlertCircle, Kanban } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function DashboardError({
@@ -25,16 +25,16 @@ export default function DashboardError({
         />
         <h2 className="text-xl font-semibold mb-2">Something went wrong</h2>
         <p className="text-gray-400 mb-6 text-sm">
-          {error.message || 'An unexpected error occurred in the dashboard.'}
+          {error.message || 'An unexpected error occurred.'}
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Button onClick={reset} aria-label="Try again">
             Try again
           </Button>
           <Button variant="secondary" asChild>
-            <Link href="/dashboard" className="inline-flex items-center gap-2">
-              <LayoutDashboard size={16} aria-hidden />
-              Back to Dashboard
+            <Link href="/kanban" className="inline-flex items-center gap-2">
+              <Kanban size={16} aria-hidden />
+              Back to Kanban
             </Link>
           </Button>
         </div>

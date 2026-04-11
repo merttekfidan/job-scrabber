@@ -29,7 +29,8 @@ export function formatDate(dateString: string | null | undefined): string {
 /** Tailwind class string for application status badge. */
 export function getStatusColor(status: string | null | undefined): string {
   if (status === "Applied") return "bg-blue-500/10 text-blue-400 border-blue-500/20"
-  if (status?.includes("Interview")) return "bg-purple-500/10 text-purple-400 border-purple-500/20"
+  if (status === "Prep") return "bg-violet-500/10 text-violet-400 border-violet-500/20"
+  if (status?.includes("Interview")) return "bg-amber-500/10 text-amber-400 border-amber-500/20"
   if (status?.includes("Offer") || status === "Accepted") return "bg-green-500/10 text-green-400 border-green-500/20"
   return "bg-red-500/10 text-red-400 border-red-500/20"
 }

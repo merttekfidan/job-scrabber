@@ -1,28 +1,12 @@
 export type ApplicationStatus =
   | 'Applied'
-  | 'Interview Scheduled'
-  | 'Offer Received'
+  | 'Screening'
+  | 'Interview'
+  | 'Offer'
+  | 'Decided'
   | 'Rejected'
   | 'Withdrawn';
 
-export type InterviewStage = {
-  name?: string;
-  date?: string;
-  type?: string;
-  notes?: string;
-  [key: string]: unknown;
-};
-
-export type InterviewPrepNotes = {
-  keyTalkingPoints?: unknown[];
-  questionsToAsk?: unknown[];
-  potentialRedFlags?: unknown[];
-  redFlags?: unknown[];
-  likelyInterviewQuestions?: unknown[];
-  techStackToStudy?: unknown[];
-};
-
-/** Application record as returned by API (snake_case from DB) */
 export type Application = {
   id: string | number;
   user_id: string;
@@ -35,30 +19,57 @@ export type Application = {
   job_url: string | null;
   company_url: string | null;
   status: string;
-  key_responsibilities: string[] | string;
-  required_skills: string[] | string;
-  company_description: string | null;
-  interview_prep_key_talking_points?: unknown;
-  interview_prep_questions_to_ask?: unknown;
-  interview_prep_potential_red_flags?: unknown;
-  interview_prep_notes?: Record<string, unknown> | string | null;
-  source?: string | null;
-  original_content: string | null;
-  interview_stages: InterviewStage[] | string;
-  role_summary: string | null;
-  formatted_content: string | null;
-  negative_signals: string[] | string;
-  personalized_analysis?: Record<string, unknown> | string | null;
-  hiring_manager?: Record<string, unknown> | string | null;
-  company_info?: Record<string, unknown> | string | null;
+  source_url: string | null;
+  notes: string | null;
+  interview_date: string | null;
+  job_data: JobData | null;
+  company_data: CompanyData | null;
   created_at?: string;
   updated_at?: string;
+};
+
+export type JobData = {
+  jobTitle?: string;
+  company?: string;
+  location?: string;
+  workMode?: string;
+  salary?: string;
+  mustHaveSkills?: string[];
+  niceToHaveSkills?: string[];
+  responsibilities?: string[];
+  benefits?: string[];
+  teamInfo?: string;
+  techStack?: string[];
+  seniorityLevel?: string;
+  companyDescription?: string;
+  companySize?: string;
+  industry?: string;
+  applicationDeadline?: string;
+  roleSummary?: string;
+};
+
+export type CompanyData = {
+  overview?: string;
+  product?: string;
+  culture?: {
+    values?: string[];
+    workStyle?: string;
+    signals?: Array<{ signal: string; evidence: string; implication: string }>;
+  };
+  techStack?: string[];
+  size?: string;
+  stage?: string;
+  founded?: string;
+  headquarters?: string;
+  recentNews?: string[];
+  leadership?: Array<{ name: string; title: string }>;
+  glassdoorSummary?: string;
+  competitivePosition?: string;
 };
 
 export type ApplicationFilters = {
   status?: string;
   company?: string;
-  work_mode?: string;
   search?: string;
   sortBy?: 'date_desc' | 'date_asc' | 'company_asc' | 'company_desc';
   limit?: number;
@@ -74,25 +85,18 @@ export type ApplicationListResponse = {
 export type CreateApplicationInput = {
   jobTitle: string;
   company: string;
-  jobUrl: string;
-  applicationDate: string;
+  jobUrl?: string | null;
+  applicationDate?: string | null;
   location?: string | null;
   workMode?: string | null;
   salary?: string | null;
   companyUrl?: string | null;
   status?: string;
-  keyResponsibilities?: string[];
-  requiredSkills?: string[];
-  companyDescription?: string | null;
-  originalContent?: string | null;
-  formattedContent?: string | null;
-  negativeSignals?: string[];
-  roleSummary?: string | null;
-  interviewStages?: InterviewStage[];
-  hiringManager?: Record<string, unknown> | null;
-  companyInfo?: Record<string, unknown> | null;
-  interviewPrepNotes?: InterviewPrepNotes;
-  metadata?: Record<string, unknown>;
+  sourceUrl?: string | null;
+  notes?: string | null;
+  interviewDate?: string | null;
+  jobData?: JobData;
+  companyData?: CompanyData;
 };
 
 export type UpdateApplicationInput = Partial<CreateApplicationInput> & { id: number };

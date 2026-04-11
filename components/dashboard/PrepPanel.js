@@ -1,16 +1,18 @@
 'use client';
 
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
-    RefreshCw, Sparkles, ExternalLink, GraduationCap, Users
+    RefreshCw, Sparkles, ExternalLink, GraduationCap, Users, BookOpen, ChevronDown, ChevronUp, Target
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { parseJson } from './utils';
 import { InterviewProgress } from './VisualFrameworks';
-import { InterviewQuestionsList, QuestionsToAskList, RedFlagsList, QuickReferenceCard } from './InterviewPrepTools';
+import { InterviewQuestionsList, QuestionsToAskList, RedFlagsList } from './InterviewPrepTools';
 import HiringFrameworks from './HiringFrameworks';
-
-const DEBOUNCE_MS = 3000;
+import { StudyPackageView } from '@/components/study/StudyPackageView';
+import { DebriefPanel } from '@/components/debrief/DebriefPanel';
+import { BriefingCard } from '@/components/briefing/BriefingCard';
+import { MockPanel } from '@/components/mock/MockPanel';
 
 export default function PrepPanel({ app, isAnalyzing, onAnalyzeJob, onUpdateDetails }) {
     const prep = typeof app.interview_prep_notes === 'string'
@@ -25,51 +27,45 @@ export default function PrepPanel({ app, isAnalyzing, onAnalyzeJob, onUpdateDeta
     const stages = parseJson(app.interview_stages) || [];
 
     const [notesDraft, setNotesDraft] = useState({});
-    const saveTimeoutsRef = useRef({});
-    const notesDraftRef = useRef({});
-    const stagesRef = useRef(stages);
-    stagesRef.current = stages;
+    const [dirtyRounds, setDirtyRounds] = useState({});
+    const [studyOpenRounds, setStudyOpenRounds] = useState({});
+    const [debriefOpenRounds, setDebriefOpenRounds] = useState({});
+    const [briefingOpenRounds, setBriefingOpenRounds] = useState({});
+    const [mockOpenRounds, setMockOpenRounds] = useState({});
 
-    const saveRoundNotes = useCallback((idx, value) => {
-        const currentStages = [...stagesRef.current];
+    const handleToggleStudy = useCallback((idx) => {
+        setStudyOpenRounds((prev) => ({ ...prev, [idx]: !prev[idx] }));
+    }, []);
+
+    const handleToggleDebrief = useCallback((idx) => {
+        setDebriefOpenRounds((prev) => ({ ...prev, [idx]: !prev[idx] }));
+    }, []);
+
+    const handleToggleBriefing = useCallback((idx) => {
+        setBriefingOpenRounds((prev) => ({ ...prev, [idx]: !prev[idx] }));
+    }, []);
+
+    const handleToggleMock = useCallback((idx) => {
+        setMockOpenRounds((prev) => ({ ...prev, [idx]: !prev[idx] }));
+    }, []);
+
+    const handleRoundNotesChange = useCallback((idx, value) => {
+        setNotesDraft((prev) => ({ ...prev, [idx]: value }));
+        setDirtyRounds((prev) => ({ ...prev, [idx]: true }));
+    }, []);
+
+    const handleRoundNotesSave = useCallback((idx) => {
+        const currentStages = [...stages];
         if (idx < 0 || idx >= currentStages.length) return;
+        const value = notesDraft[idx] !== undefined ? notesDraft[idx] : (currentStages[idx]?.notes ?? '');
         currentStages[idx] = { ...currentStages[idx], notes: value };
         onUpdateDetails(app.id, { interview_stages: currentStages });
-        setNotesDraft((prev) => {
+        setDirtyRounds((prev) => {
             const next = { ...prev };
             delete next[idx];
             return next;
         });
-        delete notesDraftRef.current[idx];
-    }, [app.id, onUpdateDetails]);
-
-    const handleRoundNotesChange = useCallback((idx, value) => {
-        notesDraftRef.current[idx] = value;
-        setNotesDraft((prev) => ({ ...prev, [idx]: value }));
-        if (saveTimeoutsRef.current[idx] != null) clearTimeout(saveTimeoutsRef.current[idx]);
-        saveTimeoutsRef.current[idx] = setTimeout(() => {
-            saveRoundNotes(idx, value);
-            delete saveTimeoutsRef.current[idx];
-        }, DEBOUNCE_MS);
-    }, [saveRoundNotes]);
-
-    const handleRoundNotesBlur = useCallback((idx) => {
-        if (saveTimeoutsRef.current[idx] != null) {
-            clearTimeout(saveTimeoutsRef.current[idx]);
-            delete saveTimeoutsRef.current[idx];
-        }
-        const value = notesDraftRef.current[idx] !== undefined
-            ? notesDraftRef.current[idx]
-            : (stagesRef.current[idx]?.notes ?? '');
-        saveRoundNotes(idx, value);
-    }, [saveRoundNotes]);
-
-    useEffect(() => {
-        return () => {
-            Object.values(saveTimeoutsRef.current).forEach((t) => { if (t) clearTimeout(t); });
-            saveTimeoutsRef.current = {};
-        };
-    }, []);
+    }, [app.id, onUpdateDetails, notesDraft, stages]);
 
     function safeJsonParse(str) {
         try { return typeof str === 'string' ? JSON.parse(str) : str || {}; }
@@ -123,10 +119,32 @@ export default function PrepPanel({ app, isAnalyzing, onAnalyzeJob, onUpdateDeta
                 </div>
             </div>
 
-            {/* ── Quick Reference Card ── */}
-            {(talkingPoints.length > 0 || questionsRaw.length > 0) && (
-                <QuickReferenceCard app={app} talkingPoints={talkingPoints} questionsToAsk={questionsRaw} />
-            )}
+            {/* ── Briefing Card (replaces QuickReferenceCard) ── */}
+            <div className="border border-white/5 rounded-xl overflow-hidden">
+                <button
+                    type="button"
+                    onClick={() => setBriefingOpenRounds((prev) => ({ ...prev, top: !prev.top }))}
+                    className="w-full flex items-center justify-between px-4 py-3 text-sm font-bold text-yellow-400 bg-yellow-500/5 hover:bg-yellow-500/10 transition-colors"
+                    aria-expanded={!!briefingOpenRounds.top}
+                    aria-label="Toggle briefing card"
+                    tabIndex={0}
+                >
+                    <span className="flex items-center gap-2">
+                        <Target size={14} />
+                        Interview Briefing Card
+                    </span>
+                    {briefingOpenRounds.top ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                </button>
+                {briefingOpenRounds.top && (
+                    <div className="p-4">
+                        <BriefingCard
+                            applicationId={app.id}
+                            roundType={stages.length > 0 ? (stages[stages.length - 1].type || 'Screening') : 'Screening'}
+                            roundLabel={stages.length > 0 ? stages[stages.length - 1].round : undefined}
+                        />
+                    </div>
+                )}
+            </div>
 
             {/* ── Likely Interview Questions ── */}
             {likelyQuestions.length > 0 && (
@@ -279,16 +297,144 @@ export default function PrepPanel({ app, isAnalyzing, onAnalyzeJob, onUpdateDeta
                                         </button>
                                     </div>
                                 </div>
-                                <div className="p-3">
+                                <div className="p-3 space-y-2">
                                     <textarea
-                                        className="w-full bg-transparent text-base text-gray-300 outline-none resize-none placeholder:text-gray-700"
+                                        className="w-full bg-transparent text-base text-gray-300 outline-none resize-none placeholder:text-gray-700 min-h-[200px]"
                                         placeholder="Round notes..."
-                                        rows={2}
+                                        rows={10}
                                         value={notesDraft[idx] !== undefined ? notesDraft[idx] : (stage.notes || '')}
                                         onChange={(e) => handleRoundNotesChange(idx, e.target.value)}
-                                        onBlur={() => handleRoundNotesBlur(idx)}
                                         aria-label={`Notes for ${stage.round}`}
                                     />
+                                    {dirtyRounds[idx] && (
+                                        <div className="flex justify-end">
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                size="sm"
+                                                className="text-base px-3 py-1.5"
+                                                onClick={() => handleRoundNotesSave(idx)}
+                                            >
+                                                Save
+                                            </Button>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* ── Study Package ── */}
+                                <div className="border-t border-gray-700/50">
+                                    <button
+                                        type="button"
+                                        onClick={() => handleToggleStudy(idx)}
+                                        className="w-full flex items-center justify-between px-3 py-2.5 text-sm font-semibold text-blue-400 hover:bg-gray-700/30 transition-colors"
+                                        aria-expanded={!!studyOpenRounds[idx]}
+                                        aria-label="Toggle study package"
+                                        tabIndex={0}
+                                    >
+                                        <span className="flex items-center gap-2">
+                                            <BookOpen size={14} />
+                                            Study Package
+                                        </span>
+                                        {studyOpenRounds[idx]
+                                            ? <ChevronUp size={14} />
+                                            : <ChevronDown size={14} />
+                                        }
+                                    </button>
+                                    {studyOpenRounds[idx] && (
+                                        <div className="px-3 pb-4 pt-1">
+                                            <StudyPackageView
+                                                applicationId={app.id}
+                                                roundIndex={idx}
+                                                roundType={stage.type || 'Screening'}
+                                                roundLabel={stage.round}
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* ── Briefing Card (per round) ── */}
+                                <div className="border-t border-gray-700/50">
+                                    <button
+                                        type="button"
+                                        onClick={() => handleToggleBriefing(idx)}
+                                        className="w-full flex items-center justify-between px-3 py-2.5 text-sm font-semibold text-yellow-400 hover:bg-gray-700/30 transition-colors"
+                                        aria-expanded={!!briefingOpenRounds[idx]}
+                                        aria-label="Toggle briefing card"
+                                        tabIndex={0}
+                                    >
+                                        <span className="flex items-center gap-2">
+                                            <Target size={14} />
+                                            Briefing Card
+                                        </span>
+                                        {briefingOpenRounds[idx]
+                                            ? <ChevronUp size={14} />
+                                            : <ChevronDown size={14} />
+                                        }
+                                    </button>
+                                    {briefingOpenRounds[idx] && (
+                                        <div className="px-3 pb-4 pt-1">
+                                            <BriefingCard
+                                                applicationId={app.id}
+                                                roundType={stage.type || 'Screening'}
+                                                roundIndex={idx}
+                                                roundLabel={stage.round}
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* ── Interview Debrief ── */}
+                                <div className="border-t border-gray-700/50">
+                                    <button
+                                        type="button"
+                                        onClick={() => handleToggleDebrief(idx)}
+                                        className="w-full flex items-center justify-between px-3 py-2.5 text-sm font-semibold text-purple-400 hover:bg-gray-700/30 transition-colors"
+                                        aria-expanded={!!debriefOpenRounds[idx]}
+                                        aria-label="Toggle debrief"
+                                        tabIndex={0}
+                                    >
+                                        <span className="flex items-center gap-2">
+                                            <ChevronDown size={14} className="rotate-0" />
+                                            Interview Debrief
+                                        </span>
+                                        {debriefOpenRounds[idx]
+                                            ? <ChevronUp size={14} />
+                                            : <ChevronDown size={14} />
+                                        }
+                                    </button>
+                                    {debriefOpenRounds[idx] && (
+                                        <div className="px-3 pb-4 pt-1">
+                                            <DebriefPanel
+                                                applicationId={app.id}
+                                                roundIndex={idx}
+                                                roundType={stage.type || 'Screening'}
+                                                roundLabel={stage.round}
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* ── Mock Interview ── */}
+                                <div className="border-t border-gray-700/50">
+                                    <button
+                                        type="button"
+                                        onClick={() => handleToggleMock(idx)}
+                                        className="w-full flex items-center justify-between px-3 py-2.5 text-sm font-semibold text-violet-400 hover:bg-gray-700/30 transition-colors"
+                                        aria-expanded={!!mockOpenRounds[idx]}
+                                        aria-label="Toggle mock interview"
+                                        tabIndex={0}
+                                    >
+                                        <span className="flex items-center gap-2">🎙 Mock Interview</span>
+                                        {mockOpenRounds[idx] ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                                    </button>
+                                    {mockOpenRounds[idx] && (
+                                        <div className="px-3 pb-4 pt-1">
+                                            <MockPanel
+                                                applicationId={app.id}
+                                                defaultRoundType={stage.type || 'Screening'}
+                                            />
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         ))}

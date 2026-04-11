@@ -1,54 +1,5 @@
-CREATE TABLE IF NOT EXISTS applications (
-    id SERIAL PRIMARY KEY,
-    job_title VARCHAR(255) NOT NULL,
-    company VARCHAR(255) NOT NULL,
-    location VARCHAR(255),
-    work_mode VARCHAR(50),
-    salary VARCHAR(100),
-    application_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    job_url TEXT UNIQUE,
-    company_url TEXT,
-    status VARCHAR(50) DEFAULT 'Applied',
-    key_responsibilities JSONB DEFAULT '[]',
-    required_skills JSONB DEFAULT '[]',
-    company_description TEXT,
-    original_content TEXT,
-    interview_stages JSONB DEFAULT '[]',
-    interview_prep_key_talking_points JSONB DEFAULT '[]',
-    interview_prep_questions_to_ask JSONB DEFAULT '[]',
-    interview_prep_potential_red_flags JSONB DEFAULT '[]',
-    formatted_content TEXT,
-    negative_signals JSONB DEFAULT '[]',
-    interview_prep_notes JSONB DEFAULT '{}',
-    notes TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    hiring_manager JSONB DEFAULT '{}',
-    company_info JSONB DEFAULT '{}'
-);
+-- ── Auth Tables (NextAuth.js) ────────────────────────────────────────────────
 
--- Index for full-text search
-CREATE INDEX IF NOT EXISTS applications_search_idx ON applications 
-USING GIN (to_tsvector('english', 
-    COALESCE(job_title, '') || ' ' || 
-    COALESCE(company, '') || ' ' || 
-    COALESCE(location, '') || ' ' || 
-    COALESCE(company_description, '')
-));
-
--- CV Storage Table
-CREATE TABLE IF NOT EXISTS cv_data (
-    id SERIAL PRIMARY KEY,
-    filename TEXT NOT NULL,
-    raw_text TEXT NOT NULL,
-    ai_analysis JSONB,
-    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    is_active BOOLEAN DEFAULT TRUE
-);
-
-CREATE INDEX IF NOT EXISTS idx_cv_active ON cv_data(is_active);
-
--- Auth Tables (NextAuth.js)
 CREATE TABLE IF NOT EXISTS users (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   name VARCHAR(255),
@@ -89,32 +40,96 @@ CREATE TABLE IF NOT EXISTS verification_tokens (
   PRIMARY KEY (identifier, token)
 );
 
--- Add user_id to existing tables
-ALTER TABLE applications ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES users(id) ON DELETE CASCADE;
-ALTER TABLE applications ADD COLUMN IF NOT EXISTS hiring_manager JSONB DEFAULT '{}';
-ALTER TABLE applications ADD COLUMN IF NOT EXISTS company_info JSONB DEFAULT '{}';
-ALTER TABLE applications ADD COLUMN IF NOT EXISTS role_summary TEXT;
-ALTER TABLE applications ADD COLUMN IF NOT EXISTS source VARCHAR(100) DEFAULT 'Unknown';
-ALTER TABLE applications DROP COLUMN IF EXISTS preferred_skills;
-ALTER TABLE cv_data ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES users(id) ON DELETE CASCADE;
+-- ── User Profiles (onboarding data, settings) ──────────────────────────────
 
--- Add password_hash column to existing users table
-ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash TEXT;
-
--- User Profiles (AI keys, settings)
 CREATE TABLE IF NOT EXISTS user_profiles (
     user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-    groq_api_key TEXT,
-    ai_providers JSONB DEFAULT '{}'::jsonb,
+    cv_raw_text TEXT,
+    cv_extracted JSONB DEFAULT '{}'::jsonb,
+    onboarding_qa JSONB DEFAULT '[]'::jsonb,
+    onboarding_completed BOOLEAN DEFAULT FALSE,
     settings JSONB DEFAULT '{}'::jsonb,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Multi-provider AI key pool (incremental)
-ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS ai_providers JSONB DEFAULT '{}'::jsonb;
+-- ── Applications ────────────────────────────────────────────────────────────
 
--- Feedback Table
+CREATE TABLE IF NOT EXISTS applications (
+    id SERIAL PRIMARY KEY,
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    job_title VARCHAR(255) NOT NULL,
+    company VARCHAR(255) NOT NULL,
+    location VARCHAR(255),
+    work_mode VARCHAR(50),
+    salary VARCHAR(100),
+    application_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    job_url TEXT,
+    company_url TEXT,
+    status VARCHAR(50) DEFAULT 'Applied',
+    source_url TEXT,
+    notes TEXT,
+    interview_date TIMESTAMP,
+    job_data JSONB DEFAULT '{}'::jsonb,
+    company_data JSONB DEFAULT '{}'::jsonb,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_applications_user ON applications(user_id);
+CREATE INDEX IF NOT EXISTS idx_applications_status ON applications(user_id, status);
+CREATE INDEX IF NOT EXISTS applications_search_idx ON applications
+USING GIN (to_tsvector('english',
+    COALESCE(job_title, '') || ' ' ||
+    COALESCE(company, '') || ' ' ||
+    COALESCE(location, '')
+));
+
+-- ── Intelligence Reports ────────────────────────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS intelligence_reports (
+    id SERIAL PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    application_id INTEGER NOT NULL REFERENCES applications(id) ON DELETE CASCADE,
+    report_data JSONB NOT NULL DEFAULT '{}'::jsonb,
+    pdf_url TEXT,
+    generated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    version INTEGER DEFAULT 1
+);
+
+CREATE INDEX IF NOT EXISTS idx_reports_user ON intelligence_reports(user_id);
+CREATE INDEX IF NOT EXISTS idx_reports_app ON intelligence_reports(application_id);
+
+-- ── Mock Interview Sessions ─────────────────────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS mock_sessions (
+    id SERIAL PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    application_id INTEGER NOT NULL REFERENCES applications(id) ON DELETE CASCADE,
+    round_type VARCHAR(50) NOT NULL,
+    difficulty VARCHAR(20) NOT NULL DEFAULT 'Medium',
+    interview_plan JSONB NOT NULL DEFAULT '{}'::jsonb,
+    questions_and_answers JSONB DEFAULT '[]'::jsonb,
+    overall_score INTEGER,
+    grade VARCHAR(5),
+    hiring_decision VARCHAR(30),
+    category_scores JSONB DEFAULT '{}'::jsonb,
+    debrief JSONB DEFAULT '{}'::jsonb,
+    status VARCHAR(20) DEFAULT 'in_progress',
+    questions_answered INTEGER DEFAULT 0,
+    total_questions INTEGER DEFAULT 0,
+    duration_seconds INTEGER,
+    started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    completed_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_mock_user ON mock_sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_mock_app ON mock_sessions(application_id);
+
+-- ── Feedback ────────────────────────────────────────────────────────────────
+
 CREATE TABLE IF NOT EXISTS feedbacks (
     id SERIAL PRIMARY KEY,
     user_id UUID REFERENCES users(id) ON DELETE SET NULL,

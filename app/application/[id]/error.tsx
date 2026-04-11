@@ -32,9 +32,9 @@ export default function ApplicationDetailError({
             Try again
           </Button>
           <Button variant="secondary" asChild>
-            <Link href="/dashboard" className="inline-flex items-center gap-2">
+            <Link href="/kanban" className="inline-flex items-center gap-2">
               <ArrowLeft size={16} aria-hidden />
-              Back to Dashboard
+              Back to Kanban
             </Link>
           </Button>
         </div>

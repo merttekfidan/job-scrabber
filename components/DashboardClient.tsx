@@ -2,7 +2,6 @@
 
 import React, { useState, useCallback, useEffect } from 'react';
 import { usePathname, useSearchParams, useRouter } from 'next/navigation';
-import { Briefcase } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   useInfiniteApplications,
@@ -20,10 +19,8 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 import UpcomingInterviews from '@/components/dashboard/UpcomingInterviews';
 import ProfileModal from '@/components/dashboard/ProfileModal';
 import ApplicationFilters from '@/components/dashboard/ApplicationFilters';
-import ApplicationCard from '@/components/dashboard/ApplicationCard';
 import JobDetailView from '@/components/dashboard/JobDetailView';
 import KanbanBoard from '@/components/dashboard/KanbanBoard';
-import { ApplicationListSkeleton } from '@/components/dashboard/Skeletons';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,7 +31,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
 import type { Application } from '@/types/application';
 import type { Session } from 'next-auth';
 
@@ -42,26 +38,15 @@ const LIMIT = 20;
 
 type DashboardClientProps = {
   session: Session | null;
-  forceView?: 'dashboard' | 'applications' | 'coach';
 };
 
 const JOB_QUERY_PARAM = 'job';
 
-export default function DashboardClient({ session, forceView }: DashboardClientProps) {
+export default function DashboardClient({ session }: DashboardClientProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const currentView = forceView
-    ? forceView === 'applications'
-      ? 'applications'
-      : forceView === 'coach'
-        ? 'coach'
-        : 'dashboard'
-    : pathname?.includes('/kanban')
-      ? 'applications'
-      : pathname?.includes('/coach')
-        ? 'coach'
-        : 'dashboard';
+  const currentView = pathname?.includes('/coach') ? 'coach' : 'applications';
 
   const [filters, setFilters] = useState({
     search: '',
@@ -74,13 +59,9 @@ export default function DashboardClient({ session, forceView }: DashboardClientP
   const [selectedApp, setSelectedApp] = useState<Application | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('details');
 
   const {
     data: applicationsData,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
     isLoading: applicationsLoading,
     refetch: refetchApplications,
   } = useInfiniteApplications(
@@ -276,10 +257,9 @@ export default function DashboardClient({ session, forceView }: DashboardClientP
                 totalCount={totalCount}
               />
 
-              {currentView === 'applications' ? (
-                <section className="mt-6" aria-label="Kanban board">
-                  <ErrorBoundary fallbackTitle="Failed to load Kanban board">
-                    <KanbanBoard
+              <section className="mt-6" aria-label="Kanban board">
+                <ErrorBoundary fallbackTitle="Failed to load Kanban board">
+                  <KanbanBoard
                     applications={applications}
                     isLoading={applicationsLoading}
                     onCardClick={handleOpenJob}
@@ -288,51 +268,8 @@ export default function DashboardClient({ session, forceView }: DashboardClientP
                       toast.success('Application status updated');
                     }}
                   />
-                  </ErrorBoundary>
-                </section>
-              ) : (
-                <section className="applications-section">
-                  {applicationsLoading && applications.length === 0 ? (
-                    <ApplicationListSkeleton count={4} />
-                  ) : applications.length === 0 ? (
-                    <div className="empty-state py-20 text-center opacity-70">
-                      <Briefcase size={48} className="mx-auto mb-4" />
-                      <h3>No applications found</h3>
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      {applications.map((app) => (
-                        <ErrorBoundary key={app.id} fallbackTitle="Error loading application">
-                          <ApplicationCard
-                            app={app}
-                            isExpanded={false}
-                            activeTab={activeTab}
-                            onToggleExpand={() => handleOpenJob(app.id)}
-                            onSetActiveTab={setActiveTab}
-                            onUpdateDetails={handleUpdateDetails}
-                            onAnalyzeJob={handleAnalyzeJob}
-                            onGenerateInsights={handleGenerateInsights}
-                            onShare={handleShare}
-                            onDelete={handleRequestDelete}
-                            isAnalyzing={analyzeJobMutation.isPending || companyInsightsMutation.isPending}
-                          />
-                        </ErrorBoundary>
-                      ))}
-                      {hasNextPage && !applicationsLoading && (
-                        <div className="mt-8 flex justify-center">
-                          <Button
-                            variant="secondary"
-                            onClick={() => fetchNextPage()}
-                            disabled={isFetchingNextPage}
-                          >
-                            {isFetchingNextPage ? 'Loading…' : 'Load More'}
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </section>
-              )}
+                </ErrorBoundary>
+              </section>
             </div>
 
             {upcomingInterviews.length > 0 && (

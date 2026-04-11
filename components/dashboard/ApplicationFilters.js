@@ -31,6 +31,7 @@ export default function ApplicationFilters({ filters, setFilters, companies = []
                     >
                         <option value="">All Status</option>
                         <option value="Applied">Applied</option>
+                        <option value="Prep">Prep</option>
                         <option value="Interview Scheduled">Interview</option>
                         <option value="Offer Received">Offer</option>
                         <option value="Rejected">Rejected</option>

@@ -8,6 +8,9 @@ const nextConfig = {
   turbopack: {
     root: __dirname,
   },
+  async redirects() {
+    return [{ source: '/dashboard', destination: '/kanban', permanent: true }];
+  },
 };
 
 export default nextConfig;

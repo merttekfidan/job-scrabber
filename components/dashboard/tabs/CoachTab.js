@@ -5,6 +5,7 @@ import { MatchScoreGauge, SkillGapBars } from '../VisualFrameworks';
 import HiringFrameworks from '../HiringFrameworks';
 import { SwotQuadrant } from '../shared/SwotQuadrant';
 import { parseJson } from '../utils';
+import { SkillGapDashboard } from '@/components/skills/SkillGapDashboard';
 
 export function CoachTab({ app, isAnalyzing, onAnalyzeJob, onUpdateDetails }) {
     if (!app.personalized_analysis) {
@@ -188,6 +189,15 @@ export function CoachTab({ app, isAnalyzing, onAnalyzeJob, onUpdateDetails }) {
                     onUpdateDetails(app.id, { personalized_analysis: { ...currentAnalysis, hiringFrameworks: updatedHF } });
                 }}
             />
+
+            {/* ── Skill Gap Analyzer ── */}
+            <div className="border-t border-white/5 pt-8">
+                <h3 className="text-lg font-bold text-white flex items-center gap-2 mb-4">
+                    <span className="text-xl">🗺️</span> Skill Gap Analyzer
+                </h3>
+                <p className="text-sm text-gray-500 mb-4">Aggregates required skills from all your active applications and maps gaps against your CV.</p>
+                <SkillGapDashboard />
+            </div>
         </div>
     );
 }

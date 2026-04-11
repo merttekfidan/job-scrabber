@@ -9,5 +9,5 @@ export const metadata = {
 export default async function CoachPage() {
   const session = await auth();
   if (!session?.user?.id) return null;
-  return <DashboardClient session={session} forceView="coach" />;
+  return <DashboardClient session={session} />;
 }

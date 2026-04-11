@@ -23,22 +23,95 @@ First, detect the industry/domain from the job posting. Then adapt your analysis
 - ENTERPRISE: Emphasize process, cross-functional collaboration, stakeholder management.
 If unsure, default to general business analysis but NEVER give cookie-cutter advice.`;
 
-export const JOB_EXTRACTION_PROMPT = (jobUrl: string, jobBoard: string, pageContent: string): string => `# ROLE
+// ─── Onboarding: CV Extraction ──────────────────────────────────────
+
+export const CV_EXTRACTION_PROMPT = (cvText: string): string => `# ROLE
+You are a Senior Talent Analyst. Extract structured professional data from this CV.
+
+# INPUT
+- CV_CONTENT: ${cvText}
+
+# EXTRACTION STEPS
+1. Extract a concise professional summary (2 sentences).
+2. List all hard skills and technologies mentioned.
+3. Build an experience timeline with company, title, duration, and key achievements.
+4. Extract education entries.
+5. Extract certifications if present.
+6. Determine experience level.
+7. Identify key achievements with quantified impact.
+
+# OUTPUT (STRICT JSON)
+{
+  "summary": "2-sentence professional identity statement",
+  "skills": ["all hard skills and technologies"],
+  "experience": [
+    {
+      "company": "Company name",
+      "title": "Job title",
+      "duration": "Start - End",
+      "achievements": ["Key achievement with numbers where possible"]
+    }
+  ],
+  "education": [
+    { "institution": "Name", "degree": "Degree", "year": "Year" }
+  ],
+  "certifications": ["Certification names"],
+  "experienceLevel": "Junior|Mid|Senior|Lead|Executive",
+  "keyAchievements": ["Top 3-5 quantified achievements across all roles"],
+  "industries": ["Industries the candidate has worked in"]
+}
+
+${ANTI_GENERIC}
+${JSON_RULES}`;
+
+// ─── Onboarding: Dynamic Follow-up Questions ─────────────────────────
+
+export const ONBOARDING_QUESTIONS_PROMPT = (extractedProfile: string): string => `# ROLE
+You are a Career Profile Interviewer. Based on the extracted CV data, generate
+targeted follow-up questions to build a richer professional profile.
+
+# INPUTS
+- EXTRACTED_PROFILE: ${extractedProfile}
+
+# RULES
+1. Generate 3-5 questions that fill gaps in the extracted data.
+2. Ask about career goals, preferred work environment, and deal-breakers.
+3. If skills seem dated, ask about recent learning.
+4. If experience is broad, ask about specialization preference.
+5. Each question should have a clear purpose for improving AI analysis.
+
+# OUTPUT (STRICT JSON)
+{
+  "questions": [
+    {
+      "id": "unique-id",
+      "question": "The follow-up question",
+      "purpose": "Why this question improves the profile",
+      "inputType": "text|select",
+      "options": ["Only if inputType is select"]
+    }
+  ]
+}
+
+${JSON_RULES}`;
+
+// ─── Job Extraction from Scraped Content ────────────────────────────
+
+export const JOB_EXTRACTION_PROMPT = (sourceUrl: string, scrapedContent: string): string => `# ROLE
 You are a Senior Career Intelligence Analyst. Extract and analyze job postings with surgical precision.
 
 # CONTEXT
-- SOURCE_URL: ${jobUrl}
-- JOB_BOARD: ${jobBoard}
-- RAW_CONTENT: ${pageContent}
+- SOURCE_URL: ${sourceUrl}
+- SCRAPED_CONTENT: ${scrapedContent}
 
 ${INDUSTRY_ROUTING}
 
 # EXTRACTION STEPS
 1. DATA SCRUBBING: Extract raw job details. Clean any scraping artifacts.
-2. SIGNAL ANALYSIS: Identify "Negative Signals" — hidden deal-breakers, unrealistic expectations, signs of dysfunction.
-3. TECH STACK: Catalog every tool/platform mentioned. For each, note WHY it matters for this role.
-4. SALARY INTELLIGENCE: If salary is not listed, calculate the estimated price comparing local wages vs global wages based on the job's location. Select the currency strictly based on the job's location if it's not provided in the posting. State confidence level.
-5. INTERVIEW PREP: Craft coaching notes that connect to specific requirements in the posting.
+2. SKILL TAXONOMY: Separate must-have from nice-to-have requirements.
+3. SALARY INTELLIGENCE: If salary is not listed, estimate based on role, level, and location. State confidence.
+4. COMPANY EXTRACTION: Extract all company details mentioned in the posting.
+5. TEAM CONTEXT: Any hints about team size, reporting structure, or hiring manager.
 
 # OUTPUT FORMAT (STRICT JSON)
 {
@@ -46,224 +119,284 @@ ${INDUSTRY_ROUTING}
   "company": "Company Name",
   "location": "City, Country or 'Global' if fully remote",
   "workMode": "Remote|Hybrid|Onsite",
-  "salary": "Listed range with currency, or 'Estimated: [Currency symbol][Amount] (confidence: high|medium|low)' if unlisted based on local vs global wages",
-  "requiredSkills": ["hard skills only, as listed in the posting, including both must-have and nice-to-have skills"],
-  "roleSummary": "Short summary of what this person will actually DO day-to-day, based on responsibilities listed",
-  "companyDescription": "Detailed info about the company from the posting",
-  "hiringManager": {
-    "name": "If mentioned or visible on the page",
-    "title": "Their job title",
-    "linkedinUrl": "If available"
-  },
-  "companyInfo": {
-    "industry": "Detected industry",
-    "size": "Company size if mentioned",  
-    "headquarters": "HQ location if mentioned",
-    "fundingStage": "If startup info is available"
-  },
-  "negativeSignals": ["Cite the SPECIFIC line that triggered each red flag, e.g. 'Requires 10+ years for a mid-level salary — possible undervaluation'"],
-  "techStackToStudy": ["tool: why it matters for THIS role specifically"],
-  "interviewPrepNotes": {
-    "theProblemTheyAreSolving": "1 sentence. What business pain does this hire fix? Cite evidence from the posting.",
-    "keyTalkingPoints": [
-      {
-        "point": "Specific strategy topic",
-        "explanation": "2-3 sentence talking point. Must reference a SPECIFIC requirement from the posting."
-      }
-    ],
-    "likelyInterviewQuestions": [
-      {
-        "category": "Role-Specific|Technical|Behavioral",
-        "question": "A realistic interview question SPECIFIC to this role. Derive from the posting's responsibilities and requirements — NOT generic HR questions.",
-        "hint": "1-2 sentence coaching hint on how to approach this answer. Reference specific skills or requirements from the posting."
-      }
-    ],
-    "questionsToAsk": [
-      {
-        "question": "A smart question for the candidate to ask the interviewer. Must reference something SPECIFIC in the posting.",
-        "reason": "Why this question matters — what it clarifies or reveals about the role/company",
-        "type": "Clarify Role|Probe Concern|Understand Culture"
-      }
-    ],
-    "redFlags": [
-      {
-        "flag": "The specific concern",
-        "evidence": "Quote the exact line or phrase from the posting that triggered this",
-        "whatToAsk": "A diplomatic question the candidate can ask to investigate this concern"
-      }
-    ]
-  },
-  "keyResponsibilities": ["Extracted directly from the posting"],
-  "formattedContent": "Clean Markdown version of the full job spec"
+  "salary": "Listed range with currency, or estimated with confidence level",
+  "mustHaveSkills": ["Skills explicitly required"],
+  "niceToHaveSkills": ["Skills listed as preferred or bonus"],
+  "responsibilities": ["Key responsibilities extracted from posting"],
+  "benefits": ["Listed benefits and perks"],
+  "teamInfo": "Team size, structure, or manager info if mentioned",
+  "techStack": ["Technologies and tools mentioned"],
+  "seniorityLevel": "Junior|Mid|Senior|Lead|Principal|Executive",
+  "companyDescription": "Company info from the posting",
+  "companySize": "If mentioned",
+  "industry": "Detected industry",
+  "applicationDeadline": "If mentioned",
+  "roleSummary": "2-3 sentence summary of what this person will actually DO day-to-day"
 }
 
 ${ANTI_GENERIC}
 ${JSON_RULES}`;
 
-export const CV_SWOT_ANALYSIS_PROMPT = (jobDescription: string, cvContent: string): string => `# ROLE
-You are a Technical Recruiter performing a precise Gap Analysis between a job description and a candidate's CV.
+// ─── Company Research ────────────────────────────────────────────────
+
+export const COMPANY_RESEARCH_PROMPT = (
+  companyName: string,
+  companyWebContent: string,
+  jobData: string
+): string => `# ROLE
+You are a Company Intelligence Analyst. Build a comprehensive company profile
+using the scraped company website content and job posting data.
 
 # INPUTS
-- JOB_DESCRIPTION: ${jobDescription}
-- CANDIDATE_CV: ${cvContent}
-
-${INDUSTRY_ROUTING}
-
-# ANALYSIS METHODOLOGY
-For each finding, you MUST cite evidence and keep it EXTREMELY brief (max 6-8 words):
-- STRENGTHS: Format "CV [skill] → JOB [req]". Example: "CV React → JOB Frontend"
-- WEAKNESSES: Format "Missing: [req]". Example: "Missing: AWS Experience"
-- OPPORTUNITIES: Format "Bridge [CV trait] to [req]". Example: "Bridge Python to Node"
-- THREATS: Format "Risk: [reason]". Example: "Risk: Overqualified for Junior"
-
-# OUTPUT (STRICT JSON)
-{
-  "strengths": ["Max 8 words per item. Punchy matching"],
-  "weaknesses": ["Max 8 words per item. Critical gaps"],
-  "opportunities": ["Max 8 words per item. Transferable skills"],
-  "threats": ["Max 8 words per item. Specific risks"],
-  "matchScore": 0-100,
-  "summary": "1 sentence executive summary: strongest match area and biggest gap."
-}
-
-${ANTI_GENERIC}
-${JSON_RULES}`;
-
-export const PERSONALIZED_PREP_PROMPT = (cvSummary: string, jobDetails: string): string => `# ROLE
-You are an Elite Interview Coach. Provide the candidate with a precise "Bridge Strategy" to win THIS specific role.
-
-# INPUTS
-- CV_ANALYSIS: ${cvSummary}
-- JOB_DETAILS: ${jobDetails}
-
-# METHODOLOGY
-1. THE BRIDGE: Map 3 specific CV achievements to 3 specific job requirements. Show the direct connection. Keep it punchy.
-2. GAP DEFENSE: For each weakness, provide a specific counter-narrative using transferable experience.
-3. TALKING POINTS: Each point must reference something from BOTH the CV and the job description. Max 8 words per point.
-4. INFOGRAPHIC: Generate a conceptual 3-step action plan visualization.
-
-# OUTPUT (STRICT JSON)
-{
-  "keyTalkingPoints": [
-    {
-      "point": "Short, punchy topic (max 8 words)",
-      "explanation": "1 concise sentence linking CV achievement to JOB requirement."
-    }
-  ],
-  "questionsToAsk": ["Short question referencing specific job constraints."],
-  "tailoredAdvice": "1 sentence. Direct, actionable coaching move based on candidate's unique angle.",
-  "infographic": {
-    "title": "Strategy flow visualization title",
-    "steps": [
-      {
-        "icon": "A single suitable emoji",
-        "label": "2-3 word step name",
-        "detail": "1 short sentence explaining the step"
-      }
-    ]
-  }
-}
-
-${ANTI_GENERIC}
-${JSON_RULES}`;
-
-export const COMPANY_INSIGHTS_PROMPT = (company: string, jobDescription: string, cvContent: string): string => `# ROLE
-You are a Company Intelligence Analyst and Interview Strategist.
-
-# INPUTS
-- COMPANY: ${company}
-- JOB_DESCRIPTION: ${jobDescription}
-- CANDIDATE_CV: ${cvContent}
-
-${INDUSTRY_ROUTING}
+- COMPANY_NAME: ${companyName}
+- COMPANY_WEBSITE_CONTENT: ${companyWebContent}
+- JOB_DATA: ${jobData}
 
 # ANALYSIS
-1. STRATEGIC FOCUS: Based ONLY on what's stated in the job description, what is this company focused on right now? Cite specific lines.
-2. CULTURE SIGNALS: Extract culture indicators from the job description language (e.g., "fast-paced" = high urgency, "collaborative" = team-heavy). Rate each signal 1-5. Provide a detailed analysis of what this means for the candidate.
-3. SALARY CONTEXT: Based on title and industry, calculate the estimated price comparing local wages vs global wages based on the job's location. Select the correct currency based on the location.
-4. HIRING URGENCY: Detect urgency signals — "immediately", "ASAP", short posting duration, specific start dates.
-5. REMOTE WORK POLICY: Analyze the posting for remote/hybrid/onsite signals and flexibility cues.
-6. COMPETITOR CONTEXT: Based on the industry and role, who are likely competitors for this talent? What makes this company different?
+1. Company overview: What does this company do? What's their product/service?
+2. Culture signals: Extract culture indicators from website copy and job posting language.
+3. Tech stack: What technologies does this company use?
+4. Size and stage: Estimate company size and funding stage if possible.
+5. Recent news: Any recent announcements, product launches, or milestones mentioned.
+6. Leadership: Any leadership team info from the website.
 
 # OUTPUT (STRICT JSON)
 {
-  "strategicFocus": "2-3 sentences citing evidence from the posting",
-  "cultureFit": "Keywords + 1 sentence explanation, derived from posting language",
-  "cultureSignals": [
-    { "signal": "Culture keyword", "rating": 1-5, "evidence": "Specific quote from posting", "implication": "Detailed explanation of what this implies for daily work and expectations" }
+  "overview": "2-3 sentence company description",
+  "product": "What they build/sell",
+  "culture": {
+    "values": ["Stated or inferred company values"],
+    "workStyle": "Description of work environment",
+    "signals": [
+      { "signal": "Culture keyword", "evidence": "Where this was found", "implication": "What it means for employees" }
+    ]
+  },
+  "techStack": ["Technologies used by the company"],
+  "size": "Estimated or stated company size",
+  "stage": "Startup|Growth|Enterprise|Public",
+  "founded": "Year if found",
+  "headquarters": "Location",
+  "recentNews": ["Recent announcements or milestones"],
+  "leadership": [
+    { "name": "Leader name", "title": "Their title" }
   ],
-  "salaryContext": {
-    "range": "Estimated range in local currency, e.g. '$80K-$120K' or '€4,500-€6,000/mo'",
-    "confidence": "high|medium|low",
-    "source": "Brief reason, e.g. 'Based on EU market rates for mid-level marketing'"
+  "glassdoorSummary": "Any employee review signals detected",
+  "competitivePosition": "Where they sit in their market"
+}
+
+${ANTI_GENERIC}
+${JSON_RULES}`;
+
+// ─── Intelligence Report Generation ─────────────────────────────────
+
+export const INTELLIGENCE_REPORT_PROMPT = (
+  userProfile: string,
+  jobData: string,
+  companyData: string
+): string => `# ROLE
+You are an Elite Interview Intelligence Analyst. Generate a comprehensive
+interview preparation report by cross-referencing the candidate's profile
+with the job requirements and company intelligence.
+
+# INPUTS
+- CANDIDATE_PROFILE: ${userProfile}
+- JOB_DATA: ${jobData}
+- COMPANY_INTELLIGENCE: ${companyData}
+
+${INDUSTRY_ROUTING}
+
+# REPORT STRUCTURE
+Generate all 7 sections with deep, specific analysis.
+
+# OUTPUT (STRICT JSON)
+{
+  "companyIntelligence": {
+    "overview": "3-4 sentence company deep dive",
+    "culture": "Culture analysis with specific signals",
+    "recentDevelopments": ["Notable recent events or changes"],
+    "techEnvironment": "Technology landscape and tools",
+    "size": "Company size and growth trajectory",
+    "whatTheyValueMost": "The #1 thing this company looks for based on evidence"
   },
-  "hiringUrgency": {
-    "level": "High|Medium|Low",
-    "signals": ["Specific phrases from the posting that indicate urgency"],
-    "recommendation": "How the candidate should adjust their pace based on this"
+  "roleAnalysis": {
+    "summary": "What this person will actually do day-to-day",
+    "mustHaveSkills": [
+      { "skill": "Skill name", "importance": "Critical|High|Medium", "candidateHas": true }
+    ],
+    "niceToHaveSkills": [
+      { "skill": "Skill name", "candidateHas": true }
+    ],
+    "seniorityExpectation": "What level of autonomy and leadership is expected",
+    "growthPath": "Where this role leads in 1-2 years"
   },
-  "remotePolicy": {
-    "type": "Remote|Hybrid|Onsite|Unclear",
-    "details": "What the posting says about work arrangement",
-    "flexibility": "Any flexibility cues detected"
+  "prepStrategy": {
+    "positioning": "1-2 sentences: how the candidate should position themselves",
+    "relevantExperience": [
+      { "experience": "Specific CV experience", "mapsTo": "Specific job requirement", "talkingPoint": "How to frame it" }
+    ],
+    "gapsToAddress": [
+      { "gap": "Missing skill or experience", "mitigation": "How to handle this in the interview" }
+    ],
+    "storyBank": [
+      { "theme": "Achievement type", "story": "Brief STAR outline from candidate's background", "bestFor": "Which interview question this answers" }
+    ]
   },
-  "competitorContext": {
-    "likelyCompetitors": ["2-3 companies competing for the same talent"],
-    "differentiator": "What makes this company stand out based on the posting"
+  "expectedQuestions": [
+    {
+      "question": "Realistic interview question specific to THIS role",
+      "category": "Technical|Behavioral|Situational|Role-Specific",
+      "difficulty": "Easy|Medium|Hard",
+      "suggestedAngle": "How to approach this based on candidate's experience",
+      "keyPointsToHit": ["Specific things to mention in the answer"]
+    }
+  ],
+  "talkingPoints": [
+    {
+      "point": "Key talking point (max 10 words)",
+      "context": "When to bring this up in the conversation",
+      "evidence": "The CV experience that supports this",
+      "impact": "Why this matters to the interviewer"
+    }
+  ],
+  "redFlags": [
+    {
+      "flag": "Potential concern about the role or company",
+      "evidence": "What triggered this red flag",
+      "questionToAsk": "A diplomatic question to investigate this",
+      "dealBreakerLevel": "High|Medium|Low"
+    }
+  ],
+  "salaryIntelligence": {
+    "estimatedRange": { "low": "amount", "mid": "amount", "high": "amount", "currency": "symbol" },
+    "confidence": "High|Medium|Low",
+    "factors": ["What drives the estimate up or down"],
+    "negotiationLeverage": ["Candidate's leverage points for negotiation"],
+    "marketContext": "How this offer compares to the broader market"
   }
 }
 
 ${ANTI_GENERIC}
 ${JSON_RULES}`;
 
-export interface InterviewPrepJobContext {
-  jobTitle?: string;
-  company?: string;
-  requiredSkills?: string[];
-  roleSummary?: string;
-}
+// ─── Mock Interview (Phase 8 — kept, updated for Claude) ────────────
 
-export const INTERVIEW_PREP_CHAT_PROMPT = (jobContext: InterviewPrepJobContext): string => `You are a Senior Interview Coach. Help the candidate prepare for their interview.
+export const MOCK_START_SESSION_PROMPT = (
+  jobDescription: string,
+  roundType: 'Screening' | 'Technical' | 'Behavioral' | 'Final',
+  requiredSkills: string[],
+  companyInfo: string,
+  cvContent: string,
+  difficulty: 'Easy' | 'Medium' | 'Hard'
+): string => `# ROLE
+You are an experienced Hiring Manager conducting a realistic
+${roundType} interview for this specific role. Stay in character throughout.
 
-# ROLE CONTEXT
-- Job Title: ${jobContext.jobTitle ?? 'N/A'}
-- Company: ${jobContext.company ?? 'N/A'}
-- Key Required Skills: ${jobContext.requiredSkills?.join(', ') || 'N/A'}
-- Role Summary: ${jobContext.roleSummary || 'N/A'}
+# CONTEXT
+- JOB_DESCRIPTION: ${jobDescription}
+- ROUND_TYPE: ${roundType}
+- REQUIRED_SKILLS: ${requiredSkills.join(', ')}
+- COMPANY: ${companyInfo}
+- CANDIDATE_CV: ${cvContent}
+- DIFFICULTY: ${difficulty}
 
-# COACHING RULES
-- Every piece of advice MUST reference a specific skill or requirement from this role
-- Replace generic tips with tactical responses tied to this company/position
-- When suggesting answers, frame them using STAR method (Situation, Task, Action, Result)
-- Be direct, specific, and authoritative — not cheerful or vague
-
-USER QUERY:`;
-
-export const CV_ANALYSIS_PROMPT = (cvText: string): string => `# ROLE
-You are a Senior Talent Analyst. Deeply analyze this CV to surface strategic positioning insights.
-
-# INPUT
-- CV_CONTENT: ${cvText}
-
-# ANALYSIS METHODOLOGY
-1. PROFESSIONAL PROFILE: Extract a 2-sentence identity statement highlighting unique value.
-2. SWOT: Based ONLY on what's in the CV. For weaknesses, identify gaps relative to current market demands in their field.
-3. MARKET FIT: Where does this person compete strongest? Be specific about roles, industries, and company sizes.
-4. COACHING: 3-5 specific, actionable moves. Each must reference something FROM the CV.
+# INTERVIEW DESIGN
+1. Create a realistic interview flow of 5-7 questions for a ${roundType} round.
+2. Questions MUST be derived from the actual job description and required skills.
+3. Include at least 1 follow-up question that probes deeper based on expected answers.
+4. Difficulty ${difficulty}: Easy = straightforward, Medium = requires depth, Hard = tricky scenarios.
+5. Plan natural transitions between questions.
 
 # OUTPUT (STRICT JSON)
 {
-  "summary": "2-sentence professional identity statement focusing on unique value proposition",
-  "swot": {
-    "strengths": ["Cite specific CV evidence for each"],
-    "weaknesses": ["Specific gaps relative to market demands"],
-    "opportunities": ["Specific growth paths based on existing skills"],
-    "threats": ["Career risks based on current trajectory"]
+  "interviewPlan": {
+    "openingStatement": "How the interviewer would naturally start the conversation",
+    "questions": [
+      {
+        "id": 1,
+        "question": "The interview question",
+        "type": "Technical|Behavioral|Situational|Role-Specific",
+        "evaluates": "What competency this assesses",
+        "followUp": "A probing follow-up if the answer is vague",
+        "idealAnswerSignals": ["What a strong answer would include"]
+      }
+    ],
+    "closingPrompt": "Natural closing: 'Do you have any questions for me?'"
   },
-  "marketFit": "Specific analysis: best-fit roles, industries, company types/sizes",
-  "coachingAdvice": ["3-5 actionable tips, each referencing specific CV content"],
-  "topSkills": ["top 5 hard skills extracted from the CV"],
-  "experienceLevel": "Junior|Mid|Senior|Lead|Executive"
+  "firstQuestion": "The opening statement + first question"
+}
+
+${JSON_RULES}`;
+
+export const MOCK_EVALUATE_ANSWER_PROMPT = (
+  question: string,
+  userAnswer: string,
+  idealSignals: string[],
+  questionType: string
+): string => `# ROLE
+You are evaluating an interview answer as a Hiring Manager.
+
+# INPUTS
+- QUESTION: ${question}
+- CANDIDATE_ANSWER: ${userAnswer}
+- IDEAL_SIGNALS: ${idealSignals.join('; ')}
+- QUESTION_TYPE: ${questionType}
+
+# SCORING (1-5 each)
+1. Relevance: Did they answer the actual question?
+2. Specificity: Concrete examples with details?
+3. Structure: STAR/logical flow?
+4. Impact: Quantifiable results?
+
+# OUTPUT (STRICT JSON)
+{
+  "scores": { "relevance": 0, "specificity": 0, "structure": 0, "impact": 0, "overall": 0 },
+  "signalsCovered": ["Which ideal signals were addressed"],
+  "signalsMissed": ["Which ideal signals were not addressed"],
+  "strengthMoment": "The strongest part of the answer",
+  "improvementArea": "The #1 thing that would make this answer stronger",
+  "nextQuestion": "The follow-up or next question to ask"
+}
+
+${JSON_RULES}`;
+
+export const MOCK_SESSION_DEBRIEF_PROMPT = (
+  allQuestions: string,
+  allAnswers: string,
+  allEvaluations: string,
+  roundType: string,
+  jobDescription: string
+): string => `# ROLE
+You are now switching from Interviewer to Coach. Provide a comprehensive debrief.
+
+# INPUTS
+- ALL_QUESTIONS_AND_ANSWERS: ${allQuestions}
+- EVALUATION_DATA: ${allEvaluations}
+- ROUND_TYPE: ${roundType}
+- JOB_DESCRIPTION: ${jobDescription}
+
+# OUTPUT (STRICT JSON)
+{
+  "overallScore": 0,
+  "grade": "A+|A|B+|B|C+|C|D|F",
+  "hiringDecision": "Strong Hire|Hire|Lean Hire|Lean No Hire|No Hire",
+  "summary": "2-3 sentence executive summary of performance",
+  "categoryScores": { "technical": 0, "behavioral": 0, "communication": 0, "roleKnowledge": 0 },
+  "topStrengths": [
+    { "strength": "What they did well", "evidence": "Specific quote from their answers" }
+  ],
+  "topImprovements": [
+    { "area": "What to improve", "howToFix": "Specific advice", "practiceExercise": "Concrete exercise" }
+  ],
+  "answerByAnswerFeedback": [
+    {
+      "questionNumber": 1,
+      "score": 0,
+      "verdict": "Strong|Good|Needs Work|Weak",
+      "feedback": "Specific feedback",
+      "rewriteSuggestion": "How to restructure this answer"
+    }
+  ],
+  "nextSessionFocus": "The #1 area to focus on in the next mock session"
 }
 
 ${ANTI_GENERIC}

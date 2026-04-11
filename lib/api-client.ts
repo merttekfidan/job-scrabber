@@ -98,6 +98,10 @@ export const apiClient = {
     return request<T>('PUT', path, { body, ...options });
   },
 
+  patch<T>(path: string, body?: unknown, options?: Record<string, unknown>): Promise<T> {
+    return request<T>('PATCH', path, { body, ...options });
+  },
+
   delete<T>(path: string, options?: Record<string, unknown>): Promise<T> {
     return request<T>('DELETE', path, options);
   },

@@ -2,15 +2,13 @@
 
 import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import {
   RefreshCw,
   Download,
   LogOut,
   Settings,
-  Sparkles,
-  LayoutDashboard,
-  LayoutList,
+  Kanban,
+  Brain,
 } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import { cn } from '@/lib/utils';
@@ -23,9 +21,8 @@ type NavItem = {
 };
 
 const NAV_ITEMS: NavItem[] = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
-  { id: 'applications', label: 'Kanban Board', icon: LayoutList, href: '/kanban' },
-  { id: 'coach', label: 'Coach', icon: Sparkles, href: '/coach' },
+  { id: 'applications', label: 'Kanban', icon: Kanban, href: '/kanban' },
+  { id: 'coach', label: 'Coach', icon: Brain, href: '/coach' },
 ];
 
 type DashboardHeaderProps = {
@@ -72,11 +69,10 @@ export const DashboardHeader = ({
               'flex items-center gap-2 rounded-md px-4 py-1.5 text-base font-medium transition-all duration-200',
               isActive ? 'text-white shadow-lg' : 'text-gray-500 hover:text-gray-200'
             );
+            const bgColor = '#667eea';
+            const shadowColor = 'rgba(102,126,234,0.5)';
             const style = isActive
-              ? {
-                  background: item.id === 'coach' ? '#7c3aed' : '#667eea',
-                  boxShadow: `0 0 12px -2px ${item.id === 'coach' ? 'rgba(124,58,237,0.5)' : 'rgba(102,126,234,0.5)'}`,
-                }
+              ? { background: bgColor, boxShadow: `0 0 12px -2px ${shadowColor}` }
               : {};
             return (
               <Link

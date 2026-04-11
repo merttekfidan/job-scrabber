@@ -10,35 +10,11 @@ export const SaveApplicationSchema = z.object({
   salary: z.string().max(200).optional().nullable(),
   companyUrl: z.string().url().max(2000).optional().nullable().or(z.literal('')),
   status: z.string().max(50).optional().default('Applied'),
-  keyResponsibilities: z.array(z.string()).optional().default([]),
-  requiredSkills: z.array(z.string()).optional().default([]),
-  companyDescription: z.string().max(50000).optional().nullable(),
-  originalContent: z.string().max(200000).optional().nullable(),
-  formattedContent: z.string().max(200000).optional().nullable(),
-  negativeSignals: z.array(z.string()).optional().default([]),
-  roleSummary: z.string().max(5000).optional().nullable(),
-  interviewStages: z.array(z.any()).optional().default([]),
-  hiringManager: z.any().optional().nullable(),
-  companyInfo: z.any().optional().nullable(),
-  interviewPrepNotes: z
-    .object({
-      keyTalkingPoints: z.array(z.any()).optional().default([]),
-      questionsToAsk: z.array(z.any()).optional().default([]),
-      potentialRedFlags: z.array(z.any()).optional().default([]),
-      redFlags: z.array(z.any()).optional().default([]),
-      likelyInterviewQuestions: z.array(z.any()).optional().default([]),
-      techStackToStudy: z.array(z.any()).optional().default([]),
-    })
-    .optional()
-    .default({
-      keyTalkingPoints: [],
-      questionsToAsk: [],
-      potentialRedFlags: [],
-      redFlags: [],
-      likelyInterviewQuestions: [],
-      techStackToStudy: [],
-    }),
-  metadata: z.record(z.string(), z.any()).optional().default({}),
+  sourceUrl: z.string().url().max(2000).optional().nullable(),
+  notes: z.string().max(10000).optional().nullable(),
+  interviewDate: z.string().optional().nullable(),
+  jobData: z.record(z.string(), z.any()).optional().default({}),
+  companyData: z.record(z.string(), z.any()).optional().default({}),
 });
 
 export const UpdateDetailsSchema = z.object({
@@ -46,39 +22,68 @@ export const UpdateDetailsSchema = z.object({
   updates: z.record(z.string(), z.unknown()),
 });
 
-export const ExtensionProcessSchema = z.object({
-  url: z.string().url('Invalid URL'),
-  pageContent: z.string().min(10, 'Page content too short').max(200000, 'Page content too large'),
-  jobBoard: z.string().optional().default('Unknown'),
-  pageTitle: z.string().optional().default(''),
-});
-
-export const AIInsightsSchema = z.object({
-  applicationId: z.number().int().positive(),
-  action: z.enum(['analyze-company', 'generate-questions', 'compare-skills', 'overall-strategy']),
-});
-
 export const UpdateStatusSchema = z.object({
   id: z.number().int().positive(),
   status: z.string().max(50),
 });
 
-export const AnalyzeJobSchema = z.object({
+// ─── Onboarding Schemas ──────────────────────────────────────
+
+export const OnboardingUploadCvSchema = z.object({
+  filename: z.string().min(1),
+  rawText: z.string().min(10, 'CV content too short'),
+});
+
+export const OnboardingAnswersSchema = z.object({
+  answers: z.array(
+    z.object({
+      questionId: z.string(),
+      question: z.string(),
+      answer: z.string().min(1),
+    })
+  ),
+});
+
+// ─── Job Scraping Schemas ───────────────────────────────────
+
+export const JobScrapeSchema = z.object({
+  url: z.string().url('Invalid URL').max(2000),
+});
+
+export const JobResearchSchema = z.object({
+  companyName: z.string().min(1).max(255),
+  companyUrl: z.string().url().max(2000).optional().nullable(),
+  jobData: z.record(z.string(), z.any()).optional().default({}),
+});
+
+// ─── Report Schemas ─────────────────────────────────────────
+
+export const GenerateReportSchema = z.object({
   applicationId: z.number().int().positive(),
 });
 
-export const CompanyInsightsSchema = z.object({
+// ─── Mock Interview Schemas (kept from Phase 8) ─────────────
+
+export const MockStartSchema = z.object({
   applicationId: z.number().int().positive(),
+  roundType: z.enum(['Screening', 'Technical', 'Behavioral', 'Final']),
+  difficulty: z.enum(['Easy', 'Medium', 'Hard']).default('Medium'),
+});
+
+export const MockSubmitAnswerSchema = z.object({
+  sessionId: z.number().int().positive(),
+  questionIndex: z.number().int().min(0),
+  userAnswer: z.string().min(1).max(10000),
+});
+
+export const MockEndSessionSchema = z.object({
+  sessionId: z.number().int().positive(),
 });
 
 type ValidateSuccess<T> = { success: true; data: T };
 type ValidateFailure = { success: false; error: string; status: 400 };
 
-/**
- * Validate request body against a Zod schema.
- * Returns { success: true, data } or { success: false, error, status: 400 }
- */
-export function validateBody<T>(schema: ZodSchema<T>, body: unknown): ValidateSuccess<T> | ValidateFailure {
+export const validateBody = <T>(schema: ZodSchema<T>, body: unknown): ValidateSuccess<T> | ValidateFailure => {
   const result = schema.safeParse(body);
   if (!result.success) {
     const errors = result.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`);
@@ -89,4 +94,4 @@ export function validateBody<T>(schema: ZodSchema<T>, body: unknown): ValidateSu
     };
   }
   return { success: true, data: result.data };
-}
+};

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Briefcase, Calendar, CheckCircle, Search, Sparkles } from 'lucide-react';
+import { Briefcase, BookOpen, Calendar, CheckCircle, Search, Sparkles } from 'lucide-react';
 import { getStatusClass, formatDate, formatSalary } from './utils';
 import { ApplicationListSkeleton } from './Skeletons';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
@@ -22,7 +22,7 @@ export default function KanbanBoard({
     if (isLoading && applications.length === 0) {
         return (
             <div className="flex gap-6 overflow-x-auto pb-6">
-                {[1, 2, 3].map(i => (
+                {[1, 2, 3, 4].map(i => (
                     <div key={i} className="min-w-[300px] w-[300px] space-y-4">
                         <div className="h-8 bg-gray-800/50 rounded-lg animate-pulse"></div>
                         <ApplicationListSkeleton count={2} />
@@ -44,6 +44,7 @@ export default function KanbanBoard({
 
     const COLUMNS = [
         { id: 'Applied', title: 'Applied', icon: Briefcase, color: 'text-blue-400', bg: 'bg-blue-500/10' },
+        { id: 'Prep', title: 'Prep', icon: BookOpen, color: 'text-violet-400', bg: 'bg-violet-500/10' },
         { id: 'Interview Scheduled', title: 'Interviewing', icon: Calendar, color: 'text-amber-400', bg: 'bg-amber-500/10' },
         { id: 'Offer Received', title: 'Offer Final', icon: Sparkles, color: 'text-emerald-400', bg: 'bg-emerald-500/10', isClosed: true }
     ];
@@ -53,7 +54,7 @@ export default function KanbanBoard({
         // For now, mapping non-standard to 'Applied' to keep them visible, 
         // OR we can just omit 'Rejected'/'Withdrawn' from this view if they're considered "done".
         // Let's keep them in Applied if they don't match our 3 main columns for simplicity of DND.
-        if (['Applied', 'Interview Scheduled', 'Offer Received'].includes(app.status)) {
+        if (['Applied', 'Prep', 'Interview Scheduled', 'Offer Received'].includes(app.status)) {
             return app.status;
         }
         return 'Applied'; // fallback

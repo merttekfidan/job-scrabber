@@ -13,4 +13,4 @@ export { useCompanies } from './use-companies';
 export type { CompanyRow } from './use-companies';
 export { useProfile, useUpdateProfileSettings } from './use-profile';
 export { useUploadCv, useAnalyzeJob } from './use-cv';
-export { useCompanyInsights, useHiringFrameworks } from './use-ai';
+export { useStartMockSession, useSubmitMockAnswer, useEndMockSession, useMockHistory } from './use-mock';

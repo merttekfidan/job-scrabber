@@ -79,10 +79,10 @@ export default function ApplicationDetailClient({
           <div className="flex items-center gap-4">
             {!isShared ? (
               <Link
-                href="/dashboard"
+                href="/kanban"
                 className="flex items-center gap-2 text-gray-400 transition-colors hover:text-white"
               >
-                <ArrowLeft size={18} /> Back to Dashboard
+                <ArrowLeft size={18} /> Back to Kanban
               </Link>
             ) : (
               <div className="flex items-center gap-2 font-bold tracking-tight text-white">

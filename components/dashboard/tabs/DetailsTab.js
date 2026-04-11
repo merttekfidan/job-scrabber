@@ -1,6 +1,7 @@
 import React from 'react';
 import { Search, AlertTriangle } from 'lucide-react';
 import { parseJson } from '../utils';
+import { NegotiationPanel } from '@/components/negotiation/NegotiationPanel';
 
 export function DetailsTab({ app, onUpdateDetails, onDelete }) {
     return (
@@ -42,6 +43,7 @@ export function DetailsTab({ app, onUpdateDetails, onDelete }) {
                         onChange={(e) => onUpdateDetails(app.id, { status: e.target.value })}
                     >
                         <option value="Applied">Applied</option>
+                        <option value="Prep">Prep</option>
                         <option value="Interview Scheduled">Interview Scheduled</option>
                         <option value="Offer Received">Offer Received</option>
                         <option value="Rejected">Rejected</option>
@@ -80,6 +82,16 @@ export function DetailsTab({ app, onUpdateDetails, onDelete }) {
                     )}
                 </div>
             </div>
+
+            {/* ── Offer & Negotiation (shows when Offer Received) ── */}
+            {(app.status === 'Offer Received' || app.status === 'Accepted') && (
+                <div className="border-t border-white/5 pt-4">
+                    <h4 className="text-sm font-bold text-emerald-400 mb-3 flex items-center gap-2">
+                        💰 Offer & Negotiation
+                    </h4>
+                    <NegotiationPanel applicationId={app.id} />
+                </div>
+            )}
         </div>
     );
 }

@@ -74,6 +74,7 @@ export const ApplicationHeader = ({
                 disabled={isSaving}
               >
                 <option value="Applied">Applied</option>
+                <option value="Prep">Prep</option>
                 <option value="Interview Scheduled">Interview Scheduled</option>
                 <option value="Offer Received">Offer Received</option>
                 <option value="Rejected">Rejected</option>
